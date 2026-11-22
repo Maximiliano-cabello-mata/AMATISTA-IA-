@@ -49,3 +49,13 @@ corridas:
       json: [20, 20]
       cita: [20, 20]
       coherente: [14, 20]
+  - id: v3-qwen3
+    revisor: 3
+    criterios: false
+    modelo: "qwen3:8b"
+    fecha: 2026-11-22
+    muestra: la misma (canon v3, 119 fragmentos, razona antes de decidir)
+    senales:
+      json: [20, 20]
+      cita: [20, 20]
+      coherente: [18, 20]

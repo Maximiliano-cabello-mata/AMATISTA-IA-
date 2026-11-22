@@ -416,3 +416,103 @@ supabase bge-m3@790764642607 texto=1.0 vector=1.0: recall@1 0.80 · recall@3 0.9
 | 18 | `Motion Blur` | 4.5 | P6 | aceptar · ninguna · P6 · 49.1s (2702/115) · ✓ | aceptar · ninguna · P6 · 139.2s (3650/114) · ✓ |
 | 19 | `Ocean Modifier` | 5.2 | P6 P5 P1 | revision · relevancia · P6 · 119.7s (3008/103) · ✗ | revision · valor · P6 · 164.2s (3956/125) · ✓ |
 | 20 | `Mesh to Curve Node` | 5.2 | P6 | aceptar · ninguna · P6 · 77.3s (2440/111) · ✓ | aceptar · ninguna · P6 · 103.2s (3388/112) · ✓ |
+
+---
+
+## Corrida 6 · Versión 3 del revisor (`--nombre v3`, 119 fragmentos, razona antes de decidir)
+
+### Paso 14 · Resumen exacto (`revisor: 3`)
+
+```json
+{
+  "revisor": 3,
+  "criterios": false,
+  "modelo": "qwen3:8b",
+  "palabras_por_documento": 450,
+  "cuantos": 3,
+  "umbral": null,
+  "canon_fragmentos": 119,
+  "fecha": "2026-11-22 12:47",
+  "documentos": 20,
+  "json_valido": 1.0,
+  "pregunta_valida": 1.0,
+  "cita_valida": 1.0,
+  "cita_embudo": 0.7,
+  "coherente": 0.9,
+  "motivo_primero": 1.0,
+  "coincide_pregunta_embudo": 0.25,
+  "decisiones": {
+    "aceptar": 1,
+    "revision": 11,
+    "rechazar": 8
+  },
+  "decisiones_efectivas": {
+    "aceptar": 1,
+    "revision": 9,
+    "rechazar": 8,
+    "persona": 2
+  },
+  "etapas": {
+    "relevancia": 15,
+    "valor": 3,
+    "ninguna": 2
+  },
+  "no_se": 0,
+  "segundos_por_documento": {
+    "mediana": 116.18949450000218,
+    "maximo": 241.70526889999746
+  },
+  "tokens_por_segundo": {
+    "genera": 2.652759657373647,
+    "lee": 42.03604055898492
+  },
+  "tokens_por_documento": {
+    "lee": 2676.5,
+    "genera": 146.5
+  },
+  "horas_estimadas_para_1033": 33.33992994958396
+}
+```
+
+### Verificación de las predicciones H11–H16 (Revisor v3)
+
+| # | Predicción | p | Resultado medido | Cumple |
+|---|---|---:|---|---|
+| **H11** | `motivo_primero = 1.00` (Ollama respeta el orden del esquema) | 0.85 | **`1.00`** (20/20 empiezan por `motivo`) | ✓ |
+| **H12** | `coherente >= 0.85` (v2: 0.55; `canon3`: 0.50) | 0.60 | **`0.90`** (18/20 coherentes; +40 pp frente a `canon3`) | ✓ |
+| **H13** | Manda a revisión (decisión del modelo) 11 o menos de 20 (v2: 14) | 0.60 | **`11` en `revision`** (`9` en `decisiones_efectivas`, más `2` en `persona` y `8` en `rechazar`) | ✓ |
+| **H14** | Los 6 que v2 aceptó siguen aceptados | 0.70 | **Solo 1 sigue en `aceptar`** (`Motion Blur`); de los otros 5, 3 pasaron a `revision` (`Displace Hair Curves`, `Set ID Node`, `UV Project Modifier`, `Mesh to Curve Node`) y 1 a `rechazar` (`Is Edge Manifold Node`) | ✗ |
+| **H15** | `relevancia` es la etapa en menos de la mitad de las revisiones (v2: 14 de 14) | 0.60 | **`9 de 11` revisiones tienen `relevancia`** (`1` tiene `valor` y `1` tiene `ninguna`; en toda la muestra, `etapas: {"relevancia": 15, "valor": 3, "ninguna": 2}`) | ✗ |
+| **H16** | Mediana de tokens generados <= 140 (el motivo puede ser más largo) | 0.65 | **`146.5` tokens generados** (mediana; tiempo mediano `116.19 s`, `33.34 h` para 1,033 docs) | ✗ |
+
+### Hallazgos de la Corrida 6 (`revisor: 3` sin `--criterios`)
+
+1. **Razonar antes de decidir corrigió las contradicciones (`coherente: 0.50 → 0.90`):**
+   - Al emitir primero `motivo → pregunta → cita → etapa → decision`, las incoherencias bajaron de 10/20 en `canon3` (9/20 en `v2`) a solo **2/20** (`Limitations` y `Startup 3.6`, ambos derivados automáticamente a `decision_efectiva: persona`).
+2. **Sin `--criterios`, el modelo cae en los Errores Conocidos E2 y E3:**
+   - Al tener que alinear la decisión final con su propio `motivo` y no tener los criterios `C2`/`E2`/`E3` en la hoja fija, el modelo evalúa las páginas de referencia del manual como si no tuvieran versión (ignorando que la versión `5.2`/`4.5`/`3.6` viene en la URL) o exige que tengan mediciones de hardware/FPS para pasar la etapa de `valor` (por ejemplo en `Select Sharp Edges` y `Mesh to Curve Node`, donde asigna `P6` pero marca `etapa: valor`), mandando 8 páginas a `rechazar` y 11 a `revision`.
+
+### Tabla documento por documento (`canon3` v2 vs `v3` sobre los mismos 119 fragmentos)
+
+| # | Título | Ver | Embudo | `canon3` v2 (dec · etapa · preg · s · coh) | `v3` (dec → efectiva · etapa · preg · s · lee/gen · coh) |
+|---:|---|---|---|---|---|
+| 1 | `Limitations` | 5.2 | P6 P1 P2 | revision · relevancia · P6 · 140.0s · ✗ | revision · relevancia · P6 · 241.7s (3057/167) · ✗ |
+| 2 | `Group` | 5.2 | P6 P1 | revision · relevancia · P6 · 107.6s · ✗ | revision · relevancia · ninguna · 119.3s (2522/150) · ✓ |
+| 3 | `Startup ` | 3.6 | P2 | revision · relevancia · P2 · 101.0s · ✗ | revision · ninguna · P2 · 99.5s (2449/146) · ✗ |
+| 4 | `Is Edge Manifold Node` | 5.2 | P6 | aceptar · ninguna · P6 · 81.8s · ✓ | rechazar · relevancia · ninguna · 80.5s (2360/144) · ✓ |
+| 5 | `Introduction` | 4.5 | P6 P5 | revision · relevancia · ninguna · 108.5s · ✓ | rechazar · relevancia · ninguna · 105.5s (2616/130) · ✓ |
+| 6 | `Displace Hair Curves ` | 3.6 | P6 | aceptar · ninguna · P6 · 118.9s · ✓ | revision · relevancia · ninguna · 143.7s (2774/164) · ✓ |
+| 7 | `Select All by Trait` | 4.5 | P6 P1 | rechazar · relevancia · ninguna · 122.6s · ✓ | rechazar · relevancia · ninguna · 134.2s (2897/153) · ✓ |
+| 8 | `Deleting & Dissolving` | 5.2 | P6 P1 | revision · relevancia · P6 · 129.6s · ✗ | revision · relevancia · ninguna · 146.7s (3085/154) · ✓ |
+| 9 | `Set ID Node` | 5.2 | P6 | revision · relevancia · P6 · 86.4s · ✗ | revision · relevancia · ninguna · 90.2s (2383/127) · ✓ |
+| 10 | `World Settings` | 4.5 | P1 P6 | revision · relevancia · P6 · 186.6s · ✗ | revision · relevancia · ninguna · 199.5s (3268/219) · ✓ |
+| 11 | `Startup` | 4.5 | P2 | revision · relevancia · ninguna · 103.7s · ✓ | revision · relevancia · ninguna · 113.0s (2787/128) · ✓ |
+| 12 | `Input` | 5.2 | P6 P1 P2 P4 | revision · relevancia · P6 · 112.2s · ✗ | revision · relevancia · ninguna · 175.1s (3310/147) · ✓ |
+| 13 | `Instance Bounds Node` | 5.2 | P1 | aceptar · ninguna · P1 · 104.6s · ✓ | rechazar · relevancia · ninguna · 108.3s (2584/139) · ✓ |
+| 14 | `Select Sharp Edges` | 5.2 | P6 | revision · relevancia · P6 · 76.9s · ✗ | rechazar · valor · P6 · 86.7s (2276/138) · ✓ |
+| 15 | `Introduction ` | 3.6 | P6 | revision · relevancia · P6 · 79.2s · ✗ | rechazar · valor · ninguna · 82.8s (2332/125) · ✓ |
+| 16 | `Structure ` | 3.6 | P6 P1 P5 | revision · relevancia · ninguna · 128.4s · ✓ | rechazar · relevancia · ninguna · 132.3s (3036/144) · ✓ |
+| 17 | `UV Project Modifier` | 5.2 | P6 | aceptar · ninguna · P6 · 93.7s · ✓ | revision · relevancia · ninguna · 107.7s (2594/143) · ✓ |
+| 18 | `Motion Blur` | 4.5 | P6 | aceptar · ninguna · P6 · 49.1s · ✓ | aceptar · ninguna · P6 · 136.7s (2737/156) · ✓ |
+| 19 | `Ocean Modifier` | 5.2 | P6 P5 P1 | revision · relevancia · P6 · 119.7s · ✗ | rechazar · relevancia · ninguna · 142.9s (3043/166) · ✓ |
+| 20 | `Mesh to Curve Node` | 5.2 | P6 | aceptar · ninguna · P6 · 77.3s · ✓ | revision · valor · P6 · 100.7s (2475/158) · ✓ |
