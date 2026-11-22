@@ -37,6 +37,8 @@ indexador/indexar.py         lee el canon, fragmenta, calcula vectores con Ollam
 evaluacion/preguntas.yml     46 preguntas, cada una con su documento esperado
 evaluacion/evaluar.py        recall@1, recall@3 y MRR, contra Supabase o sin red (BM25)
 laboratorio/verificar.py     comprueba Ollama, bge-m3 y Supabase sin mostrar claves
+revisor/                     prueba del revisor: muestra de MongoDB, revisión local con un 8B, comparación con una persona
+TAREA_PRUEBA_REVISOR.md      la tarea para el agente del laboratorio
 LABORATORIO.md, AGENTS.md    guía de instalación y reglas para el agente de la computadora del laboratorio
 pruebas/                     pruebas del indexador, de la evaluación y de la migración (Postgres local)
 ```
