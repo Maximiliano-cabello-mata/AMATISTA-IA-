@@ -534,3 +534,90 @@ Dos causas probables:
 **3. Las decisiones en páginas limítrofes cambian mucho entre versiones.** De los 6 que aceptó la v2, la v3 solo mantuvo 1. Sin etiquetas de una persona no se puede saber qué versión acierta. **La decisión sobre P6 y las páginas del manual («Por decidir» en los criterios) es la que más mueve el resultado.**
 
 **4. Caché: el diagnóstico tenía un defecto.** Su primera llamada ya estaba tibia: 1,208 tokens en 1.5 s, cuando en frío tomarían unos 30 s. En realidad, las instrucciones fijas **sí** quedaban en caché en el diagnóstico. Pero en las corridas, agregar 950 tokens de criterios costó unos 20 s más de lectura por documento, así que algo de la corrida real impide reutilizarlas. Una causa candidata es que el esquema cambia con cada documento, porque la lista de citas es distinta. El diagnóstico nuevo parte de una llamada fría y prueba ese caso.
+
+---
+
+## Corrida 7 · Velocidad `v3_c1` (`--cuantos 1`), diagnóstico de caché fría (`H21–H22`) y Canon v4
+
+### Diagnóstico de caché con primera llamada fría (`H21–H22`)
+
+```text
+[1. fría] 1244 tokens contados, 56.4 s de lectura
+[2. otro documento, mismo esquema] 1247 tokens contados, 1.7 s de lectura
+[3. otro documento y otras citas] 1244 tokens contados, 1.6 s de lectura
+Entre documentos: la caché SÍ se reutiliza. Con otra lista de citas: SÍ.
+```
+
+### Paso 16 · Indexación del Canon v4 (126 fragmentos) y evaluación de 51 preguntas
+
+```text
+Canon v4: 16 documentos, 126 fragmentos (palabras por fragmento: mediana 83, máximo 261)
+Modelo de embeddings: bge-m3@790764642607
+  ↑ ia/criterios: 15 fragmentos
+Listo: 1 documentos actualizados (15 fragmentos), 15 sin cambios, 0 podados.
+
+supabase bge-m3@790764642607 texto=1.0 vector=1.0: recall@1 0.84 · recall@3 0.96 · MRR 0.90 (umbral recall@3 0.85)
+  falla p15: esperaba g7b/estandar-telemetria, salió ['g7b/geodar-radar', 'g7b/ingesta', 'g7b/telemetria'] (rango None)
+  falla p20: esperaba g7b/cubo, salió ['g7b/fichas-tecnicas', 'g7b/ingesta', 'g7b/telemetria'] (rango 5)
+```
+
+### Resumen exacto de `v3_c1` (`--cuantos 1`, 119 fragmentos)
+
+```json
+{
+  "revisor": 3,
+  "criterios": false,
+  "modelo": "qwen3:8b",
+  "palabras_por_documento": 450,
+  "cuantos": 1,
+  "umbral": null,
+  "canon_fragmentos": 119,
+  "fecha": "2026-11-22 13:21",
+  "documentos": 20,
+  "json_valido": 1.0,
+  "pregunta_valida": 1.0,
+  "cita_valida": 1.0,
+  "cita_embudo": 0.85,
+  "coherente": 0.85,
+  "motivo_primero": 1.0,
+  "coincide_pregunta_embudo": 0.15,
+  "decisiones": {
+    "aceptar": 3,
+    "revision": 6,
+    "rechazar": 11
+  },
+  "decisiones_efectivas": {
+    "aceptar": 3,
+    "revision": 3,
+    "rechazar": 11,
+    "persona": 3
+  },
+  "etapas": {
+    "relevancia": 14,
+    "valor": 1,
+    "ninguna": 5
+  },
+  "no_se": 0,
+  "segundos_por_documento": {
+    "mediana": 75.76536515000043,
+    "maximo": 121.23115629999666
+  },
+  "tokens_por_segundo": {
+    "genera": 3.138598525437782,
+    "lee": 62.36417689775696
+  },
+  "tokens_por_documento": {
+    "lee": 1940.5,
+    "genera": 134.5
+  },
+  "horas_estimadas_para_1033": 21.740450611097348
+}
+```
+
+### Verificación de H19, H21 y H22
+
+| # | Predicción | p | Resultado medido | Cumple |
+|---|---|---:|---|---|
+| **H19** | Con `--cuantos 1`, la mediana de segundos es al menos 10 s menor que la de `v3` | 0.70 | **`75.77 s` vs `116.19 s`** (`-40.42 s`, `-34.8 %`; horas para 1,033 docs bajan de `33.34 → 21.74 h`) | ✓ |
+| **H21** | Con la primera llamada fría, entre documentos SÍ se reutiliza la caché (`paso 2 < 50 % del paso 1`) | 0.60 | **`56.4 s → 1.7 s`** (3.0 % del tiempo frío; 33× más rápido) | ✓ |
+| **H22** | Con otra lista de citas en el esquema, la caché NO se reutiliza | 0.50 | **Sí se reutiliza (`1.6 s`)**: cambiar el `enum` del esquema JSON no invalida la caché KV del prefijo del prompt | ✗ |

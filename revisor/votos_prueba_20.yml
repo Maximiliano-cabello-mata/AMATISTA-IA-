@@ -11,6 +11,7 @@ documentos:
     qwen3:8b@v2: revision
     qwen3:8b@v2-canon3: revision
     qwen3:8b@v2+criterios: revision
+    qwen3:8b@v3_c1: rechazar
   humano: null
   url: https://docs.blender.org/manual/en/5.2/render/eevee/limitations/limitations.html
 - n: 2
@@ -23,6 +24,7 @@ documentos:
     qwen3:8b@v2-canon3: revision
     qwen3:8b@v2+criterios: revision
     qwen3:8b@v3: revision
+    qwen3:8b@v3_c1: revision
   humano: null
   url: https://docs.blender.org/manual/en/5.2/render/shader_nodes/groups.html
 - n: 3
@@ -34,6 +36,7 @@ documentos:
     qwen3:8b@v2: revision
     qwen3:8b@v2-canon3: revision
     qwen3:8b@v2+criterios: revision
+    qwen3:8b@v3_c1: revision
   humano: null
 - n: 4
   titulo: Is Edge Manifold Node
@@ -45,6 +48,7 @@ documentos:
     qwen3:8b@v2-canon3: aceptar
     qwen3:8b@v2+criterios: revision
     qwen3:8b@v3: rechazar
+    qwen3:8b@v3_c1: rechazar
   humano: null
 - n: 5
   titulo: Introduction
@@ -56,6 +60,7 @@ documentos:
     qwen3:8b@v2-canon3: revision
     qwen3:8b@v2+criterios: revision
     qwen3:8b@v3: rechazar
+    qwen3:8b@v3_c1: rechazar
   humano: null
   url: https://docs.blender.org/manual/en/4.5/modeling/meshes/properties/vertex_groups/introduction.html
 - n: 6
@@ -68,6 +73,7 @@ documentos:
     qwen3:8b@v2-canon3: aceptar
     qwen3:8b@v2+criterios: revision
     qwen3:8b@v3: revision
+    qwen3:8b@v3_c1: rechazar
   humano: null
 - n: 7
   titulo: Select All by Trait
@@ -79,6 +85,7 @@ documentos:
     qwen3:8b@v2-canon3: rechazar
     qwen3:8b@v2+criterios: revision
     qwen3:8b@v3: rechazar
+    qwen3:8b@v3_c1: rechazar
   humano: null
   url: https://docs.blender.org/manual/en/4.5/modeling/meshes/selecting/all_by_trait.html
 - n: 8
@@ -91,6 +98,7 @@ documentos:
     qwen3:8b@v2-canon3: revision
     qwen3:8b@v2+criterios: revision
     qwen3:8b@v3: revision
+    qwen3:8b@v3_c1: aceptar
   humano: null
   url: https://docs.blender.org/manual/en/5.2/modeling/meshes/editing/mesh/delete.html
 - n: 9
@@ -103,6 +111,7 @@ documentos:
     qwen3:8b@v2-canon3: revision
     qwen3:8b@v2+criterios: revision
     qwen3:8b@v3: revision
+    qwen3:8b@v3_c1: rechazar
   humano: null
 - n: 10
   titulo: World Settings
@@ -114,6 +123,7 @@ documentos:
     qwen3:8b@v2-canon3: revision
     qwen3:8b@v2+criterios: revision
     qwen3:8b@v3: revision
+    qwen3:8b@v3_c1: revision
   humano: null
   url: https://docs.blender.org/manual/en/4.5/render/cycles/world_settings.html
 - n: 11
@@ -126,6 +136,7 @@ documentos:
     qwen3:8b@v2-canon3: revision
     qwen3:8b@v2+criterios: aceptar
     qwen3:8b@v3: revision
+    qwen3:8b@v3_c1: rechazar
   humano: null
   url: https://docs.blender.org/manual/en/4.5/troubleshooting/startup.html
 - n: 12
@@ -138,6 +149,7 @@ documentos:
     qwen3:8b@v2-canon3: revision
     qwen3:8b@v2+criterios: revision
     qwen3:8b@v3: revision
+    qwen3:8b@v3_c1: rechazar
   humano: null
   url: https://docs.blender.org/manual/en/5.2/editors/preferences/input.html
 - n: 13
@@ -161,6 +173,7 @@ documentos:
     qwen3:8b@v2-canon3: revision
     qwen3:8b@v2+criterios: aceptar
     qwen3:8b@v3: rechazar
+    qwen3:8b@v3_c1: aceptar
   humano: null
 - n: 15
   titulo: Introduction
@@ -172,6 +185,7 @@ documentos:
     qwen3:8b@v2-canon3: revision
     qwen3:8b@v2+criterios: revision
     qwen3:8b@v3: rechazar
+    qwen3:8b@v3_c1: rechazar
   humano: null
   url: https://docs.blender.org/manual/en/3.6/render/eevee/light_probes/introduction.html
 - n: 16
@@ -184,6 +198,7 @@ documentos:
     qwen3:8b@v2-canon3: revision
     qwen3:8b@v2+criterios: revision
     qwen3:8b@v3: rechazar
+    qwen3:8b@v3_c1: rechazar
   humano: null
   url: https://docs.blender.org/manual/en/3.6/modeling/meshes/structure.html
 - n: 17
@@ -219,6 +234,7 @@ documentos:
     qwen3:8b@v2-canon3: revision
     qwen3:8b@v2+criterios: revision
     qwen3:8b@v3: rechazar
+    qwen3:8b@v3_c1: rechazar
   humano: null
   url: https://docs.blender.org/manual/en/5.2/modeling/modifiers/physics/ocean.html
 - n: 20
@@ -231,4 +247,5 @@ documentos:
     qwen3:8b@v2-canon3: aceptar
     qwen3:8b@v2+criterios: aceptar
     qwen3:8b@v3: revision
+    qwen3:8b@v3_c1: aceptar
   humano: null
