@@ -20,3 +20,12 @@ corridas:
       json: [20, 20]
       cita: [3, 20]        # 17 de 20 si se cuenta el id del canon puesto en el campo equivocado
       datos: [17, 19]      # contando la URL (criterio C2); 0 de 19 sin ella
+  - id: v2-qwen3
+    revisor: 2
+    modelo: "qwen3:8b"
+    fecha: 2026-11-22
+    muestra: la misma (canon 108 fragmentos)
+    senales:
+      json: [20, 20]
+      cita: [20, 20]
+      coherente: [11, 20]

@@ -2,13 +2,13 @@
 # revisor/confianza.py calcula el puntaje de Brier de las que ya se resolvieron.
 version: 1
 predicciones:
-  - {id: H1, corrida: v2-qwen3, p: 0.95, texto: "cita_valida = 1.00", resultado: null}
-  - {id: H2, corrida: v2-qwen3, p: 0.60, texto: "coherente >= 0.90", resultado: null}
-  - {id: H3, corrida: v2-qwen3, p: 0.70, texto: "mediana de tokens generados <= 120", resultado: null}
-  - {id: H4, corrida: v2-qwen3, p: 0.60, texto: "mediana de segundos por documento entre 90 y 125", resultado: null}
-  - {id: H5, corrida: v2-qwen3, p: 0.60, texto: "el diagnóstico dice que la caché NO se reutiliza", resultado: null}
-  - {id: H6, corrida: v2-qwen3, p: 0.65, texto: "manda a revisión entre 6 y 12 de 20", resultado: null}
-  - {id: H7, corrida: v2-qwen3, p: 0.65, texto: "coincide con v1 en al menos 15 de 20 decisiones", resultado: null}
+  - {id: H1, corrida: v2-qwen3, p: 0.95, texto: "cita_valida = 1.00", resultado: true}
+  - {id: H2, corrida: v2-qwen3, p: 0.60, texto: "coherente >= 0.90", resultado: false}
+  - {id: H3, corrida: v2-qwen3, p: 0.70, texto: "mediana de tokens generados <= 120", resultado: true}
+  - {id: H4, corrida: v2-qwen3, p: 0.60, texto: "mediana de segundos por documento entre 90 y 125", resultado: true}
+  - {id: H5, corrida: v2-qwen3, p: 0.60, texto: "el diagnóstico dice que la caché NO se reutiliza", resultado: true}
+  - {id: H6, corrida: v2-qwen3, p: 0.65, texto: "manda a revisión entre 6 y 12 de 20", resultado: false}
+  - {id: H7, corrida: v2-qwen3, p: 0.65, texto: "coincide con v1 en al menos 15 de 20 decisiones", resultado: true}
   # H8–H10 comparan dos corridas con el MISMO canon v3: «canon3» (sin criterios) y «criterios» (con --criterios).
   - {id: H8, corrida: criterios, p: 0.70, texto: "coherente de «criterios» >= coherente de «canon3»", resultado: null}
   - {id: H9, corrida: criterios, p: 0.55, texto: "«criterios» manda a revisión menos documentos que «canon3»", resultado: null}
