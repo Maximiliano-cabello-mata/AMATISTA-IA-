@@ -64,3 +64,13 @@ def test_votos_de_corridas_une_por_url_y_distingue_versiones(tmp_path):
                               corrida('b.json', 2, [('u1', 'revision'), ('u2', None)], criterios=True)])
     assert {d['url']: d['votos'] for d in docs} == {'u1': {'qwen3:8b@v1': 'aceptar', 'qwen3:8b@v2+criterios': 'revision'},
                                                     'u2': {'qwen3:8b@v1': 'revision'}}
+
+
+def test_los_revisores_descartados_no_votan_ni_aparecen():
+    from revisor.confianza import sin_descartados
+    t = {**TEORICOS, 'descartados': ['moneda']}
+    docs = sin_descartados(t, [{'titulo': 'a', 'votos': {'bueno': 'revision', 'moneda@v1': 'aceptar'}, 'humano': None}])
+    assert docs[0]['votos'] == {'bueno': 'revision'}
+    comp = capa_comportamiento(t, {'corridas': [{'modelo': 'moneda', 'senales': {'json': [1, 1]}},
+                                                {'modelo': 'bueno', 'senales': {'json': [1, 1]}}]})
+    assert list(comp) == ['bueno']

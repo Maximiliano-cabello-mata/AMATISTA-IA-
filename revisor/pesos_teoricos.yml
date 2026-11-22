@@ -7,6 +7,10 @@
 # Estos números no se tocan después de ver resultados: si estaban mal, el algoritmo lo muestra.
 version: 1
 
+# Revisores que ya no se usan: sus corridas quedan como registro en comportamiento.yml, pero no votan ni
+# aparecen en las tablas. codellama: citas válidas 1/20, datos copiados del canon en 11 de 20 documentos.
+descartados: ["codellama:latest"]
+
 # De los documentos que el embudo ya aceptó, ¿qué fracción sacaría o revisaría una persona?
 # Creencia: ~20 %. En la auditoría de Site, 6 de 70 bloques no eran útiles (9 %), pero una página completa
 # es más variada que un bloque.
@@ -22,7 +26,7 @@ revisores:
     cita: [5, 5]
     datos: [5, 5]
   "codellama:latest":
-    # Modelo de código, de 2023: sin razón para creer que acierta mejor que una moneda (peso 0).
+    # Modelo de código, de 2023. Descartado el 22 de noviembre (ver «descartados»).
     sensibilidad: [5, 5]
     especificidad: [5, 5]
     json: [8, 2]

@@ -86,11 +86,22 @@ def actualizar(prior, exitos, total):
 
 
 # --- Capas -----------------------------------------------------------------------------------------------------------
+def descartado(teoricos, revisor):
+    return revisor.split('@')[0] in set(teoricos.get('descartados') or [])
+
+
+def sin_descartados(teoricos, documentos):
+    """Quita los votos de los revisores descartados; los documentos se quedan."""
+    return [{**d, 'votos': {r: v for r, v in d['votos'].items() if not descartado(teoricos, r)}} for d in documentos]
+
+
 def capa_comportamiento(teoricos, comportamiento):
     """Por revisor y señal: el peso teórico, lo observado y el peso actualizado."""
     salida = {}
     for corrida in comportamiento.get('corridas', []):
         modelo = corrida['modelo']
+        if descartado(teoricos, modelo):
+            continue
         for senal, (k, n) in corrida['senales'].items():
             prior = teoricos['revisores'].get(modelo, {}).get(senal, [1, 1])
             fila = salida.setdefault(modelo, {}).setdefault(senal, {'teorico': list(prior), 'k': 0, 'n': 0})
@@ -225,6 +236,7 @@ def main(argv=None):
         etiquetas = cargar_etiquetas(a.etiquetas)
         for d in documentos:
             d['humano'] = etiquetas.get(d.get('url'), d.get('humano'))
+    documentos = sin_descartados(teoricos, documentos)
     comp = capa_comportamiento(teoricos, comportamiento)
     acierto = capa_acierto(teoricos, documentos)
     combinados = combinar(documentos, acierto)
