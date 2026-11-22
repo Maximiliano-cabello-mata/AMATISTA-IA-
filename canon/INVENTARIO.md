@@ -55,4 +55,12 @@ Qué documentos del proyecto aprende la IA, cuáles no y qué hay que resolver a
 1. Resolver C1, C3 y C5. Son decisiones del proyecto, no de la IA.
 2. Aplicar la migración de Supabase (`supabase/migrations/`).
 3. Correr el indexador en la computadora del laboratorio: Ollama con `bge-m3`.
-4. Prueba de recuperación con vectores: las 46 preguntas de [`evaluacion/preguntas.yml`](../evaluacion/preguntas.yml). Solo con texto ya da recall@3 de 0.89.
+4. ~~Prueba de recuperación con vectores~~ **Hecha el 22 de noviembre:** recall@3 de 0.96 con el híbrido, y de 0.89 solo con texto.
+
+**Evidencia nueva para C2 y C3** (de las dos preguntas que fallan):
+- **C2:** una pregunta en español sobre cómo agregar una fuente de telemetría no encuentra `ESTANDAR_TELEMETRIA.md` §6, que está en inglés. Encuentra `INGESTA.md` y `GEODAR_RADAR.md`, que explican lo mismo de forma más general y sin la regla de que lo externo entra a `revision`. Propuesta:
+  - que una sola guía sea la oficial para agregar fuentes de telemetría;
+  - que las otras dos la enlacen en vez de repetir los pasos.
+- **C3:** `FICHAS_TECNICAS.md` §5.3 describe un cubo distinto del real (pendiente, `GROUP BY CUBE`, rebanadas en MongoDB) y le gana a `CUBO.md` en una pregunta sobre las vistas. Propuesta:
+  - corregir §5.3 para que solo defina el concepto y enlace a `CUBO.md`;
+  - o excluir esa sección del canon.

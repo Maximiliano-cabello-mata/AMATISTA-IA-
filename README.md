@@ -2,10 +2,14 @@
 
 La IA que revisa los datos del lago de G7B «a la manera de G7B». Primero tiene que **conocer el proyecto**: sus estándares, sus reglas y sus contratos. Este repositorio construye ese conocimiento como un RAG en Supabase, y después alojará al revisor.
 
-**Estado (22 de noviembre de 2026):** el canon, el esquema de Supabase, el indexador y la prueba de recuperación están listos y probados aquí. Falta:
-- aplicar la migración en Supabase;
-- correr el indexador en la computadora del laboratorio con Ollama;
-- medir la recuperación con vectores.
+**Estado (22 de noviembre de 2026):** en producción.
+- La migración está aplicada en Supabase.
+- El canon está indexado desde la computadora del laboratorio: 13 documentos y 108 fragmentos, idénticos uno por uno al simulacro, con `bge-m3@790764642607`.
+- La búsqueda híbrida pasa el umbral: recall@3 de 0.96.
+
+Comprobado en Supabase:
+- los 108 vectores tienen 1024 dimensiones y están normalizados;
+- cada fragmento, buscado por su propio vector, sale primero: 108 de 108.
 
 ## Qué sabe y qué no
 
@@ -53,13 +57,24 @@ pruebas/                     pruebas del indexador, de la evaluación y de la mi
 | Texto con AND (diseño inicial) | 0.17 | 0.17 | Postgres local, fragmentos reales |
 | **Texto con OR, función real de la migración** | **0.70** | **0.89** | Postgres local, fragmentos reales |
 | BM25 de referencia (sin red) | 0.72 | 0.93 | `evaluar.py --lexico` |
-| Híbrido con `bge-m3` | — | — | **Pendiente:** se mide en el laboratorio |
+| **Híbrido con `bge-m3@790764642607`** | **0.83** | **0.96** | Supabase, medido en el laboratorio el 22 de noviembre (MRR 0.89) |
+| Solo texto, la misma función en Supabase | 0.70 | 0.89 | Supabase (MRR 0.80); igual que en Postgres local |
 
-Las fallas de texto que se esperan:
-- una pregunta en español sobre un documento en inglés (C2);
-- preguntas con sinónimos.
+El híbrido supera al texto solo: 6 preguntas más con el documento correcto en primer lugar y 3 más entre los tres primeros. Es la búsqueda que se usa.
 
-Son justo lo que deben arreglar los vectores. Si el híbrido no supera al texto solo, no se usa.
+**Las dos fallas del híbrido no son errores de búsqueda: son problemas del canon.** No se ajustaron las preguntas.
+
+- **p15, agregar una fuente de telemetría.**
+  - Esperado: `g7b/estandar-telemetria`, §6, en inglés. No aparece en los 10 primeros.
+  - Salen antes `g7b/ingesta` y `g7b/geodar-radar`, en español: los tres documentos explican cómo agregar una fuente.
+  - Solo el estándar dice que las mediciones de fuera de G7B entran a `revision` y que el hardware se normaliza con `g7b_telemetria.hardware`. Un revisor que citara los otros dos se perdería esas reglas.
+  - Causas: el idioma (C2) y la duplicación.
+- **p20, si se pueden sumar FPS con muestras por minuto.**
+  - Esperado: `g7b/cubo`. Sale quinto.
+  - La regla es una sola frase dentro de un fragmento del cubo.
+  - `g7b/fichas-tecnicas` gana con fragmentos que hablan de fps y muestras. Tiene 26 de los 108 fragmentos, y su §5.3 todavía describe el cubo como pendiente y con otro diseño (C3).
+
+Mientras se resuelven, el revisor pide **5 fragmentos** (`cuantos = 5`) en lugar de 3: con eso p20 entra y p15 sigue fuera.
 
 ## En la computadora del laboratorio
 
