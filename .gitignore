@@ -1,0 +1,13 @@
+# Claves y entornos locales: nunca al repositorio
+.env
+.env.*
+*.key
+# Supabase CLI
+supabase/.temp/
+supabase/.branches/
+# Python
+__pycache__/
+*.pyc
+.venv/
+# Salidas locales del indexador
+salidas/

@@ -1,0 +1,64 @@
+# Prueba de recuperación del canon: cada pregunta tiene el documento donde está la respuesta.
+# Se mide si ese documento aparece entre los 3 primeros resultados (recall@3). Las preguntas se escribieron
+# ANTES de medir y no se ajustan para que salgan bien: si una falla, se corrige el canon o la búsqueda.
+# Mezcla a propósito: preguntas en lenguaje natural, con identificadores exactos y algunas en inglés (C2).
+contrato: amatista.ia.evaluacion/1
+umbral_recall_3: 0.85
+preguntas:
+  # Visión y relación entre proyectos
+  - {id: p01, esperado: g7b/vision, pregunta: "¿Qué es G7B y para qué existe, en una frase?"}
+  - {id: p02, esperado: g7b/vision, pregunta: "¿Qué cosas no es G7B?"}
+  - {id: p03, esperado: g7b/vision, pregunta: "¿Qué licencias usa G7B y qué pasa con la marca?"}
+  - {id: p04, esperado: amatista/direccion, pregunta: "¿Cuál es el producto principal de Amatista?"}
+  - {id: p05, esperado: amatista/direccion, pregunta: "¿Cuántas tareas puede haber en ejecución a la vez según la regla personal?"}
+  # Glosario
+  - {id: p06, esperado: g7b/fichas-tecnicas, pregunta: "¿Qué son los niveles de equipo N0 a N4?"}
+  - {id: p07, esperado: g7b/fichas-tecnicas, pregunta: "¿Qué es la huella del equipo?"}
+  - {id: p08, esperado: g7b/fichas-tecnicas, pregunta: "Definición de fluidez"}
+  - {id: p09, esperado: g7b/fichas-tecnicas, pregunta: "¿Qué es un dato sintético y qué regla tiene?"}
+  - {id: p10, esperado: g7b/fichas-tecnicas, pregunta: "¿Qué es el perfil g7b.perfil/1?"}
+  - {id: p11, esperado: g7b/fichas-tecnicas, pregunta: "¿Qué es el Corazón amatista.corazon/1?"}
+  # Estándar de telemetría (en inglés)
+  - {id: p12, esperado: g7b/estandar-telemetria, pregunta: "¿Cómo se representa un registro de hardware g7b.hardware/1?"}
+  - {id: p13, esperado: g7b/estandar-telemetria, pregunta: "How is the full Blender Open Data archive processed in batches?"}
+  - {id: p14, esperado: g7b/estandar-telemetria, pregunta: "Failure telemetry from Blender bug reports"}
+  - {id: p15, esperado: g7b/estandar-telemetria, pregunta: "¿Qué hay que hacer para agregar una nueva fuente de telemetría?"}
+  - {id: p16, esperado: g7b/estandar-telemetria, pregunta: "measurement record g7b.telemetria/1 fields"}
+  # Cubo
+  - {id: p17, esperado: g7b/cubo, pregunta: "¿Qué tablas tiene el cubo y qué representa una fila?"}
+  - {id: p18, esperado: g7b/cubo, pregunta: "¿Qué diferencia hay entre v_exploracion y v_mediciones_aceptadas?"}
+  - {id: p19, esperado: g7b/cubo, pregunta: "¿Dónde se guardan los Parquet y dónde corre DuckDB?"}
+  - {id: p20, esperado: g7b/cubo, pregunta: "¿Se pueden sumar FPS con muestras por minuto en el resumen?"}
+  # Telemetría: pública frente a sonda
+  - {id: p21, esperado: g7b/telemetria, pregunta: "¿Por qué los datos de Blender Open Data van a revisión y no a aceptado?"}
+  - {id: p22, esperado: g7b/telemetria, pregunta: "¿Cuáles son los dos recorridos, documentación y mediciones?"}
+  - {id: p23, esperado: g7b/telemetria, pregunta: "¿Cómo se ejecuta la sonda de Blender sin proyectos personales?"}
+  - {id: p24, esperado: g7b/telemetria, pregunta: "¿Qué variación tuvo la evidencia local de la sonda?"}
+  # Consentimiento
+  - {id: p25, esperado: g7b/consentimiento, pregunta: "¿Qué texto de consentimiento vería el alumno?"}
+  - {id: p26, esperado: g7b/consentimiento, pregunta: "¿Qué datos no se envían nunca en la telemetría del add-on?"}
+  - {id: p27, esperado: g7b/consentimiento, pregunta: "¿Qué se envía campo por campo?"}
+  # Ingesta y embudo: la regla principal para revisar documentos
+  - {id: p28, esperado: g7b/ingesta, pregunta: "¿Cuáles son las cinco etapas del embudo y qué rechaza cada una?"}
+  - {id: p29, esperado: g7b/ingesta, pregunta: "¿Qué cosas suman valor a un documento?"}
+  - {id: p30, esperado: g7b/ingesta, pregunta: "¿Qué pasa si en la revisión semanal más de 3 de 20 registros son basura?"}
+  - {id: p31, esperado: g7b/ingesta, pregunta: "¿Qué significa modo solo_metadatos frente a texto_completo?"}
+  - {id: p32, esperado: g7b/ingesta, pregunta: "¿Qué es un sensor y cómo detecta lo nuevo sin descargar?"}
+  - {id: p33, esperado: g7b/ingesta, pregunta: "¿Qué límites honestos tiene la relevancia por palabras clave?"}
+  # Geodar
+  - {id: p34, esperado: g7b/geodar-radar, pregunta: "¿Qué reglas cumple Geodar siempre?"}
+  - {id: p35, esperado: g7b/geodar-radar, pregunta: "¿Qué fuentes no se usan y por qué?"}
+  - {id: p36, esperado: g7b/geodar-radar, pregunta: "¿Qué diferencia hay entre Geodar Radar y Geoda?"}
+  # Geoda y su núcleo
+  - {id: p37, esperado: g7b/geoda, pregunta: "¿Cuáles son los cinco verbos de Geoda?"}
+  - {id: p38, esperado: g7b/geoda, pregunta: "¿Qué se cambió en la captura para que Geoda funcione?"}
+  - {id: p39, esperado: g7b/geoda-kernel, pregunta: "¿Cómo corre Geoda en GitHub Actions después del cubo?"}
+  - {id: p40, esperado: g7b/geoda-kernel, pregunta: "python -m geoda decidir --huella equipo.json"}
+  # Decisión de IA
+  - {id: p41, esperado: g7b/decision-ia, pregunta: "¿Se puede usar Gemini gratuito con datos de estudiantes?"}
+  - {id: p42, esperado: g7b/decision-ia, pregunta: "¿Qué IA se recomienda para cada tarea de G7B?"}
+  - {id: p43, esperado: g7b/decision-ia, pregunta: "¿Qué hay que tener antes de elegir un modelo de IA?"}
+  # Conexión y privacidad
+  - {id: p44, esperado: amatista/conexion-g7b-geoda, pregunta: "¿Quién guarda los datos personales, Amatista o G7B?"}
+  - {id: p45, esperado: amatista/conexion-g7b-geoda, pregunta: "¿Qué hace el script de Oracle 014_g7b.sql?"}
+  - {id: p46, esperado: amatista/conexion-g7b-geoda, pregunta: "¿Qué rutas nuevas tiene backend/api/g7b.py?"}
