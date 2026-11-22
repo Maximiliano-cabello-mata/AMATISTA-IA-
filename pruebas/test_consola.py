@@ -155,7 +155,7 @@ def test_carpeta_escritorio_encuentra_onedrive_empresarial(tmp_path, monkeypatch
     from consola.nucleo import carpeta_escritorio
     onedrive = tmp_path / 'OneDrive - Universidad'
     (onedrive / 'Escritorio').mkdir(parents=True)
-    monkeypatch.setattr('consola.nucleo.os.name', 'posix')
+    monkeypatch.setattr('consola.nucleo._escritorio_windows', lambda: None)
     monkeypatch.setenv('USERPROFILE', str(tmp_path))
     monkeypatch.setenv('OneDriveCommercial', str(onedrive))
     monkeypatch.delenv('OneDrive', raising=False)

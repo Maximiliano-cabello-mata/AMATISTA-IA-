@@ -258,18 +258,24 @@ article{{border:1px solid #d6d0e0;border-radius:8px;padding:12px 16px;margin:12p
     return filas
 
 
+def _escritorio_windows():
+    if os.name != 'nt':
+        return None
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                            r'Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders') as k:
+            ruta_reg = Path(os.path.expandvars(winreg.QueryValueEx(k, 'Desktop')[0]))
+            return ruta_reg if ruta_reg.is_dir() else None
+    except OSError:
+        return None
+
+
 def carpeta_escritorio(nombre='Amatista IA · cierres'):
     """La carpeta del escritorio de esta computadora (Windows con o sin OneDrive empresarial, o Linux)."""
-    if os.name == 'nt':
-        try:
-            import winreg
-            with winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                                r'Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders') as k:
-                ruta_reg = Path(os.path.expandvars(winreg.QueryValueEx(k, 'Desktop')[0]))
-                if ruta_reg.is_dir():
-                    return ruta_reg / nombre
-        except OSError:
-            pass
+    ruta_reg = _escritorio_windows()
+    if ruta_reg is not None:
+        return ruta_reg / nombre
     perfil = Path(os.environ.get('USERPROFILE') or Path.home())
     candidatos = []
     for var in ('OneDriveCommercial', 'OneDrive'):
