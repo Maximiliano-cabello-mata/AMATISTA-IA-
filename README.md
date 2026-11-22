@@ -2,20 +2,21 @@
 
 **Lugar en la base del proyecto:** Amatista IA es el **auditor**. Decide qué datos de G7B son buenos antes de que entren al cubo o a MongoDB; Geoda solo lee lo aprobado. Piezas, flujo y prioridades: [base oficial](https://github.com/Maximiliano-cabello-mata/amatista-recuperada-20261106/blob/recuperacion/BASE.md).
 
-La IA que revisa los datos del lago de G7B «a la manera de G7B». Primero tiene que **conocer el proyecto**: sus estándares, sus reglas y sus contratos. Este repositorio construye ese conocimiento como un RAG en Supabase, y después alojará al revisor.
+La IA que revisa los datos del lago de G7B «a la manera de G7B». Conoce el proyecto por un canon de estándares en Supabase (RAG), decide cada documento con un revisor local (`qwen3:8b` en Ollama) y trabaja 24/7 desde una consola con cierres de 20 muestras para una persona. **Cómo se construyó, versión por versión: [`docs/HISTORIA.md`](docs/HISTORIA.md).**
 
-**Estado (22 de noviembre de 2026):** en producción.
-- La migración está aplicada en Supabase.
-- El canon está indexado desde la computadora del laboratorio: 13 documentos y 108 fragmentos, idénticos uno por uno al simulacro, con `bge-m3@790764642607`.
-- La búsqueda híbrida pasa el umbral: recall@3 de 0.96.
+**Estado (22 de noviembre de 2026):**
 
-Comprobado en Supabase:
-- los 108 vectores tienen 1024 dimensiones y están normalizados;
-- cada fragmento, buscado por su propio vector, sale primero: 108 de 108.
+| Pieza | Estado |
+|---|---|
+| Canon | **v5**: 17 documentos, 135 fragmentos. En Supabase está indexada la v3; la v5 se indexa al arrancar la consola. Recall@3 híbrido de 0.96 medido con la v3 |
+| Revisor | **v3**: primero el motivo, cita de lista cerrada, datos por código, coherencia revisada. Su criterio todavía no está validado: no hay etiquetas humanas |
+| Consola 24/7 | Construida, con 53 pruebas. Primer lote de 100 pendiente en el laboratorio ([`TAREA_CONSOLA.md`](TAREA_CONSOLA.md)) |
+| Pesos de confianza | En uso: 18 predicciones resueltas, Brier 0.213 |
+| Segunda revisión de Site 4.1 | Lista, sin correr |
 
 ## Qué sabe y qué no
 
-- **Sabe los estándares, no los datos.** El canon tiene 13 documentos de G7B y Amatista, fijados a un commit ([`canon/canon.yml`](canon/canon.yml)). No incluye telemetría, foros ni documentos de conocimiento: eso es lo que va a revisar. Juzgarlo con sus propios datos sería circular.
+- **Sabe los estándares, no los datos.** El canon tiene 17 documentos de G7B, Amatista y este repositorio, fijados a un commit ([`canon/canon.yml`](canon/canon.yml)). No incluye telemetría, foros ni documentos de conocimiento: eso es lo que va a revisar. Juzgarlo con sus propios datos sería circular.
 - **No copia documentos.** El indexador los lee del repositorio de origen en el commit fijado. Hay una sola fuente de verdad.
 - **Las consultas exactas van por código, no por RAG:** la tabla de hardware, la taxonomía de preguntas y el catálogo de fuentes. Es más rápido y no tiene errores de recuperación.
 - [`canon/INVENTARIO.md`](canon/INVENTARIO.md) dice qué entra, qué no y qué conflictos hay que resolver (C1–C5).
@@ -41,6 +42,7 @@ evaluacion/evaluar.py        recall@1, recall@3 y MRR, contra Supabase o sin red
 laboratorio/verificar.py     comprueba Ollama, bge-m3 y Supabase sin mostrar claves
 revisor/                     prueba del revisor: muestra de MongoDB, revisión local con un 8B, comparación con una persona
 consola/                     consola del auditor 24/7: lotes de 100, cierre con 20 muestras al escritorio, veredicto y freno
+docs/HISTORIA.md             cómo se construyó: canon v1–v5, revisor v1–v3, herramientas y decisiones
 TAREA_CONSOLA.md             la tarea vigente para el agente del laboratorio
 TAREA_PRUEBA_REVISOR.md      la tarea para el agente del laboratorio
 TAREA_SEGUNDA_REVISION.md    segunda opinión, a ciegas, sobre los 70 bloques de la auditoría de Site 4.1
