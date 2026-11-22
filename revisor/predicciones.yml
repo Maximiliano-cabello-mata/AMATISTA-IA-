@@ -9,21 +9,16 @@ predicciones:
   - {id: H5, corrida: v2-qwen3, p: 0.60, texto: "el diagnóstico dice que la caché NO se reutiliza", resultado: true}
   - {id: H6, corrida: v2-qwen3, p: 0.65, texto: "manda a revisión entre 6 y 12 de 20", resultado: false}
   - {id: H7, corrida: v2-qwen3, p: 0.65, texto: "coincide con v1 en al menos 15 de 20 decisiones", resultado: true}
-  # H8–H10 comparan dos corridas del revisor v3 con el MISMO canon v4: «canon4» (sin criterios) y «criterios»
-  # (con --criterios, que ahora incluye los errores conocidos). H10 se corrigió el 22 de noviembre, ANTES de correr:
-  # al sumar los errores conocidos, las instrucciones fijas pasaron de unas 1,100 a 1,527 palabras.
-  - {id: H8, corrida: criterios, p: 0.70, texto: "coherente de «criterios» >= coherente de «canon4»", resultado: null}
-  - {id: H9, corrida: criterios, p: 0.55, texto: "«criterios» manda a revisión menos documentos que «canon4»", resultado: null}
-  - {id: H10, corrida: criterios, p: 0.75, texto: "la mediana de segundos por documento de «criterios» es al menos 25 s mayor que la de «canon4»", resultado: null}
-  # Revisor v3 (razona antes de decidir), misma muestra y canon de 108 fragmentos que v1 y v2. Escritas antes de correr.
+  - {id: H8, corrida: criterios, p: 0.70, texto: "coherente de «criterios» >= coherente de «canon4»", resultado: true}
+  - {id: H9, corrida: criterios, p: 0.55, texto: "«criterios» manda a revisión menos documentos que «canon4»", resultado: false}
+  - {id: H10, corrida: criterios, p: 0.75, texto: "la mediana de segundos por documento de «criterios» es al menos 25 s mayor que la de «canon4»", resultado: true}
   - {id: H11, corrida: v3, p: 0.85, texto: "motivo_primero = 1.00 (Ollama respeta el orden del esquema)", resultado: null}
   - {id: H12, corrida: v3, p: 0.60, texto: "coherente >= 0.85 (v2: 0.55)", resultado: null}
   - {id: H13, corrida: v3, p: 0.60, texto: "manda a revisión (decisión del modelo) 11 o menos de 20 (v2: 14)", resultado: null}
   - {id: H14, corrida: v3, p: 0.70, texto: "los 6 que v2 aceptó siguen aceptados", resultado: null}
   - {id: H15, corrida: v3, p: 0.60, texto: "«relevancia» es la etapa en menos de la mitad de las revisiones (v2: 14 de 14)", resultado: null}
   - {id: H16, corrida: v3, p: 0.65, texto: "mediana de tokens generados <= 140 (el motivo puede ser más largo)", resultado: null}
-  # Velocidad (bloque B): cada una es una corrida aparte frente a «v3».
-  - {id: H17, corrida: cache-variantes, p: 0.55, texto: "al menos una de las 4 variantes del diagnóstico reutiliza la caché", resultado: null}
-  - {id: H18, corrida: cache-variantes, p: 0.50, texto: "«el mismo mensaje dos veces» reutiliza la caché", resultado: null}
+  - {id: H17, corrida: cache-variantes, p: 0.55, texto: "al menos una de las 4 variantes del diagnóstico reutiliza la caché", resultado: false}
+  - {id: H18, corrida: cache-variantes, p: 0.50, texto: "«el mismo mensaje dos veces» reutiliza la caché", resultado: false}
   - {id: H19, corrida: v3_c1, p: 0.70, texto: "con --cuantos 1, la mediana de segundos es al menos 10 s menor que la de v3", resultado: null}
   - {id: H20, corrida: v3_4b, p: 0.70, texto: "con qwen3:4b, la mediana de segundos es como mucho el 70 % de la de v3", resultado: null}

@@ -277,3 +277,142 @@ Las dos fallas tienen la misma causa en los 9 documentos marcados con la incoher
 | 18 | `Motion Blur` | 4.5 | P6 | aceptar · P6 · 156.1s | aceptar · P6 · 155.1s | aceptar · ninguna · P6 · 125.2s (2702/122) · ✓ |
 | 19 | `Ocean Modifier` | 5.2 | P6 P5 P1 | aceptar · P6 · 196.9s | revision · ninguna · 188.0s | revision · relevancia · P6 · 147.9s (3183/102) · ✗ |
 | 20 | `Mesh to Curve Node` | 5.2 | P6 | aceptar · P6 · 134.6s | aceptar · P6 · 133.6s | aceptar · ninguna · P6 · 131.0s (2713/134) · ✓ |
+
+---
+
+## Corridas 4 y 5 · Canon v3 (119 fragmentos, revisor v2): `canon3` (sin `--criterios`) vs `criterios` (con `--criterios`)
+
+### Paso 10 · Indexación del Canon v3 y evaluación de 51 preguntas
+
+```text
+Canon v3: 16 documentos, 119 fragmentos (palabras por fragmento: mediana 93, máximo 261)
+Modelo de embeddings: bge-m3@790764642607
+  ↑ ia/criterios: 8 fragmentos
+Listo: 1 documentos actualizados (8 fragmentos), 15 sin cambios, 0 podados.
+
+supabase bge-m3@790764642607 texto=1.0 vector=1.0: recall@1 0.80 · recall@3 0.96 · MRR 0.88 (umbral recall@3 0.85)
+  falla p15: esperaba g7b/estandar-telemetria, salió ['g7b/geodar-radar', 'g7b/ingesta', 'g7b/telemetria'] (rango None)
+  falla p20: esperaba g7b/cubo, salió ['g7b/fichas-tecnicas', 'g7b/ingesta', 'g7b/telemetria'] (rango 5)
+```
+
+### Paso 11 · Resumen exacto de `canon3` (sin `--criterios`)
+
+```json
+{
+  "revisor": 2,
+  "criterios": false,
+  "modelo": "qwen3:8b",
+  "palabras_por_documento": 450,
+  "canon_fragmentos": 119,
+  "fecha": "2026-11-22 02:13",
+  "documentos": 20,
+  "json_valido": 1.0,
+  "pregunta_valida": 1.0,
+  "cita_valida": 1.0,
+  "cita_embudo": 0.55,
+  "coherente": 0.5,
+  "coincide_pregunta_embudo": 0.8,
+  "decisiones": {
+    "aceptar": 6,
+    "revision": 13,
+    "rechazar": 1
+  },
+  "no_se": 1,
+  "segundos_por_documento": {
+    "mediana": 106.09193985000093,
+    "maximo": 186.61912920000032
+  },
+  "tokens_por_segundo": {
+    "genera": 2.3521637855365096,
+    "lee": 46.24045376407613
+  },
+  "tokens_por_documento": {
+    "lee": 2641.5,
+    "genera": 113.0
+  },
+  "horas_estimadas_para_1033": 30.442492740291932
+}
+```
+
+### Paso 11 · Resumen exacto de `criterios` (con `--criterios`)
+
+```json
+{
+  "revisor": 2,
+  "criterios": true,
+  "modelo": "qwen3:8b",
+  "palabras_por_documento": 450,
+  "canon_fragmentos": 119,
+  "fecha": "2026-11-22 03:00",
+  "documentos": 20,
+  "json_valido": 1.0,
+  "pregunta_valida": 1.0,
+  "cita_valida": 1.0,
+  "cita_embudo": 0.15,
+  "coherente": 0.7,
+  "coincide_pregunta_embudo": 0.9,
+  "decisiones": {
+    "aceptar": 6,
+    "revision": 14,
+    "rechazar": 0
+  },
+  "no_se": 0,
+  "segundos_por_documento": {
+    "mediana": 134.69468054999743,
+    "maximo": 222.67488669999875
+  },
+  "tokens_por_segundo": {
+    "genera": 1.9824913098569177,
+    "lee": 46.43646587068822
+  },
+  "tokens_por_documento": {
+    "lee": 3589.5,
+    "genera": 115.0
+  },
+  "horas_estimadas_para_1033": 38.64989028004093
+}
+```
+
+### Paso 13 · Diagnóstico de la caché con 4 variantes (`--diagnostico-cache --variantes`)
+
+```text
+[como hoy: formato + sin pensar] tokens leídos: primera 1208, segunda 1211. La caché NO se reutiliza.
+[sin formato obligatorio] tokens leídos: primera 1208, segunda 1211. La caché NO se reutiliza.
+[sin el parámetro think] tokens leídos: primera 1202, segunda 1205. La caché NO se reutiliza.
+[el mismo mensaje dos veces] tokens leídos: primera 1208, segunda 1208. La caché NO se reutiliza.
+```
+
+### Verificación de las predicciones H8–H10 y H17–H18
+
+| # | Predicción | p | Resultado medido | Cumple |
+|---|---|---:|---|---|
+| **H8** | `coherente` de `criterios` ≥ `coherente` sin criterios | 0.70 | **`0.70` ≥ `0.50`** (`14/20` vs `10/20`, +20 pp de coherencia) | ✓ |
+| **H9** | `criterios` manda a revisión menos documentos que sin criterios | 0.55 | **`14` vs `13` en `revision`** (`canon3` tuvo `13 revision + 1 rechazar = 14` no aceptados; `criterios` tuvo `14 revision + 0 rechazar`) | ✗ |
+| **H10** | La mediana de s/doc de `criterios` es al menos 25 s mayor (antes, 10 s) | 0.75 | **`134.69 s` vs `106.09 s`** (`+28.60 s ≥ 25 s`, por leer `3589.5` vs `2641.5` tokens) | ✓ |
+| **H17** | Al menos una de las 4 variantes del diagnóstico reutiliza la caché | 0.55 | **0 de 4 variantes** reutilizan la caché | ✗ |
+| **H18** | «El mismo mensaje dos veces» reutiliza la caché | 0.50 | **No la reutiliza** (`primera 1208, segunda 1208`) | ✗ |
+
+### Comparación documento por documento en Canon v3 (`canon3` vs `criterios`)
+
+| # | Título | Ver | Embudo | `canon3` (dec · etapa · preg · s · lee/gen · coh) | `criterios` (dec · etapa · preg · s · lee/gen · coh) |
+|---:|---|---|---|---|---|
+| 1 | `Limitations` | 5.2 | P6 P1 P2 | revision · relevancia · P6 · 140.0s (3022/122) · ✗ | revision · valor · P6 · 222.7s (3970/128) · ✓ |
+| 2 | `Group` | 5.2 | P6 P1 | revision · relevancia · P6 · 107.6s (2487/105) · ✗ | revision · valor · P6 · 123.7s (3435/110) · ✓ |
+| 3 | `Startup ` | 3.6 | P2 | revision · relevancia · P2 · 101.0s (2414/104) · ✗ | revision · relevancia · P2 · 124.0s (3362/117) · ✗ |
+| 4 | `Is Edge Manifold Node` | 5.2 | P6 | aceptar · ninguna · P6 · 81.8s (2325/117) · ✓ | revision · valor · P6 · 89.0s (3273/115) · ✓ |
+| 5 | `Introduction` | 4.5 | P6 P5 | revision · relevancia · ninguna · 108.5s (2581/124) · ✓ | revision · relevancia · P6 · 121.5s (3529/122) · ✗ |
+| 6 | `Displace Hair Curves ` | 3.6 | P6 | aceptar · ninguna · P6 · 118.9s (2739/139) · ✓ | revision · relevancia · P6 · 145.8s (3687/122) · ✗ |
+| 7 | `Select All by Trait` | 4.5 | P6 P1 | rechazar · relevancia · ninguna · 122.6s (2862/115) · ✓ | revision · relevancia · ninguna · 152.1s (3810/117) · ✓ |
+| 8 | `Deleting & Dissolving` | 5.2 | P6 P1 | revision · relevancia · P6 · 129.6s (3050/104) · ✗ | revision · valor · P6 · 156.4s (3998/126) · ✓ |
+| 9 | `Set ID Node` | 5.2 | P6 | revision · relevancia · P6 · 86.4s (2348/105) · ✗ | revision · relevancia · P6 · 97.7s (3296/102) · ✗ |
+| 10 | `World Settings` | 4.5 | P1 P6 | revision · relevancia · P6 · 186.6s (3233/172) · ✗ | revision · relevancia · P6 · 215.2s (4181/182) · ✗ |
+| 11 | `Startup` | 4.5 | P2 | revision · relevancia · ninguna · 103.7s (2752/126) · ✓ | aceptar · ninguna · P2 · 149.0s (3700/125) · ✓ |
+| 12 | `Input` | 5.2 | P6 P1 P2 P4 | revision · relevancia · P6 · 112.2s (3275/106) · ✗ | revision · valor · P6 · 179.7s (4223/105) · ✓ |
+| 13 | `Instance Bounds Node` | 5.2 | P1 | aceptar · ninguna · P1 · 104.6s (2549/119) · ✓ | aceptar · ninguna · P1 · 129.6s (3497/114) · ✓ |
+| 14 | `Select Sharp Edges` | 5.2 | P6 | revision · relevancia · P6 · 76.9s (2241/99) · ✗ | aceptar · ninguna · P6 · 94.2s (3189/110) · ✓ |
+| 15 | `Introduction ` | 3.6 | P6 | revision · relevancia · P6 · 79.2s (2297/103) · ✗ | revision · relevancia · P6 · 109.9s (3245/108) · ✗ |
+| 16 | `Structure ` | 3.6 | P6 P1 P5 | revision · relevancia · ninguna · 128.4s (3001/122) · ✓ | revision · valor · ninguna · 157.1s (3949/113) · ✓ |
+| 17 | `UV Project Modifier` | 5.2 | P6 | aceptar · ninguna · P6 · 93.7s (2559/97) · ✓ | aceptar · ninguna · P6 · 130.2s (3507/115) · ✓ |
+| 18 | `Motion Blur` | 4.5 | P6 | aceptar · ninguna · P6 · 49.1s (2702/115) · ✓ | aceptar · ninguna · P6 · 139.2s (3650/114) · ✓ |
+| 19 | `Ocean Modifier` | 5.2 | P6 P5 P1 | revision · relevancia · P6 · 119.7s (3008/103) · ✗ | revision · valor · P6 · 164.2s (3956/125) · ✓ |
+| 20 | `Mesh to Curve Node` | 5.2 | P6 | aceptar · ninguna · P6 · 77.3s (2440/111) · ✓ | aceptar · ninguna · P6 · 103.2s (3388/112) · ✓ |

@@ -29,3 +29,23 @@ corridas:
       json: [20, 20]
       cita: [20, 20]
       coherente: [11, 20]
+  - id: v2-canon3
+    revisor: 2
+    criterios: false
+    modelo: "qwen3:8b"
+    fecha: 2026-11-22
+    muestra: la misma (canon v3, 119 fragmentos, sin --criterios)
+    senales:
+      json: [20, 20]
+      cita: [20, 20]
+      coherente: [10, 20]
+  - id: v2-criterios
+    revisor: 2
+    criterios: true
+    modelo: "qwen3:8b"
+    fecha: 2026-11-22
+    muestra: la misma (canon v3, 119 fragmentos, con --criterios)
+    senales:
+      json: [20, 20]
+      cita: [20, 20]
+      coherente: [14, 20]
