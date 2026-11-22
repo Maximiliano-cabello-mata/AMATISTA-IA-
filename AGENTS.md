@@ -23,6 +23,8 @@ Este repositorio construye la IA que revisa los datos del lago de G7B. Para inst
 - `evaluacion/preguntas.yml`: las preguntas no se ajustan para subir el recall.
 - `supabase/migrations/`: el agente no aplica migraciones ni ejecuta SQL que cambie tablas. Si la migración falta, se reporta.
 - Los pesos de búsqueda por omisión y el modelo `bge-m3`.
+- `revisor/pesos_teoricos.yml`: son lo que se creía antes de ver resultados. Lo observado va en `revisor/comportamiento.yml` y en las etiquetas humanas, nunca en los pesos teóricos.
+- `canon/criterios/criterios_revision.md`: un criterio nuevo lo escribe y aprueba una persona, con su evidencia.
 
 Si una medición sale mal, se reporta tal cual, con la salida exacta. No afirmes nada que no hayas corrido y visto.
 

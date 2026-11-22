@@ -132,3 +132,17 @@ def test_diagnostico_de_cache():
     diagnosticar_cache(G([1200, 40]), 'hoja', registro=mensajes.append)
     diagnosticar_cache(G([1200, 1190]), 'hoja', registro=mensajes.append)
     assert 'SÍ se reutiliza' in mensajes[0] and 'NO se reutiliza' in mensajes[1]
+
+
+def test_los_criterios_van_en_la_hoja_fija_solo_con_la_opcion_y_nunca_se_recuperan():
+    import pytest
+    from revisor.revisar import CANON_CRITERIOS
+    crit = [{'id': 9, 'documento_id': CANON_CRITERIOS, 'orden': 1, 'seccion': 'Criterios > Criterios verificados > C1. Datos',
+             'texto': 'Los datos son solo los del documento.', 'embedding': [0, 1, 0, 0], 'titulo': 'Criterios'}]
+    fr = CANON['fragmentos'] + crit
+    assert 'CRITERIOS APRENDIDOS' not in hoja_fija(fr, TAX)
+    h = hoja_fija(fr, TAX, criterios=True)
+    assert 'C1. Datos\nLos datos son solo los del documento.' in h
+    assert all(f['documento_id'] != CANON_CRITERIOS for f in BuscadorLocal(fr).buscar('datos documento', [0, 1, 0, 0], 5))
+    with pytest.raises(RuntimeError, match='canon v3'):
+        hoja_fija(CANON['fragmentos'], TAX, criterios=True)

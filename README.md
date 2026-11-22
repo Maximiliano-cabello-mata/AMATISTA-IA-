@@ -40,6 +40,8 @@ laboratorio/verificar.py     comprueba Ollama, bge-m3 y Supabase sin mostrar cla
 revisor/                     prueba del revisor: muestra de MongoDB, revisión local con un 8B, comparación con una persona
 TAREA_PRUEBA_REVISOR.md      la tarea para el agente del laboratorio
 TAREA_SEGUNDA_REVISION.md    segunda opinión, a ciegas, sobre los 70 bloques de la auditoría de Site 4.1
+canon/criterios/             criterios de revisión que aprendimos probando (canon v3)
+revisor/confianza.py         pesos de confianza: de lo teórico a lo observado, y orden de trabajo para la persona
 LABORATORIO.md, AGENTS.md    guía de instalación y reglas para el agente de la computadora del laboratorio
 pruebas/                     pruebas del indexador, de la evaluación y de la migración (Postgres local)
 ```

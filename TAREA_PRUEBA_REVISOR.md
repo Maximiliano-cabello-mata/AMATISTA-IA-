@@ -174,3 +174,63 @@ python -m revisor.comparar salidas/prueba_revisor.csv
 ```
 
 Así se sabe qué tan seguido acierta la IA en lo que importa: los documentos que una persona sí sacaría del lago.
+
+---
+
+## Criterios aprendidos y pesos de confianza (22 de noviembre)
+
+El canon v3 agrega **`ia/criterios`**: siete criterios que aprendimos probando, cada uno con su evidencia. Está en `canon/criterios/criterios_revision.md` de este repositorio. El revisor puede usarlos como instrucciones fijas con `--criterios`.
+
+### Paso 10 · Volver a indexar (canon v3)
+
+Hazlo **después** de la corrida v2 del paso 8: esa corrida necesita el canon de 108 fragmentos.
+
+```bash
+python -m indexador.indexar canon/canon.yml
+```
+
+Se espera:
+- si ya indexaste la v2: `1 documentos actualizados (8 fragmentos)`;
+- si no: `3 documentos actualizados (11 fragmentos)`.
+
+En los dos casos, los demás salen `sin cambios`.
+
+Mide de nuevo la recuperación. Ahora son 51 preguntas. Solo con texto, el canon v3 da 0.902.
+
+```bash
+python -m evaluacion.evaluar evaluacion/preguntas.yml
+```
+
+### Paso 11 · Dos corridas con el mismo canon v3: sin y con criterios
+
+Así lo único distinto entre las dos son los criterios:
+
+```bash
+python -m revisor.revisar salidas/muestra.jsonl --modelo qwen3:8b --refrescar-canon --nombre canon3
+```
+
+```bash
+python -m revisor.revisar salidas/muestra.jsonl --modelo qwen3:8b --criterios --nombre criterios
+```
+
+- `--refrescar-canon` solo va en la primera; la segunda reutiliza ese canon.
+- Los criterios agregan unas 520 palabras a cada prompt. Sin caché, eso son unos 20 s más por documento.
+- Las predicciones H8–H10 están en `revisor/predicciones.yml`, escritas antes de correr.
+
+### Paso 12 · Pesos de confianza
+
+```bash
+python -m revisor.confianza --corridas salidas/prueba_revisor_canon3.json salidas/prueba_revisor_criterios.json
+```
+
+Qué hace:
+1. **Parte de los pesos teóricos** de `revisor/pesos_teoricos.yml`, escritos antes de ver etiquetas humanas. **No se editan después de ver resultados.**
+2. **Los actualiza con el comportamiento real** de `revisor/comportamiento.yml`.
+3. **Combina las opiniones de los modelos** en una probabilidad de que cada documento tenga un problema, y ordena el trabajo de la persona:
+   - menos de 0.20: se propone dejar;
+   - más de 0.80: se propone revisar;
+   - en medio: lo decide la persona.
+
+Cuando una persona marque la planilla, agrega `--etiquetas salidas/prueba_revisor_criterios.csv`. Con eso los pesos dejan de ser teóricos: se vuelven la sensibilidad y la especificidad reales de cada modelo.
+
+Después, una persona marca en `revisor/predicciones.yml` qué predicciones se cumplieron (`resultado: true` o `false`) y agrega los conteos nuevos a `revisor/comportamiento.yml`. El algoritmo calcula el puntaje de Brier.

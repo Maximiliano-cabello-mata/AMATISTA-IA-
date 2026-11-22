@@ -13,7 +13,7 @@
 # `version`. El indexador solo vuelve a calcular los fragmentos cuyo hash cambió.
 
 contrato: amatista.ia.canon/1
-version: 2
+version: 3
 fecha: 2026-11-22
 
 repositorios:
@@ -21,6 +21,12 @@ repositorios:
     url: https://github.com/Maximiliano-cabello-mata/amatista-g7b-etl
     rama: main
     commit: 81104a10f67db87d0cdc73b76a0414c015cae879
+  ia:
+    # Este mismo repositorio: los criterios que aprendimos probando. Mientras el PR #1 no se fusione, el commit
+    # vive en la rama de trabajo; GitHub lo conserva en refs/pull/1/head aunque la rama se borre.
+    url: https://github.com/Maximiliano-cabello-mata/AMATISTA-IA-
+    rama: main
+    commit: 9099d59a86d98c77bb1ce7857110a2c553c8eaf1
   amatista:
     url: https://github.com/Maximiliano-cabello-mata/amatista-recuperada-20261106
     rama: recuperacion
@@ -116,6 +122,13 @@ documentos:
     idioma: en
     solo_secciones: ["Evaluating the 80% target", "Changes after the first pilot"]
     por_que: La rúbrica de la araña Site 4.1 y las fallas que ya se observaron (descripciones genéricas de la interfaz, ejemplos imprecisos, pasajes repetidos). La IA juzga los bloques con el mismo criterio que la auditoría de la araña. Los resultados del piloto no entran porque son un registro de un momento.
+
+  - id: ia/criterios
+    repo: ia
+    ruta: canon/criterios/criterios_revision.md
+    tipo: regla
+    excluir_secciones: ["Por decidir"]
+    por_que: Lo que aprendimos probando (datos solo del documento, versión en la URL, citas al canon, coherencia, bloque útil, duda a revisión, la IA propone). Si choca con un estándar de G7B, manda el estándar. Lo «por decidir» queda fuera hasta que una persona lo decida.
 
   - id: amatista/direccion
     repo: amatista

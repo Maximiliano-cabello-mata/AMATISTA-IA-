@@ -1,0 +1,34 @@
+# Pesos teóricos de la IA revisora: lo que creíamos ANTES de ver etiquetas humanas (22 de noviembre de 2026).
+#
+# Cada peso es una distribución Beta [a, b]:
+#   - su media es a / (a + b);
+#   - a + b dice cuántos casos «vale» la creencia: con poco, los datos la corrigen rápido.
+# El algoritmo (revisor/confianza.py) los actualiza con lo que cada revisor hizo de verdad.
+# Estos números no se tocan después de ver resultados: si estaban mal, el algoritmo lo muestra.
+version: 1
+
+# De los documentos que el embudo ya aceptó, ¿qué fracción sacaría o revisaría una persona?
+# Creencia: ~20 %. En la auditoría de Site, 6 de 70 bloques no eran útiles (9 %), pero una página completa
+# es más variada que un bloque.
+problemas_entre_aceptados: [2, 8]
+
+revisores:
+  "qwen3:8b":
+    # Acierto (necesita etiquetas humanas):
+    sensibilidad: [6, 4]     # de lo que una persona sacaría o revisaría, ¿cuánto marca? Creencia 0.60
+    especificidad: [6, 4]    # de lo que una persona deja, ¿cuánto deja? Creencia 0.60
+    # Comportamiento comprobable por código:
+    json: [8, 2]
+    cita: [5, 5]
+    datos: [5, 5]
+  "codellama:latest":
+    # Modelo de código, de 2023: sin razón para creer que acierta mejor que una moneda (peso 0).
+    sensibilidad: [5, 5]
+    especificidad: [5, 5]
+    json: [8, 2]
+    cita: [5, 5]
+    datos: [5, 5]
+  codex:
+    # Etiquetó la auditoría de Site 4.1. «Problema» = bloque no útil.
+    sensibilidad: [8, 2]
+    especificidad: [8, 2]

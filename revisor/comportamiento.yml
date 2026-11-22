@@ -1,0 +1,22 @@
+# Cómo se comportó cada revisor: conteos [éxitos, total] de las comprobaciones por código. Solo agregados:
+# ningún texto del lago. Fuente de cada corrida: revisor/RESULTADOS_PRUEBA.md.
+version: 1
+corridas:
+  - id: v1-codellama
+    revisor: 1
+    modelo: "codellama:latest"
+    fecha: 2026-11-21
+    muestra: 20 documentos de conocimiento_3d (todos blender-manual)
+    senales:
+      json: [20, 20]
+      cita: [1, 20]
+      datos: [15, 73]      # sin contar la URL; también tomó versiones de la URL, pero no se contaron aparte
+  - id: v1-qwen3
+    revisor: 1
+    modelo: "qwen3:8b"
+    fecha: 2026-11-22
+    muestra: la misma
+    senales:
+      json: [20, 20]
+      cita: [3, 20]        # 17 de 20 si se cuenta el id del canon puesto en el campo equivocado
+      datos: [17, 19]      # contando la URL (criterio C2); 0 de 19 sin ella

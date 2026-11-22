@@ -51,6 +51,7 @@ from indexador.indexar import Ollama, _json
 ETAPAS = ['entrada', 'calidad', 'duplicados', 'relevancia', 'valor', 'ninguna']
 DECISIONES = ['aceptar', 'revision', 'rechazar']
 CANON_REGLAS = 'g7b/ingesta'          # el embudo: va completo en la hoja fija, no se recupera
+CANON_CRITERIOS = 'ia/criterios'      # lo aprendido probando: con --criterios va en la hoja fija, nunca se recupera
 G7B_CRUDO = 'https://raw.githubusercontent.com/Maximiliano-cabello-mata/amatista-g7b-etl/{commit}/fuentes/{archivo}'
 TAXONOMIA = G7B_CRUDO.replace('{archivo}', 'taxonomia.yml')
 VERSION_REVISOR = 2
@@ -106,7 +107,7 @@ class BuscadorLocal:
     """La misma idea que buscar_canon() en Supabase (texto + vectores fusionados por RRF), pero en memoria."""
 
     def __init__(self, fragmentos, k_rrf=50):
-        self.frags = [f for f in fragmentos if f['documento_id'] != CANON_REGLAS]
+        self.frags = [f for f in fragmentos if f['documento_id'] not in (CANON_REGLAS, CANON_CRITERIOS)]
         self.bm25 = BM25(self.frags)
         self.k = k_rrf
 
@@ -122,10 +123,18 @@ class BuscadorLocal:
 
 
 # --- Instrucciones ---------------------------------------------------------------------------------------------------
-def hoja_fija(fragmentos, taxonomia):
-    """Va primero y es idéntica en cada documento: Ollama reutiliza su caché y no la vuelve a leer."""
+def hoja_fija(fragmentos, taxonomia, criterios=False):
+    """Va primero y es idéntica en cada documento: Ollama puede reutilizar su caché y no volver a leerla."""
     embudo = '\n\n'.join(f['texto'] for f in fragmentos if f['documento_id'] == CANON_REGLAS
                          and '4. El embudo' in (f['seccion'] or ''))
+    aprendidos = ''
+    if criterios:
+        partes = [f"{f['seccion'].split(' > ')[-1]}\n{f['texto']}" for f in sorted(fragmentos, key=lambda f: f.get('orden', 0))
+                  if f['documento_id'] == CANON_CRITERIOS and re.search(r'> C\d', f['seccion'] or '')]
+        if not partes:
+            raise RuntimeError('El canon no tiene ia/criterios: indexa el canon v3 y usa --refrescar-canon.')
+        aprendidos = '\n\nCRITERIOS APRENDIDOS (canon, ia/criterios; si chocan con una regla de G7B, manda la regla):\n' + \
+            '\n\n'.join(partes)
     preguntas = '\n'.join(f'- {k}: {v["nombre"]}' for k, v in taxonomia['preguntas'].items())
     return f"""Eres el revisor de documentos de G7B. Revisas documentos que el embudo automático ya aceptó y \
 propones si de verdad debieron entrar. Tu propuesta la confirma una persona: no decides tú.
@@ -134,7 +143,7 @@ REGLAS DEL EMBUDO (canon, g7b/ingesta, sección 4):
 {embudo}
 
 PREGUNTAS DEL PLAN (lista cerrada; si ninguna aplica, responde «ninguna»):
-{preguntas}
+{preguntas}{aprendidos}
 
 CÓMO RESPONDER:
 - decision: «aceptar» si cumple las cinco etapas; «revision» si está en el límite o es dudoso; «rechazar» si falla una etapa.
@@ -257,9 +266,9 @@ class Generador:
 
 # --- Corrida ---------------------------------------------------------------------------------------------------------
 def revisar_todo(docs, canon, taxonomia, embebedor, generador, max_palabras=450, cuantos=3, registro=print,
-                 patrones_hardware=()):
+                 patrones_hardware=(), criterios=False):
     buscador = BuscadorLocal(canon['fragmentos'])
-    sistema = hoja_fija(canon['fragmentos'], taxonomia)
+    sistema = hoja_fija(canon['fragmentos'], taxonomia, criterios)
     validas = set(taxonomia['preguntas'])
     resultados = []
     for i, doc in enumerate(docs, 1):
@@ -353,6 +362,9 @@ def main(argv=None):
     p.add_argument('--palabras', type=int, default=450, help='palabras del documento que se le muestran al modelo')
     p.add_argument('--refrescar-canon', action='store_true',
                    help='volver a bajar el canon de Supabase. NO lo uses si comparas con una corrida anterior')
+    p.add_argument('--nombre', default='', help='sufijo de los archivos de salida, para no sobrescribir otra corrida')
+    p.add_argument('--criterios', action='store_true',
+                   help='agregar los criterios aprendidos (ia/criterios, canon v3) a las instrucciones fijas')
     p.add_argument('--diagnostico-cache', action='store_true',
                    help='solo comprobar si Ollama reutiliza las instrucciones fijas entre documentos')
     a = p.parse_args(argv)
@@ -378,16 +390,17 @@ def main(argv=None):
     print(f'Canon: {len(canon["fragmentos"])} fragmentos · modelo {a.modelo} · {len(docs)} documentos\n')
 
     resultados = revisar_todo(docs, canon, taxonomia, embebedor, Generador(a.ollama, a.modelo), a.palabras,
-                              patrones_hardware=patrones_de(hardware))
-    resumen = {'revisor': VERSION_REVISOR, 'modelo': a.modelo, 'palabras_por_documento': a.palabras,
+                              patrones_hardware=patrones_de(hardware), criterios=a.criterios)
+    resumen = {'revisor': VERSION_REVISOR, 'criterios': a.criterios, 'modelo': a.modelo, 'palabras_por_documento': a.palabras,
                'canon_fragmentos': len(canon['fragmentos']), 'fecha': time.strftime('%Y-%m-%d %H:%M'),
                **resumir(resultados)}
     Path('salidas').mkdir(exist_ok=True)
-    Path('salidas/prueba_revisor.json').write_text(json.dumps({'resumen': resumen, 'resultados': resultados},
-                                                              ensure_ascii=False, indent=2), encoding='utf-8')
-    escribir_planilla(resultados, 'salidas/prueba_revisor.csv')
+    base = 'salidas/prueba_revisor' + (f'_{a.nombre}' if a.nombre else '')
+    Path(f'{base}.json').write_text(json.dumps({'resumen': resumen, 'resultados': resultados},
+                                               ensure_ascii=False, indent=2), encoding='utf-8')
+    escribir_planilla(resultados, f'{base}.csv')
     print('\n' + json.dumps(resumen, ensure_ascii=False, indent=2))
-    print('\nArchivos: salidas/prueba_revisor.json (todo) y salidas/prueba_revisor.csv (para marcar a mano).')
+    print(f'\nArchivos: {base}.json (todo) y {base}.csv (para marcar a mano).')
     return 0
 
 

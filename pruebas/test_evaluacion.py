@@ -33,6 +33,6 @@ def test_las_preguntas_apuntan_a_documentos_del_canon_y_no_se_repiten():
     conjunto = yaml.safe_load((RAIZ / 'evaluacion/preguntas.yml').read_text(encoding='utf-8'))
     ids_canon = {d['id'] for d in canon['documentos']}
     preguntas = conjunto['preguntas']
-    assert 30 <= len(preguntas) <= 50
+    assert 30 <= len(preguntas) <= 60
     assert len({p['id'] for p in preguntas}) == len(preguntas)
     assert {p['esperado'] for p in preguntas} == ids_canon     # cada documento del canon tiene al menos una pregunta

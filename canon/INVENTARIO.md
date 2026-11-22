@@ -6,7 +6,7 @@ Qué documentos del proyecto aprende la IA, cuáles no y qué hay que resolver a
 - G7B: `main` en `81104a1`.
 - Amatista: `recuperacion` en `b689c48`.
 
-## 1. Lo que entra (15 documentos, versión 2)
+## 1. Lo que entra (16 documentos, versión 3)
 
 | Documento | Tipo | Para qué le sirve a la IA |
 |---|---|---|
@@ -23,6 +23,7 @@ Qué documentos del proyecto aprende la IA, cuáles no y qué hay que resolver a
 | G7B · `docs/investigacion/2026-11-17_decision_ia.md` | política | La decisión vigente sobre IA |
 | G7B · `algoritmos/documentacion/README.md` (solo «Objetivo de utilidad del 80 %») | regla | Qué es un bloque útil de documentación y la regla de Wilson para habilitar una fuente (**v2**) |
 | G7B · `algoritmos/documentacion/site-4.md` (solo la rúbrica y los cambios del primer piloto) | regla | La rúbrica de la araña Site 4.1 y las fallas ya observadas, en inglés (**v2**) |
+| Amatista IA · `canon/criterios/criterios_revision.md` (sin «Por decidir») | regla | Los 7 criterios que aprendimos probando, con su evidencia (**v3**). Si chocan con un estándar de G7B, manda el estándar |
 | Amatista · `PROYECTO.md` (solo §1) | visión | Qué es Amatista y su relación con G7B |
 | Amatista · `docs/arquitectura/2026-11-02_conexion_g7b_y_geoda.md` | contrato | La frontera de privacidad: solo Amatista guarda datos personales |
 
@@ -62,7 +63,17 @@ Qué documentos del proyecto aprende la IA, cuáles no y qué hay que resolver a
 - Solo con texto (función real, Postgres local): recall@3 de 0.898 (44/49). Las 3 nuevas salen entre los 3 primeros.
 - La búsqueda híbrida se mide en el laboratorio después de volver a indexar.
 
-## 5. Siguiente paso
+## 5. Versión 3 (22 de noviembre)
+
+**Qué se agregó.** `ia/criterios`, con lo que aprendimos de la prueba del revisor y de la auditoría de Site. Lo «por decidir» (P6 en páginas del manual y páginas introductorias) queda fuera hasta que una persona lo decida.
+
+**Qué cambia en las cifras:**
+- 16 documentos y 119 fragmentos.
+- 2 preguntas nuevas, escritas antes de medir, para un total de 51.
+- Solo con texto (función real): recall@3 de 0.902 (46/51). Las 2 nuevas salen entre los 3 primeros, y los criterios no le quitan el primer lugar a ninguna otra pregunta.
+- En BM25, la referencia sin red, la p17 (cubo) baja al cuarto lugar por los criterios. En la función real, no.
+
+## 6. Siguiente paso
 
 1. Resolver C1, C3 y C5. Son decisiones del proyecto, no de la IA.
 2. Aplicar la migración de Supabase (`supabase/migrations/`).
