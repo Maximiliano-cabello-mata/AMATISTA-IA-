@@ -40,6 +40,8 @@ evaluacion/preguntas.yml     46 preguntas, cada una con su documento esperado
 evaluacion/evaluar.py        recall@1, recall@3 y MRR, contra Supabase o sin red (BM25)
 laboratorio/verificar.py     comprueba Ollama, bge-m3 y Supabase sin mostrar claves
 revisor/                     prueba del revisor: muestra de MongoDB, revisión local con un 8B, comparación con una persona
+consola/                     consola del auditor 24/7: lotes de 100, cierre con 20 muestras al escritorio, veredicto y freno
+TAREA_CONSOLA.md             la tarea vigente para el agente del laboratorio
 TAREA_PRUEBA_REVISOR.md      la tarea para el agente del laboratorio
 TAREA_SEGUNDA_REVISION.md    segunda opinión, a ciegas, sobre los 70 bloques de la auditoría de Site 4.1
 canon/criterios/             criterios de revisión que aprendimos probando (canon v3)

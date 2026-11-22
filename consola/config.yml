@@ -1,0 +1,19 @@
+# Configuración de la consola de Amatista IA (BASE.md, sección 3). Cambiar estos valores es un cambio del flujo:
+# se decide antes de un lote, no a mitad de uno.
+tamano_lote: 100            # documentos por lote; al llegar aquí, la consola hace el cierre sola
+muestras: 20                # muestras al azar por cierre
+muestras_descartadas: 6     # de esas, cuántas salen de lo que la IA NO aceptó (revisión, rechazo o «persona»)
+max_lotes_esperando: 2      # con esta cantidad de lotes esperando veredicto, la IA se pausa
+espera_s: 600               # cada cuánto vuelve a mirar cuando está en pausa o sin documentos nuevos
+refresco_s: 5               # cada cuánto se redibuja la consola
+
+# Revisor (el mismo de revisor/revisar.py)
+modelo: "qwen3:8b"
+embeddings: "bge-m3"
+criterios: true             # criterios aprendidos y errores conocidos (ia/criterios) en las instrucciones fijas
+palabras: 450
+cuantos: 3
+refrescar_canon_al_iniciar: true
+
+# Carpeta donde aparecen los cierres. Vacía = el escritorio de esta computadora («Amatista IA · cierres»).
+carpeta_cierres: ""

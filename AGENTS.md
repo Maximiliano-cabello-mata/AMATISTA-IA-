@@ -1,6 +1,6 @@
 # Reglas para agentes de IA en este repositorio
 
-Este repositorio construye la IA que revisa los datos del lago de G7B. Para instalarla en la computadora del laboratorio, sigue [`LABORATORIO.md`](LABORATORIO.md) paso por paso. Las tareas del revisor están en [`TAREA_PRUEBA_REVISOR.md`](TAREA_PRUEBA_REVISOR.md) y [`TAREA_SEGUNDA_REVISION.md`](TAREA_SEGUNDA_REVISION.md). Responde en español.
+Este repositorio construye la IA que revisa los datos del lago de G7B. Para instalarla en la computadora del laboratorio, sigue [`LABORATORIO.md`](LABORATORIO.md) paso por paso. La tarea vigente es [`TAREA_CONSOLA.md`](TAREA_CONSOLA.md): dejar la consola trabajando 24/7. Las pruebas anteriores del revisor están en [`TAREA_PRUEBA_REVISOR.md`](TAREA_PRUEBA_REVISOR.md) y [`TAREA_SEGUNDA_REVISION.md`](TAREA_SEGUNDA_REVISION.md). Responde en español.
 
 ## Lugar de este repositorio en la base
 
@@ -22,6 +22,7 @@ Este repositorio construye la IA que revisa los datos del lago de G7B. Para inst
 ## Datos
 
 - **Ningún dato del lago ni de estudiantes sale de esta computadora** hacia servicios de IA en la nube (Gemini, OpenAI, etc.). La IA es local: Ollama.
+  - **Única excepción (aprobada por el responsable el 22 de noviembre de 2026):** la persona puede pasarle al asistente las 20 muestras de un cierre (`para_segunda_opinion.md`) para una segunda opinión. Solo documentos de fuentes públicas (manual de Blender y foros con licencia), nunca datos de estudiantes. La consola no envía nada sola: siempre lo hace la persona.
 - El canon solo tiene estándares del proyecto. No agregues datos del lago al canon: es lo que la IA va a revisar.
 - Ollama escucha solo en `127.0.0.1`. No lo expongas a la red.
 - **El revisor solo propone.** Lee de MongoDB con un usuario de solo lectura y escribe en `salidas/`, que no se sube. Nunca cambia el lago, MongoDB ni Supabase.
