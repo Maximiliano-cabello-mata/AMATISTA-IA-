@@ -6,7 +6,7 @@ Qué documentos del proyecto aprende la IA, cuáles no y qué hay que resolver a
 - G7B: `main` en `81104a1`.
 - Amatista: `recuperacion` en `b689c48`.
 
-## 1. Lo que entra (16 documentos, versión 4)
+## 1. Lo que entra (17 documentos, versión 5)
 
 | Documento | Tipo | Para qué le sirve a la IA |
 |---|---|---|
@@ -24,6 +24,7 @@ Qué documentos del proyecto aprende la IA, cuáles no y qué hay que resolver a
 | G7B · `algoritmos/documentacion/README.md` (solo «Objetivo de utilidad del 80 %») | regla | Qué es un bloque útil de documentación y la regla de Wilson para habilitar una fuente (**v2**) |
 | G7B · `algoritmos/documentacion/site-4.md` (solo la rúbrica y los cambios del primer piloto) | regla | La rúbrica de la araña Site 4.1 y las fallas ya observadas, en inglés (**v2**) |
 | Amatista IA · `canon/criterios/criterios_revision.md` (sin «Por decidir») | regla | Los 7 criterios que aprendimos probando (**v3**) y los 6 errores conocidos del revisor, con lo que tiene que hacer en su lugar (**v4**). Si chocan con un estándar de G7B, manda el estándar |
+| Amatista · `BASE.md` | visión | La base oficial del proyecto: términos, el ciclo con una sola puerta al cubo, el flujo diario, las reglas y las prioridades (**v5**) |
 | Amatista · `PROYECTO.md` (solo §1) | visión | Qué es Amatista y su relación con G7B |
 | Amatista · `docs/arquitectura/2026-11-02_conexion_g7b_y_geoda.md` | contrato | La frontera de privacidad: solo Amatista guarda datos personales |
 
@@ -81,7 +82,19 @@ Qué documentos del proyecto aprende la IA, cuáles no y qué hay que resolver a
 - 16 documentos y 126 fragmentos (`ia/criterios`: 15).
 - Solo con texto (función real): sigue en 46 de 51 (0.902), y los errores conocidos no le quitan el primer lugar a ninguna otra pregunta.
 
-## 7. Siguiente paso
+## 7. Versión 5 (22 de noviembre)
+
+**Qué se agregó.** `amatista/base`: la base oficial del proyecto, completa. El commit de Amatista pasa a `41b6d01`, que es donde nace la base, y `PROYECTO.md` §1 cambia porque ahora apunta a ella.
+
+**Qué cambia en las cifras:**
+- 17 documentos y 135 fragmentos; la base entra con 9.
+- 2 preguntas nuevas, escritas antes de medir, para un total de 53. Las 2 salen entre los 3 primeros.
+- Solo con texto (función real): recall@3 baja de 0.902 a **0.868** (46/53). La base es un resumen de todo y le quita el primer lugar a 4 preguntas específicas (p02, p23, p39, p44).
+- En BM25 (sin red) no cambia (0.92), aunque se indexen solo algunas secciones de la base.
+
+**Decisión:** entra completa. Si la búsqueda híbrida del laboratorio baja del umbral de 0.85, se indexan solo «2. El ciclo», «4. Reglas» y «5. Prioridades».
+
+## 8. Siguiente paso
 
 1. Resolver C1, C3 y C5. Son decisiones del proyecto, no de la IA.
 2. Aplicar la migración de Supabase (`supabase/migrations/`).

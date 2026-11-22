@@ -2,6 +2,16 @@
 
 Este repositorio construye la IA que revisa los datos del lago de G7B. Para instalarla en la computadora del laboratorio, sigue [`LABORATORIO.md`](LABORATORIO.md) paso por paso. Las tareas del revisor están en [`TAREA_PRUEBA_REVISOR.md`](TAREA_PRUEBA_REVISOR.md) y [`TAREA_SEGUNDA_REVISION.md`](TAREA_SEGUNDA_REVISION.md). Responde en español.
 
+## Lugar de este repositorio en la base
+
+**Leer primero la [base oficial del proyecto](https://github.com/Maximiliano-cabello-mata/amatista-recuperada-20261106/blob/recuperacion/BASE.md)** (versión 1, congelada el 22 de noviembre de 2026). Manda sobre cualquier otro plan.
+
+> **Amatista** enseña y mide; **G7B** extrae y guarda; **Amatista IA** audita; **Geoda** adapta; **Amatista Machine Learning** crea.
+
+- **Amatista IA es el auditor:** decide qué datos son buenos y cuáles no antes de que entren al cubo o a MongoDB. Para documentos usa el revisor local (`qwen3:8b` con el canon); para mediciones, el criterio de pares y teoría.
+- **Una sola puerta:** lo aprobado entra al cubo o a MongoDB. Nunca se escribe directo en Geoda: Geoda siempre lee del cubo.
+- **La prioridad 1 de la base es este repositorio:** encender el flujo diario de auditoría, con cierre de 20 muestras y freno automático. No se agregan herramientas fuera de ese flujo. Una idea nueva va al estacionamiento de la base.
+
 ## Claves
 
 - **Nunca imprimas, copies, subas ni pidas por chat una clave ni el `GITHUB_TOKEN`.** Las claves viven solo en `.env` (excluido por `.gitignore`), y las escribe una persona.

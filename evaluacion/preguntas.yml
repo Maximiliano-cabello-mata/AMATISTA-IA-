@@ -69,3 +69,6 @@ preguntas:
   # Criterios aprendidos (canon v3, agregadas antes de medir)
   - {id: p50, esperado: ia/criterios, pregunta: "¿Cuenta como dato del documento un modelo de hardware que solo aparece en los ejemplos del embudo?"}
   - {id: p51, esperado: ia/criterios, pregunta: "Si el revisor asigna la pregunta P6, ¿puede decir que falla la relevancia?"}
+  # Base oficial del proyecto (canon v5, agregadas antes de medir)
+  - {id: p52, esperado: amatista/base, pregunta: "¿Qué pieza del proyecto es el auditor y por dónde entra lo que aprueba?"}
+  - {id: p53, esperado: amatista/base, pregunta: "¿Cuáles son las prioridades del proyecto y en qué orden?"}

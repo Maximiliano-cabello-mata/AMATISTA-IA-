@@ -1,5 +1,7 @@
 # Amatista IA
 
+**Lugar en la base del proyecto:** Amatista IA es el **auditor**. Decide qué datos de G7B son buenos antes de que entren al cubo o a MongoDB; Geoda solo lee lo aprobado. Piezas, flujo y prioridades: [base oficial](https://github.com/Maximiliano-cabello-mata/amatista-recuperada-20261106/blob/recuperacion/BASE.md).
+
 La IA que revisa los datos del lago de G7B «a la manera de G7B». Primero tiene que **conocer el proyecto**: sus estándares, sus reglas y sus contratos. Este repositorio construye ese conocimiento como un RAG en Supabase, y después alojará al revisor.
 
 **Estado (22 de noviembre de 2026):** en producción.

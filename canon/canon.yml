@@ -13,7 +13,7 @@
 # `version`. El indexador solo vuelve a calcular los fragmentos cuyo hash cambió.
 
 contrato: amatista.ia.canon/1
-version: 4
+version: 5
 fecha: 2026-11-22
 
 repositorios:
@@ -30,7 +30,7 @@ repositorios:
   amatista:
     url: https://github.com/Maximiliano-cabello-mata/amatista-recuperada-20261106
     rama: recuperacion
-    commit: b689c4896ef38c8498a8ac5e0d53c34053c88b79
+    commit: 41b6d01e9fa5aaf07541d2921afb41cd03f25318
 
 # tipo: vision | glosario | estandar | contrato | regla | politica
 documentos:
@@ -129,6 +129,12 @@ documentos:
     tipo: regla
     excluir_secciones: ["Por decidir"]
     por_que: Lo que aprendimos probando (datos solo del documento, versión en la URL, citas al canon, coherencia, bloque útil, duda a revisión, la IA propone) y los errores conocidos del revisor con lo que tiene que hacer en su lugar (v4). Si choca con un estándar de G7B, manda el estándar. Lo «por decidir» queda fuera hasta que una persona lo decida.
+
+  - id: amatista/base
+    repo: amatista
+    ruta: BASE.md
+    tipo: vision
+    por_que: "La base oficial del proyecto (versión 1, congelada): términos (Amatista, API, motor y add-on, G7B, Amatista IA como auditor, Geoda como kernel adaptativo, Amatista Machine Learning), el ciclo con una sola puerta al cubo, el flujo diario con 20 muestras, las reglas y las prioridades. Manda sobre cualquier otro plan (v5)."
 
   - id: amatista/direccion
     repo: amatista
