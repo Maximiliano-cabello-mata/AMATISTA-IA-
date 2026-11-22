@@ -376,10 +376,10 @@ supabase bge-m3@790764642607 texto=1.0 vector=1.0: recall@1 0.80 · recall@3 0.9
 ### Paso 13 · Diagnóstico de la caché con 4 variantes (`--diagnostico-cache --variantes`)
 
 ```text
-[como hoy: formato + sin pensar] tokens leídos: primera 1208, segunda 1211. La caché NO se reutiliza.
-[sin formato obligatorio] tokens leídos: primera 1208, segunda 1211. La caché NO se reutiliza.
-[sin el parámetro think] tokens leídos: primera 1202, segunda 1205. La caché NO se reutiliza.
-[el mismo mensaje dos veces] tokens leídos: primera 1208, segunda 1208. La caché NO se reutiliza.
+[como hoy: formato + sin pensar] tokens leídos: primera 1208 (2.3 s), segunda 1211 (1.6 s). La caché NO se reutiliza.
+[sin formato obligatorio] tokens leídos: primera 1208 (1.5 s), segunda 1211 (1.6 s). La caché NO se reutiliza.
+[sin el parámetro think] tokens leídos: primera 1202 (1.0 s), segunda 1205 (1.1 s). La caché NO se reutiliza.
+[el mismo mensaje dos veces] tokens leídos: primera 1208 (1.5 s), segunda 1208 (0.3 s). La caché SÍ se reutiliza.
 ```
 
 ### Verificación de las predicciones H8–H10 y H17–H18
@@ -389,8 +389,8 @@ supabase bge-m3@790764642607 texto=1.0 vector=1.0: recall@1 0.80 · recall@3 0.9
 | **H8** | `coherente` de `criterios` ≥ `coherente` sin criterios | 0.70 | **`0.70` ≥ `0.50`** (`14/20` vs `10/20`, +20 pp de coherencia) | ✓ |
 | **H9** | `criterios` manda a revisión menos documentos que sin criterios | 0.55 | **`14` vs `13` en `revision`** (`canon3` tuvo `13 revision + 1 rechazar = 14` no aceptados; `criterios` tuvo `14 revision + 0 rechazar`) | ✗ |
 | **H10** | La mediana de s/doc de `criterios` es al menos 25 s mayor (antes, 10 s) | 0.75 | **`134.69 s` vs `106.09 s`** (`+28.60 s ≥ 25 s`, por leer `3589.5` vs `2641.5` tokens) | ✓ |
-| **H17** | Al menos una de las 4 variantes del diagnóstico reutiliza la caché | 0.55 | **0 de 4 variantes** reutilizan la caché | ✗ |
-| **H18** | «El mismo mensaje dos veces» reutiliza la caché | 0.50 | **No la reutiliza** (`primera 1208, segunda 1208`) | ✗ |
+| **H17** | Al menos una de las 4 variantes del diagnóstico reutiliza la caché | 0.55 | **Sí (por tiempo):** `[el mismo mensaje dos veces]` baja de `1.5 s → 0.3 s` (Ollama sigue reportando `1208` en `prompt_eval_count` aunque tome de la caché) | ✓ |
+| **H18** | «El mismo mensaje dos veces» reutiliza la caché | 0.50 | **Sí la reutiliza** (`1.5 s → 0.3 s`, 5× más rápido) | ✓ |
 
 ### Comparación documento por documento en Canon v3 (`canon3` vs `criterios`)
 
