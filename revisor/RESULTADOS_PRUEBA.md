@@ -136,3 +136,30 @@ Medido en la computadora del laboratorio (`Intel Core i3-10100`, 8 hilos, 40 GB 
 | 15 | `Introduction ` | `https://docs.blender.org/manual/en/3.6/render/eevee/light_probes/introduction.html` | `relevancia` | `ninguna` | El documento describe la función general de los objetos de proyección en Eevee, pero no responde específicamente a la pregunta P6 sobre cómo se hace algo en una versión concreta de Blender. No incluye instrucciones detalladas ni ejemplos de configuración para una versión específica. |
 | 16 | `Structure ` | `https://docs.blender.org/manual/en/3.6/modeling/meshes/structure.html` | `relevancia` | `ninguna` | El documento describe la estructura básica de los meshes en Blender, pero no responde directamente a ninguna de las preguntas del plan. No menciona ajustes concretos, versiones de Blender, técnicas industriales ni equivalencias con herramientas libres. |
 | 19 | `Ocean Modifier` | `https://docs.blender.org/manual/en/5.2/modeling/modifiers/physics/ocean.html` | `relevancia` | `ninguna` | El documento describe el modificador Ocean en Blender, pero no responde directamente a las preguntas del plan (P1, P2, P3, P4, P5, P6) ni proporciona datos cuantitativos o comparativos que permitan inferir información relevante para el plan. |
+
+---
+
+## Desempeño documento por documento (20 documentos)
+
+| # | Título | Versión (URL) | Preguntas embudo | `codellama:latest` (decisión · preg · s · lee/gen tok) | `qwen3:8b` (decisión · preg · s · lee/gen tok) |
+|---:|---|---|---|---|---|
+| 1 | `Limitations` | 5.2 | P6 P1 P2 | revision · ninguna · 248.7 s (3161/159 tok) | revision · ninguna · 216.2 s (2777/185 tok) |
+| 2 | `Group` | 5.2 | P6 P1 | aceptar · P6 · 152.0 s (2883/175 tok) | revision · P6 · 145.0 s (2528/195 tok) |
+| 3 | `Startup ` | 3.6 | P2 | aceptar · P2 · 127.5 s (2815/169 tok) | aceptar · P2 · 130.3 s (2465/202 tok) |
+| 4 | `Is Edge Manifold Node` | 5.2 | P6 | aceptar · P6 · 114.9 s (2889/130 tok) | aceptar · P6 · 131.2 s (2518/196 tok) |
+| 5 | `Introduction` | 4.5 | P6 P5 | aceptar · P6 · 146.1 s (3163/161 tok) | revision · ninguna · 157.9 s (2793/211 tok) |
+| 6 | `Displace Hair Curves ` | 3.6 | P6 | aceptar · P6 · 179.7 s (3111/213 tok) | aceptar · P6 · 163.3 s (2678/211 tok) |
+| 7 | `Select All by Trait` | 4.5 | P6 P1 | revision · ninguna · 139.3 s (3283/152 tok) | revision · ninguna · 153.8 s (2848/211 tok) |
+| 8 | `Deleting & Dissolving` | 5.2 | P6 P1 | revision · P6 · 172.0 s (3646/135 tok) | revision · P6 · 183.6 s (3177/211 tok) |
+| 9 | `Set ID Node` | 5.2 | P6 | aceptar · P6 · 128.2 s (2719/152 tok) | aceptar · P6 · 121.6 s (2363/173 tok) |
+| 10 | `World Settings` | 4.5 | P1 P6 | revision · ninguna · 219.1 s (3888/162 tok) | revision · ninguna · 205.8 s (3444/191 tok) |
+| 11 | `Startup` | 4.5 | P2 | aceptar · P2 · 128.9 s (2922/162 tok) | revision · ninguna · 129.6 s (2569/180 tok) |
+| 12 | `Input` | 5.2 | P6 P1 P2 P4 | aceptar · P6 · 184.1 s (3773/172 tok) | revision · ninguna · 179.5 s (3323/201 tok) |
+| 13 | `Instance Bounds Node` | 5.2 | P1 | aceptar · P1 · 154.4 s (3018/165 tok) | aceptar · P1 · 152.1 s (2637/200 tok) |
+| 14 | `Select Sharp Edges` | 5.2 | P6 | aceptar · P6 · 123.0 s (2559/174 tok) | aceptar · P6 · 117.0 s (2236/183 tok) |
+| 15 | `Introduction ` | 3.6 | P6 | aceptar · P6 · 120.0 s (2601/155 tok) | revision · ninguna · 118.0 s (2240/184 tok) |
+| 16 | `Structure ` | 3.6 | P6 P1 P5 | revision · ninguna · 185.0 s (3701/120 tok) | revision · ninguna · 195.1 s (3230/202 tok) |
+| 17 | `UV Project Modifier` | 5.2 | P6 | revision · ninguna · 138.4 s (3230/128 tok) | aceptar · P6 · 161.4 s (2830/220 tok) |
+| 18 | `Motion Blur` | 4.5 | P6 | aceptar · P6 · 156.1 s (3032/168 tok) | aceptar · P6 · 155.1 s (2656/205 tok) |
+| 19 | `Ocean Modifier` | 5.2 | P6 P5 P1 | aceptar · P6 · 196.9 s (3534/172 tok) | revision · ninguna · 188.0 s (3114/203 tok) |
+| 20 | `Mesh to Curve Node` | 5.2 | P6 | aceptar · P6 · 134.6 s (3042/170 tok) | aceptar · P6 · 133.6 s (2640/194 tok) |
