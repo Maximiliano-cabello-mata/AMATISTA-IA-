@@ -13,7 +13,7 @@
 # `version`. El indexador solo vuelve a calcular los fragmentos cuyo hash cambió.
 
 contrato: amatista.ia.canon/1
-version: 3
+version: 4
 fecha: 2026-11-22
 
 repositorios:
@@ -26,7 +26,7 @@ repositorios:
     # vive en la rama de trabajo; GitHub lo conserva en refs/pull/1/head aunque la rama se borre.
     url: https://github.com/Maximiliano-cabello-mata/AMATISTA-IA-
     rama: main
-    commit: 9099d59a86d98c77bb1ce7857110a2c553c8eaf1
+    commit: 1d0b74c74a053cbdbdb2794ee03ee8d3211d7d37
   amatista:
     url: https://github.com/Maximiliano-cabello-mata/amatista-recuperada-20261106
     rama: recuperacion
@@ -128,7 +128,7 @@ documentos:
     ruta: canon/criterios/criterios_revision.md
     tipo: regla
     excluir_secciones: ["Por decidir"]
-    por_que: Lo que aprendimos probando (datos solo del documento, versión en la URL, citas al canon, coherencia, bloque útil, duda a revisión, la IA propone). Si choca con un estándar de G7B, manda el estándar. Lo «por decidir» queda fuera hasta que una persona lo decida.
+    por_que: Lo que aprendimos probando (datos solo del documento, versión en la URL, citas al canon, coherencia, bloque útil, duda a revisión, la IA propone) y los errores conocidos del revisor con lo que tiene que hacer en su lugar (v4). Si choca con un estándar de G7B, manda el estándar. Lo «por decidir» queda fuera hasta que una persona lo decida.
 
   - id: amatista/direccion
     repo: amatista

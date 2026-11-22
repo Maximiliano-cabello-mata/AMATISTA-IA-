@@ -42,13 +42,15 @@ FALLAS = ['ninguna', 'descripcion_generica', 'reformula_el_nombre', 'sin_ajustes
 
 ESQUEMA_UTIL = {
     'type': 'object',
+    # Primero el motivo y al final la decisión: en la v2 del revisor, decidir antes de razonar produjo decisiones
+    # que contradecían su propio motivo.
     'properties': {
-        'util': {'type': 'boolean'},
-        'falla': {'type': 'string', 'enum': FALLAS},
         'motivo': {'type': 'string'},
+        'falla': {'type': 'string', 'enum': FALLAS},
+        'util': {'type': 'boolean'},
         'confianza': {'type': 'string', 'enum': ['alta', 'media', 'baja']},
     },
-    'required': ['util', 'falla', 'motivo', 'confianza'],
+    'required': ['motivo', 'falla', 'util', 'confianza'],
 }
 
 
@@ -177,12 +179,13 @@ es útil según la rúbrica del proyecto. Tu juicio es una segunda opinión que 
 RÚBRICA (canon):
 {rubrica}
 
-CÓMO RESPONDER:
-- util: true solo si el bloque describe una acción o un parámetro con un efecto útil, correcto y bien atribuido, \
-o una comprobación, con detalle suficiente para aplicarlo. Un índice, una coincidencia de palabras, una descripción \
-genérica o un pasaje sin detalle suficiente NO es útil.
-- falla: si util es false, la razón principal: {', '.join(FALLAS[1:])}. Si util es true, «ninguna».
-- motivo: una frase en español, concreta y comprobable con el texto.
+CÓMO RESPONDER (en este orden: primero piensas, al final decides):
+- motivo: primero, una frase en español, concreta y comprobable con el texto: qué dice el bloque y si tiene \
+acción o parámetro, efecto y condición.
+- falla: si el bloque no es útil, la razón principal: {', '.join(FALLAS[1:])}. Si es útil, «ninguna».
+- util: tiene que seguirse del motivo. true solo si el bloque describe una acción o un parámetro con un efecto útil, \
+correcto y bien atribuido, o una comprobación, con detalle suficiente para aplicarlo. Un índice, una coincidencia de \
+palabras, una descripción genérica o un pasaje sin detalle suficiente NO es útil. Si falla no es «ninguna», util es false.
 - confianza: alta, media o baja.
 Juzga solo el texto que se te muestra. Responde solo con el JSON pedido."""
 

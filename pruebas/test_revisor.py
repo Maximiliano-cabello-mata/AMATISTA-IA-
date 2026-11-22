@@ -82,7 +82,7 @@ class FalsoGenerador:
     def __init__(self, respuestas):
         self.respuestas, self.sistemas = list(respuestas), []
 
-    def responder(self, sistema, usuario, esquema=None, max_tokens=300):
+    def responder(self, sistema, usuario, esquema=None, max_tokens=300, formato=True, apagar_pensar=True):
         self.sistemas.append(sistema)
         self.esquemas = getattr(self, 'esquemas', []) + [esquema]
         return self.respuestas.pop(0), {'lee_tokens': 900, 'lee_s': 30.0, 'genera_tokens': 120, 'genera_s': 24.0, 'carga_s': 0}
@@ -101,7 +101,7 @@ def test_corrida_completa_resume_y_escribe_la_planilla(tmp_path):
     assert s['json_valido'] == 2 / 3 and s['decisiones'] == {'aceptar': 1, 'revision': 0, 'rechazar': 1}
     assert s['cita_valida'] == 1.0 and s['coherente'] == 1.0 and s['coincide_pregunta_embudo'] == 0.5
     assert all(e['properties']['cita']['enum'][0] == CITA_EMBUDO for e in gen.esquemas)   # cita cerrada en cada documento
-    assert r[0]['datos_codigo']['medidas'] == ['45 fps']
+    assert r[0]['datos_codigo']['medidas'] == ['45 fps'] and len(r[0]['similitudes']) == len(r[0]['contexto'])
     assert s['tokens_por_documento'] == {'lee': 900, 'genera': 120}
     assert s['tokens_por_segundo'] == {'genera': 5.0, 'lee': 30.0}
     escribir_planilla(r, tmp_path / 'p.csv')
@@ -126,12 +126,19 @@ def test_diagnostico_de_cache():
         def __init__(self, leidos):
             self.leidos = list(leidos)
 
-        def responder(self, sistema, usuario, esquema=None, max_tokens=300):
+        def responder(self, sistema, usuario, esquema=None, max_tokens=300, formato=True, apagar_pensar=True):
+            self.llamadas = getattr(self, 'llamadas', []) + [(usuario, formato, apagar_pensar)]
             return '{}', {'lee_tokens': self.leidos.pop(0)}
     mensajes = []
     diagnosticar_cache(G([1200, 40]), 'hoja', registro=mensajes.append)
     diagnosticar_cache(G([1200, 1190]), 'hoja', registro=mensajes.append)
     assert 'SÍ se reutiliza' in mensajes[0] and 'NO se reutiliza' in mensajes[1]
+    from revisor.revisar import VARIANTES_CACHE
+    g = G([1200, 1190, 1200, 30, 1200, 1195, 1200, 20])
+    r = diagnosticar_cache(g, 'hoja', registro=lambda *_: None, variantes=VARIANTES_CACHE)
+    assert [x['reutiliza'] for x in r] == [False, True, False, True]           # «sin formato» y «mismo mensaje» sí
+    assert [(f, p) for _, f, p in g.llamadas[::2]] == [(True, True), (False, True), (True, False), (True, True)]
+    assert g.llamadas[6][0] == g.llamadas[7][0]                                # la última variante repite el mensaje
 
 
 def test_los_criterios_van_en_la_hoja_fija_solo_con_la_opcion_y_nunca_se_recuperan():
@@ -146,3 +153,39 @@ def test_los_criterios_van_en_la_hoja_fija_solo_con_la_opcion_y_nunca_se_recuper
     assert all(f['documento_id'] != CANON_CRITERIOS for f in BuscadorLocal(fr).buscar('datos documento', [0, 1, 0, 0], 5))
     with pytest.raises(RuntimeError, match='canon v3'):
         hoja_fija(CANON['fragmentos'], TAX, criterios=True)
+
+
+def test_v3_el_motivo_va_primero_y_la_decision_al_final():
+    props = list(esquema_para([CITA_EMBUDO])['properties'])
+    assert props[0] == 'motivo' and props.index('decision') > props.index('etapa') > props.index('pregunta')
+    h = hoja_fija(CANON['fragmentos'], TAX)
+    assert 'primero piensas, al final decides' in h and 'o la que más pesa' not in h
+
+
+def test_v3_una_decision_incoherente_va_a_una_persona():
+    docs = [{'doc_id': 'a', 'titulo': 'A', 'texto': TEXTO, 'preguntas': ['P6'], 'url': 'u'},
+            {'doc_id': 'b', 'titulo': 'B', 'texto': TEXTO, 'preguntas': ['P6'], 'url': 'v'}]
+    gen = FalsoGenerador([json.dumps({'motivo': 'Responde P6.', **salida(decision='revision', etapa='relevancia', pregunta='P6')}),
+                          json.dumps({'motivo': 'Explica un nodo.', **salida()})])
+    r = revisar_todo(docs, CANON, {'preguntas': {'P6': {'nombre': 'x'}}}, FalsoEmbebedor(), gen, registro=lambda *_: None)
+    assert [x['decision_efectiva'] for x in r] == ['persona', 'aceptar']
+    s = resumir(r)
+    assert s['decisiones'] == {'aceptar': 1, 'revision': 1, 'rechazar': 0}
+    assert s['decisiones_efectivas'] == {'aceptar': 1, 'revision': 0, 'rechazar': 0, 'persona': 1}
+    assert s['etapas'] == {'relevancia': 1, 'ninguna': 1} and s['motivo_primero'] == 1.0
+
+
+def test_v3_buscar_con_cuantos_y_umbral():
+    b = BuscadorLocal(CANON['fragmentos'])
+    assert b.buscar('fps muestras', [0, 1, 0, 0], cuantos=0) == []
+    assert [f['documento_id'] for f in b.buscar('fps muestras', [0, 1, 0, 0], cuantos=3, umbral=0.9)] == ['g7b/cubo']
+
+
+def test_v3_los_errores_conocidos_entran_con_los_criterios():
+    from revisor.revisar import CANON_CRITERIOS
+    fr = CANON['fragmentos'] + [
+        {'id': 9, 'documento_id': CANON_CRITERIOS, 'orden': 1, 'seccion': 'X > Criterios verificados > C1. Datos', 'texto': 'c', 'embedding': [0, 0, 0, 1]},
+        {'id': 10, 'documento_id': CANON_CRITERIOS, 'orden': 2, 'seccion': 'X > Errores conocidos del revisor > E1. Decidías antes', 'texto': 'e', 'embedding': [0, 0, 0, 1]},
+        {'id': 11, 'documento_id': CANON_CRITERIOS, 'orden': 3, 'seccion': 'X > Errores conocidos del revisor', 'texto': 'intro', 'embedding': [0, 0, 0, 1]}]
+    h = hoja_fija(fr, TAX, criterios=True)
+    assert 'C1. Datos\nc' in h and 'E1. Decidías antes\ne' in h and 'intro' not in h and 'TUS ERRORES CONOCIDOS' in h

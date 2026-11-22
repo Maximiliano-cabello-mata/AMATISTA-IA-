@@ -17,6 +17,13 @@ Versión 2 (22 de noviembre), tras la prueba con codellama y qwen3:8b:
   - la respuesta es más corta (generar es lo lento en la CPU del laboratorio);
   - el código revisa que la decisión sea coherente (aceptar ⇒ etapa «ninguna»; con pregunta asignada, la
     relevancia no puede ser la etapa que falla).
+
+Versión 3 (22 de noviembre), tras la v2 (9 de 20 decisiones incoherentes, las 14 revisiones con «relevancia»):
+  - el modelo escribe primero el motivo y al final la decisión: razona antes de comprometerse;
+  - «etapa» es solo la que falla (antes decía «o la que más pesa», y la usaba como etiqueta por defecto);
+  - una decisión incoherente no cuenta como decisión: el código la manda a una persona;
+  - opciones de velocidad, cada una para una corrida aparte: --cuantos, --umbral, --palabras y el diagnóstico de
+    la caché con variantes.
 NO cambia nada en el lago ni en MongoDB: solo escribe archivos en salidas/ para que una persona los revise.
 
 Privacidad: el canon se descarga una vez de Supabase (108 fragmentos con sus vectores) y se busca EN ESTA
@@ -54,23 +61,25 @@ CANON_REGLAS = 'g7b/ingesta'          # el embudo: va completo en la hoja fija, 
 CANON_CRITERIOS = 'ia/criterios'      # lo aprendido probando: con --criterios va en la hoja fija, nunca se recupera
 G7B_CRUDO = 'https://raw.githubusercontent.com/Maximiliano-cabello-mata/amatista-g7b-etl/{commit}/fuentes/{archivo}'
 TAXONOMIA = G7B_CRUDO.replace('{archivo}', 'taxonomia.yml')
-VERSION_REVISOR = 2
+VERSION_REVISOR = 3
 CITA_EMBUDO = 'g7b/ingesta · 4. El embudo'
 
 def esquema_para(citas):
     """El formato de respuesta de cada documento: la cita solo puede ser uno de los fragmentos que se le muestran."""
     return {
         'type': 'object',
+        # El orden importa: el modelo escribe los campos en este orden. Primero razona (motivo), después clasifica
+        # y al final decide. En la v2 decidía primero y luego escribía un motivo que contradecía su decisión.
         'properties': {
-            'decision': {'type': 'string', 'enum': DECISIONES},
-            'etapa': {'type': 'string', 'enum': ETAPAS},
+            'motivo': {'type': 'string'},
             'pregunta': {'type': 'string', 'enum': PREGUNTAS + ['ninguna']},
             'cita': {'type': 'string', 'enum': list(citas)},
-            'motivo': {'type': 'string'},
+            'etapa': {'type': 'string', 'enum': ETAPAS},
+            'decision': {'type': 'string', 'enum': DECISIONES},
             'confianza': {'type': 'string', 'enum': ['alta', 'media', 'baja']},
             'no_se': {'type': 'boolean'},
         },
-        'required': ['decision', 'etapa', 'pregunta', 'cita', 'motivo', 'confianza', 'no_se'],
+        'required': ['motivo', 'pregunta', 'cita', 'etapa', 'decision', 'confianza', 'no_se'],
     }
 
 
@@ -111,7 +120,10 @@ class BuscadorLocal:
         self.bm25 = BM25(self.frags)
         self.k = k_rrf
 
-    def buscar(self, texto, vector, cuantos=3):
+    def buscar(self, texto, vector, cuantos=3, umbral=None):
+        """umbral: si se da, solo entran fragmentos cuya similitud coseno con el documento llegue a ese valor."""
+        if cuantos <= 0:
+            return []
         puntos = {}
         for rango, f in enumerate(self.bm25.buscar(texto, cuantos=cuantos * 4), 1):
             puntos[f['id']] = puntos.get(f['id'], 0) + 1 / (self.k + rango)
@@ -119,7 +131,10 @@ class BuscadorLocal:
         for rango, f in enumerate(por_vector, 1):
             puntos[f['id']] = puntos.get(f['id'], 0) + 1 / (self.k + rango)
         por_id = {f['id']: f for f in self.frags}
-        return [por_id[i] for i, _ in sorted(puntos.items(), key=lambda x: -x[1])[:cuantos]]
+        orden = [por_id[i] for i, _ in sorted(puntos.items(), key=lambda x: -x[1])]
+        if umbral is not None:
+            orden = [f for f in orden if _coseno(vector, f['embedding']) >= umbral]
+        return orden[:cuantos]
 
 
 # --- Instrucciones ---------------------------------------------------------------------------------------------------
@@ -130,10 +145,10 @@ def hoja_fija(fragmentos, taxonomia, criterios=False):
     aprendidos = ''
     if criterios:
         partes = [f"{f['seccion'].split(' > ')[-1]}\n{f['texto']}" for f in sorted(fragmentos, key=lambda f: f.get('orden', 0))
-                  if f['documento_id'] == CANON_CRITERIOS and re.search(r'> C\d', f['seccion'] or '')]
+                  if f['documento_id'] == CANON_CRITERIOS and re.search(r'> [CE]\d', f['seccion'] or '')]
         if not partes:
             raise RuntimeError('El canon no tiene ia/criterios: indexa el canon v3 y usa --refrescar-canon.')
-        aprendidos = '\n\nCRITERIOS APRENDIDOS (canon, ia/criterios; si chocan con una regla de G7B, manda la regla):\n' + \
+        aprendidos = '\n\nCRITERIOS APRENDIDOS Y TUS ERRORES CONOCIDOS (canon, ia/criterios; si chocan con una regla de G7B, manda la regla):\n' + \
             '\n\n'.join(partes)
     preguntas = '\n'.join(f'- {k}: {v["nombre"]}' for k, v in taxonomia['preguntas'].items())
     return f"""Eres el revisor de documentos de G7B. Revisas documentos que el embudo automático ya aceptó y \
@@ -145,12 +160,14 @@ REGLAS DEL EMBUDO (canon, g7b/ingesta, sección 4):
 PREGUNTAS DEL PLAN (lista cerrada; si ninguna aplica, responde «ninguna»):
 {preguntas}{aprendidos}
 
-CÓMO RESPONDER:
-- decision: «aceptar» si cumple las cinco etapas; «revision» si está en el límite o es dudoso; «rechazar» si falla una etapa.
-- etapa: la etapa que falla, o la que más pesa en tu decisión. Si acepta, «ninguna».
-- pregunta: P1, P2, P3, P4, P5, P6 o «ninguna». Si asignas una pregunta, la relevancia NO es la etapa que falla.
+CÓMO RESPONDER (en este orden: primero piensas, al final decides):
+- motivo: primero, en una o dos frases en español (40 palabras como máximo), qué ofrece el documento y si alguna \
+etapa del embudo falla. Habla del contenido concreto del documento.
+- pregunta: P1, P2, P3, P4, P5, P6 o «ninguna». Si asignas una pregunta, la relevancia se cumple.
 - cita: elige de la lista CITAS PERMITIDAS el fragmento del canon que respalda tu decisión.
-- motivo: una frase en español, de 30 palabras como máximo, sobre el contenido concreto del documento.
+- etapa: SOLO la etapa que falla según tu motivo. Si ninguna falla, «ninguna».
+- decision: tiene que seguirse de lo anterior. «aceptar» si la etapa es «ninguna»; «revision» si una etapa está en \
+el límite; «rechazar» si una etapa falla con claridad.
 - confianza: alta, media o baja.
 - no_se: true si el canon no alcanza para decidir; en ese caso, decision «revision».
 Responde solo con el JSON pedido."""
@@ -243,11 +260,13 @@ class Generador:
         self.esquema = esquema or ESQUEMA
         self.pensar = False
 
-    def responder(self, sistema, usuario, esquema=None, max_tokens=300):
-        cuerpo = {'model': self.modelo, 'stream': False, 'format': esquema or self.esquema, 'keep_alive': '30m',
+    def responder(self, sistema, usuario, esquema=None, max_tokens=300, formato=True, apagar_pensar=True):
+        cuerpo = {'model': self.modelo, 'stream': False, 'keep_alive': '30m',
                   'messages': [{'role': 'system', 'content': sistema}, {'role': 'user', 'content': usuario}],
                   'options': {'temperature': 0, 'num_ctx': self.contexto, 'num_predict': max_tokens}}
-        if self.pensar is False:
+        if formato:
+            cuerpo['format'] = esquema or self.esquema
+        if self.pensar is False and apagar_pensar:
             cuerpo['think'] = False      # en modelos que «piensan», apagarlo ahorra minutos en CPU
         try:
             r = _json(f'{self.base}/api/chat', cuerpo, timeout=1800)
@@ -266,14 +285,15 @@ class Generador:
 
 # --- Corrida ---------------------------------------------------------------------------------------------------------
 def revisar_todo(docs, canon, taxonomia, embebedor, generador, max_palabras=450, cuantos=3, registro=print,
-                 patrones_hardware=(), criterios=False):
+                 patrones_hardware=(), criterios=False, umbral=None):
     buscador = BuscadorLocal(canon['fragmentos'])
     sistema = hoja_fija(canon['fragmentos'], taxonomia, criterios)
     validas = set(taxonomia['preguntas'])
     resultados = []
     for i, doc in enumerate(docs, 1):
         consulta = f"{doc.get('titulo') or ''}\n{palabras(doc.get('texto'), 200)}"
-        contexto = buscador.buscar(consulta, embebedor.vectores([consulta])[0], cuantos=cuantos)
+        vector = embebedor.vectores([consulta])[0]
+        contexto = buscador.buscar(consulta, vector, cuantos=cuantos, umbral=umbral)
         citas = citas_permitidas(contexto)
         t = time.perf_counter()
         crudo, stats = generador.responder(sistema, mensaje_documento(doc, contexto, max_palabras), esquema_para(citas))
@@ -283,13 +303,20 @@ def revisar_todo(docs, canon, taxonomia, embebedor, generador, max_palabras=450,
         except json.JSONDecodeError:
             salida = None
         chequeo = validar(salida, validas, set(citas))
+        chequeo['motivo_primero'] = bool(salida) and list(salida)[:1] == ['motivo']   # ¿Ollama respetó el orden?
+        efectiva = (salida or {}).get('decision', 'persona') if chequeo.get('esquema') and chequeo.get('coherente') else 'persona'
         resultados.append({'doc_id': doc.get('doc_id'), 'url': doc.get('url'), 'fuente': doc.get('fuente'),
                            'titulo': doc.get('titulo'), 'preguntas_embudo': doc.get('preguntas') or [],
-                           'contexto': [cita_de(f) for f in contexto], 'datos_codigo': extraer_datos(doc, patrones_hardware),
-                           'ia': salida, 'crudo': None if salida else crudo[:500], 'chequeo': chequeo, 'tiempos': stats})
+                           'contexto': [cita_de(f) for f in contexto],
+                           # similitudes: sirven para elegir --umbral después de ver una corrida
+                           'similitudes': [round(_coseno(vector, f['embedding']), 4) for f in contexto],
+                           'datos_codigo': extraer_datos(doc, patrones_hardware),
+                           'ia': salida, 'decision_efectiva': efectiva, 'crudo': None if salida else crudo[:500],
+                           'chequeo': chequeo, 'tiempos': stats})
         d = salida or {}
         registro(f"[{i}/{len(docs)}] {stats['total_s']:5.1f} s  {d.get('decision', 'JSON inválido'):9s} "
-                 f"{d.get('pregunta', ''):8s} {(doc.get('titulo') or '')[:60]}")
+                 f"{d.get('etapa', ''):10s} {d.get('pregunta', ''):8s}{'  ⚠ incoherente → persona' if efectiva == 'persona' and salida else ''}"
+                 f"  {(doc.get('titulo') or '')[:50]}")
     return resultados
 
 
@@ -310,9 +337,12 @@ def resumir(resultados):
         'cita_valida': sum(r['chequeo']['cita'] for r in validos) / max(len(validos), 1),
         'cita_embudo': sum(r['ia']['cita'] == CITA_EMBUDO for r in validos) / max(len(validos), 1),
         'coherente': sum(r['chequeo']['coherente'] for r in validos) / max(len(validos), 1),
+        'motivo_primero': sum(bool(r['chequeo'].get('motivo_primero')) for r in validos) / max(len(validos), 1),
         'coincide_pregunta_embudo': (sum(r['ia']['pregunta'] in r['preguntas_embudo'] for r in con_pregunta)
                                      / len(con_pregunta)) if con_pregunta else None,
         'decisiones': decisiones,
+        'decisiones_efectivas': {k: sum(1 for r in resultados if r.get('decision_efectiva') == k) for k in DECISIONES + ['persona']},
+        'etapas': {k: sum(1 for r in validos if r['ia']['etapa'] == k) for k in ETAPAS if any(r['ia']['etapa'] == k for r in validos)},
         'no_se': sum(1 for r in validos if r['ia']['no_se']),
         'segundos_por_documento': {'mediana': statistics.median(t) if t else None, 'maximo': max(t) if t else None},
         'tokens_por_segundo': {'genera': statistics.median(gen) if gen else None, 'lee': statistics.median(lee) if lee else None},
@@ -327,7 +357,7 @@ def escribir_planilla(resultados, ruta):
     with open(ruta, 'w', encoding='utf-8-sig', newline='') as f:
         w = csv.writer(f)
         w.writerow(['doc_id', 'url', 'titulo', 'fuente', 'preguntas_embudo', 'ia_decision', 'ia_etapa', 'ia_pregunta',
-                    'ia_motivo', 'ia_cita', 'ia_confianza', 'incoherencias', 'datos_codigo', 'humano_decision',
+                    'ia_motivo', 'ia_cita', 'ia_confianza', 'incoherencias', 'decision_efectiva', 'datos_codigo', 'humano_decision',
                     'humano_pregunta', 'humano_nota'])
         for r in resultados:
             d = r['ia'] or {}
@@ -335,20 +365,33 @@ def escribir_planilla(resultados, ruta):
             w.writerow([r['doc_id'], r['url'], r['titulo'], r['fuente'], ' '.join(r['preguntas_embudo']),
                         d.get('decision', 'JSON inválido'), d.get('etapa', ''), d.get('pregunta', ''), d.get('motivo', ''),
                         d.get('cita', ''), d.get('confianza', ''), '; '.join(r['chequeo'].get('incoherencias', [])),
+                        r.get('decision_efectiva', ''),
                         '; '.join(f"{k}: {', '.join(v)}" for k, v in datos.items() if v), '', '', ''])
 
 
-def diagnosticar_cache(generador, sistema, registro=print):
-    """Dos llamadas con las mismas instrucciones fijas y mensajes distintos. Si la segunda lee casi lo mismo que la
-    primera, Ollama no está reutilizando la caché y cada documento vuelve a leer las instrucciones completas."""
-    leidos = []
-    for mensaje in ('DOCUMENTO A REVISAR: prueba uno.', 'DOCUMENTO A REVISAR: prueba dos, distinta.'):
-        _, stats = generador.responder(sistema, mensaje, max_tokens=1)
-        leidos.append(stats['lee_tokens'])
-    reutiliza = leidos[1] < leidos[0] * 0.5
-    registro(f'Tokens leídos: primera llamada {leidos[0]}, segunda {leidos[1]}. '
-             + ('La caché SÍ se reutiliza.' if reutiliza else 'La caché NO se reutiliza: cada documento relee las instrucciones.'))
-    return 0
+VARIANTES_CACHE = [
+    # (nombre, mensajes, formato obligatorio, apagar «pensar»)
+    ('como hoy: formato + sin pensar', ('DOCUMENTO A REVISAR: prueba uno.', 'DOCUMENTO A REVISAR: prueba dos, distinta.'), True, True),
+    ('sin formato obligatorio', ('DOCUMENTO A REVISAR: prueba uno.', 'DOCUMENTO A REVISAR: prueba dos, distinta.'), False, True),
+    ('sin el parámetro think', ('DOCUMENTO A REVISAR: prueba uno.', 'DOCUMENTO A REVISAR: prueba dos, distinta.'), True, False),
+    ('el mismo mensaje dos veces', ('DOCUMENTO A REVISAR: prueba uno.', 'DOCUMENTO A REVISAR: prueba uno.'), True, True),
+]
+
+
+def diagnosticar_cache(generador, sistema, registro=print, variantes=None):
+    """Para cada variante, dos llamadas con las mismas instrucciones fijas. Si la segunda lee casi lo mismo que la
+    primera, Ollama no reutilizó la caché. Con varias variantes se ve qué la impide."""
+    resultados = []
+    for nombre, mensajes, formato, apagar in (variantes or VARIANTES_CACHE[:1]):
+        leidos = []
+        for mensaje in mensajes:
+            _, stats = generador.responder(sistema, mensaje, max_tokens=1, formato=formato, apagar_pensar=apagar)
+            leidos.append(stats['lee_tokens'])
+        reutiliza = leidos[1] < leidos[0] * 0.5
+        resultados.append({'variante': nombre, 'leidos': leidos, 'reutiliza': reutiliza})
+        registro(f'[{nombre}] tokens leídos: primera {leidos[0]}, segunda {leidos[1]}. '
+                 + ('La caché SÍ se reutiliza.' if reutiliza else 'La caché NO se reutiliza.'))
+    return resultados
 
 
 def main(argv=None):
@@ -367,6 +410,10 @@ def main(argv=None):
                    help='agregar los criterios aprendidos (ia/criterios, canon v3) a las instrucciones fijas')
     p.add_argument('--diagnostico-cache', action='store_true',
                    help='solo comprobar si Ollama reutiliza las instrucciones fijas entre documentos')
+    p.add_argument('--variantes', action='store_true', help='con --diagnostico-cache: probar las 4 variantes')
+    p.add_argument('--cuantos', type=int, default=3, help='fragmentos del canon que se muestran por documento')
+    p.add_argument('--umbral', type=float, default=None,
+                   help='solo mostrar fragmentos con similitud coseno al documento de al menos este valor')
     a = p.parse_args(argv)
 
     url, clave = os.environ.get('SUPABASE_URL'), os.environ.get('SUPABASE_PUBLISHABLE_KEY')
@@ -380,7 +427,9 @@ def main(argv=None):
             return yaml.safe_load(r.read().decode('utf-8'))
     taxonomia, hardware = g7b('taxonomia.yml'), g7b('hardware.yml')
     if a.diagnostico_cache:
-        return diagnosticar_cache(Generador(a.ollama, a.modelo), hoja_fija(canon['fragmentos'], taxonomia))
+        diagnosticar_cache(Generador(a.ollama, a.modelo), hoja_fija(canon['fragmentos'], taxonomia),
+                           variantes=VARIANTES_CACHE if a.variantes else None)
+        return 0
 
     docs = [json.loads(l) for l in a.muestra.read_text(encoding='utf-8').splitlines() if l.strip()][:a.n]
     embebedor = Ollama(a.ollama, a.embeddings)
@@ -390,8 +439,10 @@ def main(argv=None):
     print(f'Canon: {len(canon["fragmentos"])} fragmentos · modelo {a.modelo} · {len(docs)} documentos\n')
 
     resultados = revisar_todo(docs, canon, taxonomia, embebedor, Generador(a.ollama, a.modelo), a.palabras,
-                              patrones_hardware=patrones_de(hardware), criterios=a.criterios)
+                              cuantos=a.cuantos, patrones_hardware=patrones_de(hardware), criterios=a.criterios,
+                              umbral=a.umbral)
     resumen = {'revisor': VERSION_REVISOR, 'criterios': a.criterios, 'modelo': a.modelo, 'palabras_por_documento': a.palabras,
+               'cuantos': a.cuantos, 'umbral': a.umbral,
                'canon_fragmentos': len(canon['fragmentos']), 'fecha': time.strftime('%Y-%m-%d %H:%M'),
                **resumir(resultados)}
     Path('salidas').mkdir(exist_ok=True)

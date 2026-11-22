@@ -65,3 +65,8 @@ def test_resumen_y_adjudicacion_de_punta_a_punta(tmp_path):
     assert final['pendientes_de_persona'] == 0 and final['origen_de_la_etiqueta'] == {'persona': 2, 'acuerdo': 3}
     assert final['ineditas'] == {'util': 2, 'n': 4, 'de': 4, 'wilson_inferior': wilson_inferior(2, 4)}
     assert final['nota'] is None
+
+
+def test_la_segunda_revision_tambien_razona_antes_de_decidir():
+    from revisor.segunda_revision import ESQUEMA_UTIL
+    assert list(ESQUEMA_UTIL['properties']) == ['motivo', 'falla', 'util', 'confianza']

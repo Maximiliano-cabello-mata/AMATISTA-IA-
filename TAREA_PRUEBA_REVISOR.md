@@ -234,3 +234,104 @@ Qué hace:
 Cuando una persona marque la planilla, agrega `--etiquetas salidas/prueba_revisor_criterios.csv`. Con eso los pesos dejan de ser teóricos: se vuelven la sensibilidad y la especificidad reales de cada modelo.
 
 Después, una persona marca en `revisor/predicciones.yml` qué predicciones se cumplieron (`resultado: true` o `false`) y agrega los conteos nuevos a `revisor/comportamiento.yml`. El algoritmo calcula el puntaje de Brier.
+
+---
+
+## Versión 3 del revisor y canon v4 (22 de noviembre)
+
+**Esta sección reemplaza los pasos 10 a 12 anteriores.** Esos pasos se escribieron para el revisor v2 y el canon v3; no los corras.
+
+**Qué cambió en el revisor v3.** Todo viene de lo que mostró la v2:
+- **Razona antes de decidir.** El modelo escribe primero el motivo y al final la decisión. En la v2, 9 de 20 decisiones contradecían su propio motivo.
+- **«Etapa» es solo la que falla.** En la v2, las 14 revisiones decían «relevancia».
+- **Una decisión incoherente no cuenta: va a una persona.** El resumen trae `decisiones_efectivas`, con la categoría `persona`.
+- **Opciones de velocidad**, cada una para una corrida aparte: `--cuantos`, `--umbral`, `--palabras`, `--modelo qwen3:4b` y el diagnóstico de la caché con `--variantes`.
+
+**Qué cambió en el canon v4.** `ia/criterios` ahora incluye **los errores conocidos del revisor** (E1–E6): lo que hacía mal, con sus números, y qué hacer en su lugar. Entra a Supabase al volver a indexar y a las instrucciones del modelo con `--criterios`.
+
+Las predicciones H8–H20 están en `revisor/predicciones.yml`, escritas antes de correr.
+
+### Paso 13 · Actualizar y diagnosticar la caché con 4 variantes
+
+```bash
+git pull
+```
+
+```bash
+python -m revisor.revisar salidas/muestra.jsonl --modelo qwen3:8b --diagnostico-cache --variantes
+```
+
+Prueba la caché de cuatro formas: como hoy, sin formato obligatorio, sin el parámetro `think` y con el mismo mensaje dos veces. Copia las 4 líneas completas.
+
+### Paso 14 · Corrida v3, con la misma muestra y el mismo canon de 108 fragmentos
+
+```bash
+python -m revisor.revisar salidas/muestra.jsonl --modelo qwen3:8b --nombre v3
+```
+
+**Todavía sin `--refrescar-canon`:** el resumen debe decir `canon_fragmentos: 108` y `revisor: 3`. Así se compara directo con la v1 y la v2, y lo único que cambia es cómo razona el revisor. Cada línea muestra ahora la etapa, y marca `⚠ incoherente → persona` cuando el modelo se contradice.
+
+### Paso 15 · Corridas de velocidad, una por una y con el mismo canon de 108
+
+```bash
+python -m revisor.revisar salidas/muestra.jsonl --modelo qwen3:8b --cuantos 1 --nombre v3_c1
+```
+
+```bash
+python -m revisor.revisar salidas/muestra.jsonl --modelo qwen3:8b --palabras 300 --nombre v3_p300
+```
+
+```bash
+ollama pull qwen3:4b
+```
+
+```bash
+python -m revisor.revisar salidas/muestra.jsonl --modelo qwen3:4b --nombre v3_4b
+```
+
+Si el tiempo no alcanza, el orden de prioridad es `v3_c1`, luego `v3_4b` y al final `v3_p300`.
+
+`--umbral` todavía no: cada resultado guarda ahora la similitud de cada fragmento mostrado (`similitudes`). Con eso se elige un umbral razonable después de ver la corrida v3.
+
+### Paso 16 · Volver a indexar (canon v4) y medir la recuperación
+
+Hazlo después de los pasos 14 y 15.
+
+```bash
+python -m indexador.indexar canon/canon.yml
+```
+
+Se espera, según lo último que indexaste:
+- desde el canon v1 (13 documentos): `3 documentos actualizados (18 fragmentos)`;
+- desde el v2: `1 documentos actualizados (15 fragmentos)`.
+
+Los demás salen `sin cambios`.
+
+```bash
+python -m evaluacion.evaluar evaluacion/preguntas.yml
+```
+
+Son 51 preguntas. Solo con texto, el canon v4 da 0.902.
+
+### Paso 17 · Criterios y errores conocidos: dos corridas con el mismo canon v4
+
+```bash
+python -m revisor.revisar salidas/muestra.jsonl --modelo qwen3:8b --refrescar-canon --nombre canon4
+```
+
+```bash
+python -m revisor.revisar salidas/muestra.jsonl --modelo qwen3:8b --criterios --nombre criterios
+```
+
+Con `--criterios`, las instrucciones fijas pasan de unas 640 a unas 1,530 palabras. Si la caché no se reutiliza, eso son unos 30–40 s más por documento (predicción H10).
+
+### Paso 18 · Pesos de confianza y reporte
+
+```bash
+python -m revisor.confianza --corridas salidas/prueba_revisor_v3.json salidas/prueba_revisor_criterios.json
+```
+
+Para el reporte:
+- agrega a `revisor/comportamiento.yml` los conteos de cada corrida nueva;
+- marca en `revisor/predicciones.yml` cuáles de H8–H20 se cumplieron;
+- sube los resúmenes y la tabla documento por documento, con la etapa y la `decision_efectiva`, igual que en la v2.

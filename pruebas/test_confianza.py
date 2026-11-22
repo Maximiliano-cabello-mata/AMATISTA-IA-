@@ -74,3 +74,11 @@ def test_los_revisores_descartados_no_votan_ni_aparecen():
     comp = capa_comportamiento(t, {'corridas': [{'modelo': 'moneda', 'senales': {'json': [1, 1]}},
                                                 {'modelo': 'bueno', 'senales': {'json': [1, 1]}}]})
     assert list(comp) == ['bueno']
+
+
+def test_una_decision_incoherente_es_abstencion(tmp_path):
+    datos = {'resumen': {'modelo': 'qwen3:8b', 'revisor': 3},
+             'resultados': [{'url': 'u1', 'titulo': 't', 'ia': {'decision': 'revision'}, 'decision_efectiva': 'persona'},
+                            {'url': 'u2', 'titulo': 't', 'ia': {'decision': 'aceptar'}, 'decision_efectiva': 'aceptar'}]}
+    (tmp_path / 'v3.json').write_text(json.dumps(datos), encoding='utf-8')
+    assert {d['url']: d['votos'] for d in votos_de_corridas([tmp_path / 'v3.json'])} == {'u2': {'qwen3:8b@v3': 'aceptar'}}

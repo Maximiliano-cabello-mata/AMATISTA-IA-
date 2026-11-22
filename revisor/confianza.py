@@ -132,7 +132,8 @@ def votos_de_corridas(rutas):
         r = datos['resumen']
         nombre = f"{r['modelo']}@v{r.get('revisor', 1)}" + ('+criterios' if r.get('criterios') else '')
         for x in datos['resultados']:
-            if not x.get('ia'):
+            # Sin respuesta válida o incoherente (v3: decision_efectiva «persona»): el revisor se abstiene.
+            if not x.get('ia') or x.get('decision_efectiva') == 'persona':
                 continue
             d = por_url.setdefault(x['url'], {'titulo': (x.get('titulo') or '').strip(), 'url': x['url'], 'votos': {}, 'humano': None})
             d['votos'][nombre] = x['ia']['decision']
