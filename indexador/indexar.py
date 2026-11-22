@@ -14,7 +14,7 @@ Pasos, por documento del canon:
   5. Lo sube a Supabase con la clave secreta. Si el hash del documento y el modelo no cambiaron, no hace nada:
      volver a correrlo es barato.
 
-Variables de entorno (solo para subir): SUPABASE_URL y SUPABASE_SECRET_KEY. La clave secreta nunca va en el
+Variables de entorno (solo para subir): SUPABASE_URL y SUPABASE_SECRET_KEY, del entorno o de un archivo .env. La clave secreta nunca va en el
 repositorio ni en la línea de comandos.
 
 Solo usa la biblioteca estándar y PyYAML.
@@ -32,6 +32,8 @@ import urllib.request
 from pathlib import Path
 
 import yaml
+
+from indexador.entorno import cargar_env
 
 DIMENSIONES = 1024
 TITULO = re.compile(r'^(#{1,6})\s+(.+?)\s*#*\s*$')
@@ -170,10 +172,28 @@ def leer_documento(repo, ruta, locales):
         if r.returncode:
             raise RuntimeError(f'{nombre}:{ruta}@{commit[:7]}: {r.stderr.strip()}')
         return r.stdout
+    url = url_cruda(repo, ruta)
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, headers=cabeceras_github()), timeout=60) as resp:
+            return resp.read().decode('utf-8')
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            raise RuntimeError(f'{nombre}:{ruta}@{commit[:7]}: GitHub respondió 404. Si el repositorio es privado, define '
+                               'GITHUB_TOKEN (solo lectura) en .env o usa --local con un clon') from None
+        raise
+
+
+def url_cruda(repo, ruta):
     dueno_repo = urllib.parse.urlparse(repo['url']).path.strip('/')
-    url = f'https://raw.githubusercontent.com/{dueno_repo}/{commit}/{urllib.parse.quote(ruta)}'
-    with urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': 'amatista-ia-indexador'}), timeout=60) as resp:
-        return resp.read().decode('utf-8')
+    return f"https://raw.githubusercontent.com/{dueno_repo}/{repo['commit']}/{urllib.parse.quote(ruta)}"
+
+
+def cabeceras_github():
+    """Con GITHUB_TOKEN (de solo lectura) se pueden leer repositorios privados, como el de Amatista."""
+    cab = {'User-Agent': 'amatista-ia-indexador'}
+    if os.environ.get('GITHUB_TOKEN'):
+        cab['Authorization'] = f"Bearer {os.environ['GITHUB_TOKEN']}"
+    return cab
 
 
 def titulo_de(texto, ruta):
@@ -285,6 +305,7 @@ def sincronizar(preparado, embebedor, base, podar=False, registro=print):
 
 
 def main(argv=None):
+    cargar_env()   # .env primero: los valores por omisión de los argumentos leen el entorno
     p = argparse.ArgumentParser(description='Indexa el canon de Amatista IA en Supabase.')
     p.add_argument('canon', type=Path)
     p.add_argument('--local', default='', help='repositorios desde clones locales: g7b=RUTA,amatista=RUTA')

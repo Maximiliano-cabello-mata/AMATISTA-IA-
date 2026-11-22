@@ -24,6 +24,7 @@ from pathlib import Path
 
 import yaml
 
+from indexador.entorno import cargar_env
 from indexador.indexar import Ollama, _json
 
 PROFUNDIDAD = 10   # cuántos fragmentos se piden por pregunta
@@ -103,6 +104,7 @@ def buscador_supabase(url, clave, embebedor, peso_texto, peso_vector):
 
 
 def main(argv=None):
+    cargar_env()   # .env primero: los valores por omisión de los argumentos leen el entorno
     p = argparse.ArgumentParser(description='Prueba de recuperación del canon.')
     p.add_argument('preguntas', type=Path)
     p.add_argument('--lexico', type=Path, help='fragmentos.jsonl del simulacro: BM25 sin red')

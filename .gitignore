@@ -11,3 +11,4 @@ __pycache__/
 .venv/
 # Salidas locales del indexador
 salidas/
+!.env.ejemplo

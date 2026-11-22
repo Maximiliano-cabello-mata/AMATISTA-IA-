@@ -32,6 +32,8 @@ supabase/migrations/         tablas, índice HNSW, búsqueda híbrida buscar_can
 indexador/indexar.py         lee el canon, fragmenta, calcula vectores con Ollama y sube a Supabase
 evaluacion/preguntas.yml     46 preguntas, cada una con su documento esperado
 evaluacion/evaluar.py        recall@1, recall@3 y MRR, contra Supabase o sin red (BM25)
+laboratorio/verificar.py     comprueba Ollama, bge-m3 y Supabase sin mostrar claves
+LABORATORIO.md, AGENTS.md    guía de instalación y reglas para el agente de la computadora del laboratorio
 pruebas/                     pruebas del indexador, de la evaluación y de la migración (Postgres local)
 ```
 
@@ -61,6 +63,8 @@ Son justo lo que deben arreglar los vectores. Si el híbrido no supera al texto 
 
 ## En la computadora del laboratorio
 
+**La guía completa, paso a paso, está en [`LABORATORIO.md`](LABORATORIO.md).** Está pensada para que la siga un agente de IA o una persona, con [`AGENTS.md`](AGENTS.md) como reglas. Lo de abajo es el resumen.
+
 Requisitos: Python 3.11+, `pip install pyyaml` y [Ollama](https://ollama.com/download).
 
 1. Instala el modelo de embeddings (unos 1.2 GB):
@@ -71,24 +75,30 @@ Requisitos: Python 3.11+, `pip install pyyaml` y [Ollama](https://ollama.com/dow
 
 2. Clona este repositorio y, para trabajar sin red hacia GitHub, también los dos de origen.
 
-3. Pon las variables en la terminal o en un archivo `.env`, que nunca se sube (`.gitignore` lo excluye):
+3. Copia `.env.ejemplo` como `.env` y llena los valores. Los scripts lo leen solos y `.gitignore` lo excluye:
    - `SUPABASE_URL=https://<proyecto>.supabase.co`;
    - `SUPABASE_SECRET_KEY`: la clave secreta, **solo para indexar**;
    - `SUPABASE_PUBLISHABLE_KEY`: la publicable, para la prueba, que solo lee.
 
-4. Prueba sin subir nada:
+4. Verifica Ollama, el modelo y Supabase. No muestra claves:
+
+   ```bash
+   python -m laboratorio.verificar
+   ```
+
+5. Prueba sin subir nada:
 
    ```bash
    python -m indexador.indexar canon/canon.yml --simulacro
    ```
 
-5. Indexa. Es incremental: solo recalcula los documentos cuyo hash cambió.
+6. Indexa. Es incremental: solo recalcula los documentos cuyo hash cambió.
 
    ```bash
    python -m indexador.indexar canon/canon.yml
    ```
 
-6. Mide la recuperación con vectores:
+7. Mide la recuperación con vectores:
 
    ```bash
    python -m evaluacion.evaluar evaluacion/preguntas.yml
