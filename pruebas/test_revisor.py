@@ -1,8 +1,9 @@
 """Pruebas del revisor sin red: el modelo, los vectores y el canon se simulan."""
 import json
 
-from revisor.revisar import (CANON_REGLAS, BuscadorLocal, escribir_planilla, hoja_fija, resumir, revisar_todo,
-                             validar)
+from revisor.revisar import (CANON_REGLAS, CITA_EMBUDO, BuscadorLocal, citas_permitidas, diagnosticar_cache,
+                             escribir_planilla, esquema_para, extraer_datos, hoja_fija, mensaje_documento, resumir,
+                             revisar_todo, validar)
 
 TAX = {'preguntas': {'P1': {'nombre': 'Fluidez'}, 'P2': {'nombre': 'Versión'}}}
 
@@ -22,24 +23,42 @@ CANON = {'fragmentos': [
 
 def salida(**cambios):
     base = {'decision': 'aceptar', 'etapa': 'ninguna', 'motivo': 'Tiene medidas.', 'pregunta': 'P1',
-            'cita': {'documento_id': CANON_REGLAS, 'seccion': '4. El embudo'},
-            'datos': {'version_blender': ['Blender 4.2'], 'hardware': ['RTX 3060'], 'medidas': ['45 fps']},
-            'confianza': 'alta', 'no_se': False}
+            'cita': CITA_EMBUDO, 'confianza': 'alta', 'no_se': False}
     return {**base, **cambios}
 
 
 TEXTO = 'En Blender 4.2 con una RTX 3060 la vista da 45 fps.'
 
 
-def test_validar_detecta_datos_inventados_citas_ajenas_y_preguntas_fuera_de_lista():
-    ok = validar(salida(), {'P1', 'P2'}, {CANON_REGLAS}, TEXTO)
-    assert ok == {'esquema': True, 'pregunta': True, 'cita': True, 'datos_extraidos': 3, 'datos_fieles': 3, 'inventados': []}
-    mal = validar(salida(pregunta='P9', cita={'documento_id': 'g7b/vision', 'seccion': 'x'},
-                         datos={'version_blender': ['Blender 3.6'], 'hardware': ['rtx3060'], 'medidas': []}),
-                  {'P1', 'P2'}, {CANON_REGLAS}, TEXTO)
+def test_validar_detecta_citas_ajenas_preguntas_fuera_de_lista_e_incoherencias():
+    ok = validar(salida(), {'P1', 'P2'}, {CITA_EMBUDO})
+    assert ok == {'esquema': True, 'pregunta': True, 'cita': True, 'coherente': True, 'incoherencias': []}
+    mal = validar(salida(pregunta='P9', cita='g7b/vision · x'), {'P1', 'P2'}, {CITA_EMBUDO})
     assert not mal['pregunta'] and not mal['cita']
-    assert mal['inventados'] == ['Blender 3.6']          # «rtx3060» sí está (sin espacios ni mayúsculas)
-    assert validar(None, set(), set(), '') == {'esquema': False}
+    # Lo que hizo qwen3:8b en «Group»: asigna P6 y a la vez dice que falla la relevancia.
+    raro = validar(salida(decision='revision', etapa='relevancia', pregunta='P6'), {'P6'}, {CITA_EMBUDO})
+    assert not raro['coherente'] and 'falla la relevancia' in raro['incoherencias'][0]
+    assert not validar(salida(etapa='valor'), {'P1'}, {CITA_EMBUDO})['coherente']        # acepta con etapa que falla
+    assert not validar(salida(decision='revision'), {'P1'}, {CITA_EMBUDO})['coherente']  # no acepta sin etapa
+    assert validar(None, set(), set()) == {'esquema': False}
+
+
+def test_la_cita_es_una_lista_cerrada_por_documento():
+    contexto = [CANON['fragmentos'][1], CANON['fragmentos'][2], CANON['fragmentos'][1]]
+    citas = citas_permitidas(contexto)
+    assert citas == [CITA_EMBUDO, 'g7b/cubo · Cubo > Calidad', 'g7b/estandar-telemetria · Hardware']
+    assert esquema_para(citas)['properties']['cita']['enum'] == citas
+    assert 'CITAS PERMITIDAS:\n- ' + CITA_EMBUDO in mensaje_documento({'titulo': 't'}, contexto, 50)
+
+
+def test_los_datos_los_extrae_el_codigo_con_la_tabla_de_hardware():
+    import re
+    patrones = [re.compile(r'rtx (4090|3090)', re.I), re.compile(r'rtx 3060', re.I), re.compile(r'intel.*(uhd|hd graphics)', re.I)]
+    d = extraer_datos({'titulo': 'T', 'texto': TEXTO, 'url': 'https://docs.blender.org/manual/en/4.5/x.html'}, patrones)
+    assert d == {'version_blender': ['4.2', '4.5'], 'hardware': ['RTX 3060'], 'medidas': ['45 fps']}
+    # Los ejemplos del embudo («UHD 620») NO están en el documento: el código no los puede «copiar».
+    assert extraer_datos({'titulo': 'x', 'texto': 'Sin datos.', 'url': ''}, patrones) == \
+        {'version_blender': [], 'hardware': [], 'medidas': []}
 
 
 def test_el_buscador_local_no_devuelve_el_embudo_y_fusiona_texto_y_vector():
@@ -63,8 +82,9 @@ class FalsoGenerador:
     def __init__(self, respuestas):
         self.respuestas, self.sistemas = list(respuestas), []
 
-    def responder(self, sistema, usuario):
+    def responder(self, sistema, usuario, esquema=None, max_tokens=300):
         self.sistemas.append(sistema)
+        self.esquemas = getattr(self, 'esquemas', []) + [esquema]
         return self.respuestas.pop(0), {'lee_tokens': 900, 'lee_s': 30.0, 'genera_tokens': 120, 'genera_s': 24.0, 'carga_s': 0}
 
 
@@ -73,14 +93,16 @@ def test_corrida_completa_resume_y_escribe_la_planilla(tmp_path):
             {'doc_id': 'b', 'titulo': 'Receta', 'texto': 'Pan con harina.', 'preguntas': ['P2']},
             {'doc_id': 'c', 'titulo': 'Roto', 'texto': 'x', 'preguntas': []}]
     gen = FalsoGenerador([json.dumps(salida()),
-                          json.dumps(salida(decision='rechazar', etapa='relevancia', pregunta='ninguna',
-                                            datos={'version_blender': [], 'hardware': [], 'medidas': []})),
+                          json.dumps(salida(decision='rechazar', etapa='relevancia', pregunta='ninguna')),
                           'esto no es JSON'])
     r = revisar_todo(docs, CANON, TAX, FalsoEmbebedor(), gen, registro=lambda *_: None)
     assert len(set(gen.sistemas)) == 1                         # la hoja fija es idéntica: Ollama la reutiliza
     s = resumir(r)
     assert s['json_valido'] == 2 / 3 and s['decisiones'] == {'aceptar': 1, 'revision': 0, 'rechazar': 1}
-    assert s['datos_fieles'] == 1.0 and s['coincide_pregunta_embudo'] == 0.5
+    assert s['cita_valida'] == 1.0 and s['coherente'] == 1.0 and s['coincide_pregunta_embudo'] == 0.5
+    assert all(e['properties']['cita']['enum'][0] == CITA_EMBUDO for e in gen.esquemas)   # cita cerrada en cada documento
+    assert r[0]['datos_codigo']['medidas'] == ['45 fps']
+    assert s['tokens_por_documento'] == {'lee': 900, 'genera': 120}
     assert s['tokens_por_segundo'] == {'genera': 5.0, 'lee': 30.0}
     escribir_planilla(r, tmp_path / 'p.csv')
     filas = (tmp_path / 'p.csv').read_text(encoding='utf-8-sig').splitlines()
@@ -97,3 +119,16 @@ def test_comparar_mide_acuerdo_deteccion_y_falsas_alarmas():
     r = comparar(filas)
     assert r['marcadas'] == 4 and r['acuerdo_decision'] == 0.5
     assert r['detecta_problemas'] == 0.5 and r['falsas_alarmas'] == 0.5 and r['acuerdo_pregunta'] == 0.5
+
+
+def test_diagnostico_de_cache():
+    class G:
+        def __init__(self, leidos):
+            self.leidos = list(leidos)
+
+        def responder(self, sistema, usuario, esquema=None, max_tokens=300):
+            return '{}', {'lee_tokens': self.leidos.pop(0)}
+    mensajes = []
+    diagnosticar_cache(G([1200, 40]), 'hoja', registro=mensajes.append)
+    diagnosticar_cache(G([1200, 1190]), 'hoja', registro=mensajes.append)
+    assert 'SÍ se reutiliza' in mensajes[0] and 'NO se reutiliza' in mensajes[1]

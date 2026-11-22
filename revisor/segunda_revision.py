@@ -232,7 +232,7 @@ def cmd_revisar(a):
         sys.exit('Faltan SUPABASE_URL y SUPABASE_PUBLISHABLE_KEY en .env (solo para descargar la rúbrica del canon).')
     if not BLOQUES.is_file():
         sys.exit(f'Falta {BLOQUES}: corre primero «python -m revisor.segunda_revision reconstruir --g7b RUTA».')
-    canon = descargar_canon(url, clave, 'salidas/canon_local.json', refrescar=True)
+    canon = descargar_canon(url, clave, 'salidas/canon_rubrica.json', refrescar=True)   # su propio archivo: no altera el canon del revisor
     sistema = hoja_rubrica(canon['fragmentos'])
     bloques = [json.loads(l) for l in BLOQUES.read_text(encoding='utf-8').splitlines() if l.strip()]
     bloques = [b for b in bloques if b['reconstruido']][:a.n]

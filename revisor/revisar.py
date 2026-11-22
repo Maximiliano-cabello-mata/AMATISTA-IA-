@@ -7,8 +7,16 @@ Por cada documento, la IA propone:
   - una decisión (aceptar, revision o rechazar);
   - la etapa del embudo que aplica y el motivo;
   - la pregunta del plan (P1–P6 o «ninguna»);
-  - una cita al canon;
-  - los datos concretos que encontró (versiones, hardware, medidas).
+  - una cita al canon, elegida de una lista cerrada.
+Los datos concretos (versiones, hardware, medidas) los extrae el CÓDIGO, no el modelo.
+
+Versión 2 (22 de noviembre), tras la prueba con codellama y qwen3:8b:
+  - la cita es una lista cerrada armada para cada documento: no puede citar algo que no se le mostró;
+  - el modelo ya no extrae datos (copiaba los ejemplos del embudo, como «UHD 620»); los extrae el código,
+    con la tabla oficial hardware.yml;
+  - la respuesta es más corta (generar es lo lento en la CPU del laboratorio);
+  - el código revisa que la decisión sea coherente (aceptar ⇒ etapa «ninguna»; con pregunta asignada, la
+    relevancia no puede ser la etapa que falla).
 NO cambia nada en el lago ni en MongoDB: solo escribe archivos en salidas/ para que una persona los revise.
 
 Privacidad: el canon se descarga una vez de Supabase (108 fragmentos con sus vectores) y se busca EN ESTA
@@ -18,7 +26,7 @@ El código, no el modelo, comprueba:
   - que la salida cumpla el esquema;
   - que la pregunta exista en la taxonomía;
   - que la cita sea de un fragmento que de verdad se le mostró;
-  - que los datos extraídos aparezcan en el texto (fidelidad).
+  - que la decisión sea coherente.
 """
 import argparse
 import csv
@@ -43,27 +51,31 @@ from indexador.indexar import Ollama, _json
 ETAPAS = ['entrada', 'calidad', 'duplicados', 'relevancia', 'valor', 'ninguna']
 DECISIONES = ['aceptar', 'revision', 'rechazar']
 CANON_REGLAS = 'g7b/ingesta'          # el embudo: va completo en la hoja fija, no se recupera
-TAXONOMIA = 'https://raw.githubusercontent.com/Maximiliano-cabello-mata/amatista-g7b-etl/{commit}/fuentes/taxonomia.yml'
+G7B_CRUDO = 'https://raw.githubusercontent.com/Maximiliano-cabello-mata/amatista-g7b-etl/{commit}/fuentes/{archivo}'
+TAXONOMIA = G7B_CRUDO.replace('{archivo}', 'taxonomia.yml')
+VERSION_REVISOR = 2
+CITA_EMBUDO = 'g7b/ingesta · 4. El embudo'
 
-ESQUEMA = {
-    'type': 'object',
-    'properties': {
-        'decision': {'type': 'string', 'enum': DECISIONES},
-        'etapa': {'type': 'string', 'enum': ETAPAS},
-        'motivo': {'type': 'string'},
-        'pregunta': {'type': 'string'},
-        'cita': {'type': 'object', 'properties': {'documento_id': {'type': 'string'}, 'seccion': {'type': 'string'}},
-                 'required': ['documento_id', 'seccion']},
-        'datos': {'type': 'object', 'properties': {
-            'version_blender': {'type': 'array', 'items': {'type': 'string'}},
-            'hardware': {'type': 'array', 'items': {'type': 'string'}},
-            'medidas': {'type': 'array', 'items': {'type': 'string'}}},
-            'required': ['version_blender', 'hardware', 'medidas']},
-        'confianza': {'type': 'string', 'enum': ['alta', 'media', 'baja']},
-        'no_se': {'type': 'boolean'},
-    },
-    'required': ['decision', 'etapa', 'motivo', 'pregunta', 'cita', 'datos', 'confianza', 'no_se'],
-}
+def esquema_para(citas):
+    """El formato de respuesta de cada documento: la cita solo puede ser uno de los fragmentos que se le muestran."""
+    return {
+        'type': 'object',
+        'properties': {
+            'decision': {'type': 'string', 'enum': DECISIONES},
+            'etapa': {'type': 'string', 'enum': ETAPAS},
+            'pregunta': {'type': 'string', 'enum': PREGUNTAS + ['ninguna']},
+            'cita': {'type': 'string', 'enum': list(citas)},
+            'motivo': {'type': 'string'},
+            'confianza': {'type': 'string', 'enum': ['alta', 'media', 'baja']},
+            'no_se': {'type': 'boolean'},
+        },
+        'required': ['decision', 'etapa', 'pregunta', 'cita', 'motivo', 'confianza', 'no_se'],
+    }
+
+
+PREGUNTAS = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6']
+ESQUEMA = esquema_para([CITA_EMBUDO])
+REQUERIDOS = ESQUEMA['required']
 
 
 # --- Canon local -----------------------------------------------------------------------------------------------------
@@ -127,12 +139,9 @@ PREGUNTAS DEL PLAN (lista cerrada; si ninguna aplica, responde «ninguna»):
 CÓMO RESPONDER:
 - decision: «aceptar» si cumple las cinco etapas; «revision» si está en el límite o es dudoso; «rechazar» si falla una etapa.
 - etapa: la etapa que falla, o la que más pesa en tu decisión. Si acepta, «ninguna».
-- motivo: una o dos frases en español, concretas, que una persona pueda comprobar.
-- pregunta: P1, P2, P3, P4, P5, P6 o «ninguna».
-- cita: el documento_id y la sección del fragmento del canon que respalda tu decisión. Solo puedes citar un fragmento \
-de los que se te muestran (o g7b/ingesta, sección «4. El embudo»).
-- datos: copia EXACTAMENTE del texto las versiones de Blender, los modelos de hardware y las medidas con unidad. \
-Si no aparecen, deja la lista vacía. No inventes ni completes.
+- pregunta: P1, P2, P3, P4, P5, P6 o «ninguna». Si asignas una pregunta, la relevancia NO es la etapa que falla.
+- cita: elige de la lista CITAS PERMITIDAS el fragmento del canon que respalda tu decisión.
+- motivo: una frase en español, de 30 palabras como máximo, sobre el contenido concreto del documento.
 - confianza: alta, media o baja.
 - no_se: true si el canon no alcanza para decidir; en ese caso, decision «revision».
 Responde solo con el JSON pedido."""
@@ -143,10 +152,22 @@ def palabras(texto, n):
     return ' '.join(p[:n]) + (' […]' if len(p) > n else '')
 
 
+def cita_de(f):
+    return f"{f['documento_id']} · {f['seccion']}"
+
+
+def citas_permitidas(contexto):
+    return [CITA_EMBUDO] + [c for c in dict.fromkeys(cita_de(f) for f in contexto) if c != CITA_EMBUDO]
+
+
 def mensaje_documento(doc, contexto, max_palabras):
-    canon = '\n\n'.join(f"[{f['documento_id']} · {f['seccion']}]\n{f['texto']}" for f in contexto)
+    canon = '\n\n'.join(f"[{cita_de(f)}]\n{f['texto']}" for f in contexto)
+    lista = '\n'.join(f'- {c}' for c in citas_permitidas(contexto))
     return f"""FRAGMENTOS DEL CANON QUE PUEDEN APLICAR:
 {canon}
+
+CITAS PERMITIDAS:
+{lista}
 
 DOCUMENTO A REVISAR:
 - fuente: {doc.get('fuente')}
@@ -165,21 +186,45 @@ def _normal(s):
     return re.sub(r'\s+', '', s)
 
 
-def validar(salida, preguntas_validas, citas_validas, texto):
-    """Lo que el código comprueba de la respuesta del modelo. citas_validas: ids de documento que se le mostraron."""
-    if not isinstance(salida, dict) or any(k not in salida for k in ESQUEMA['required']):
+def validar(salida, preguntas_validas, citas_validas):
+    """Lo que el código comprueba de la respuesta del modelo. citas_validas: las citas que se le ofrecieron."""
+    if not isinstance(salida, dict) or any(k not in salida for k in REQUERIDOS):
         return {'esquema': False}
-    datos = [x for k in ('version_blender', 'hardware', 'medidas') for x in (salida['datos'].get(k) or [])]
-    cuerpo = _normal(texto)
-    fieles = [x for x in datos if _normal(x) and _normal(x) in cuerpo]
+    pregunta = salida['pregunta']
+    incoherencias = []
+    if salida['decision'] == 'aceptar' and salida['etapa'] != 'ninguna':
+        incoherencias.append('acepta pero marca una etapa que falla')
+    if salida['decision'] != 'aceptar' and salida['etapa'] == 'ninguna':
+        incoherencias.append('no acepta pero no dice qué etapa falla')
+    if pregunta != 'ninguna' and salida['etapa'] == 'relevancia':
+        incoherencias.append('asigna una pregunta pero dice que falla la relevancia')
     return {
         'esquema': salida['decision'] in DECISIONES and salida['etapa'] in ETAPAS,
-        'pregunta': salida['pregunta'] in preguntas_validas or salida['pregunta'] == 'ninguna',
-        'cita': salida['cita'].get('documento_id') in citas_validas,
-        'datos_extraidos': len(datos),
-        'datos_fieles': len(fieles),
-        'inventados': [x for x in datos if x not in fieles],
+        'pregunta': pregunta in preguntas_validas or pregunta == 'ninguna',
+        'cita': salida['cita'] in citas_validas,
+        'coherente': not incoherencias,
+        'incoherencias': incoherencias,
     }
+
+
+# --- Datos concretos: los extrae el código, no el modelo ----------------------------------------------------------
+VERSION_TEXTO = re.compile(r'\bblender\s+(\d\.\d{1,2}(?:\.\d+)?)\b', re.I)
+VERSION_URL = re.compile(r'/manual/[a-z_-]+/(\d\.\d{1,2})/')
+MEDIDA = re.compile(r'\b\d+(?:[.,]\d+)?\s?(?:fps|ms|gib|gb|mib|mb|%|samples|muestras)(?![\w])', re.I)
+
+
+def extraer_datos(doc, patrones_hardware):
+    """Versiones de Blender (del texto y de la URL del manual), hardware según hardware.yml y medidas con unidad."""
+    texto = f"{doc.get('titulo') or ''} {doc.get('texto') or ''}"
+    versiones = sorted(set(VERSION_TEXTO.findall(texto)) | set(VERSION_URL.findall(doc.get('url') or '')))
+    hardware = sorted({m.group(0).strip() for p in patrones_hardware for m in [p.search(texto)] if m})
+    medidas = sorted({m.group(0).strip() for m in MEDIDA.finditer(texto)})
+    return {'version_blender': versiones, 'hardware': hardware, 'medidas': medidas}
+
+
+def patrones_de(hardware_yml):
+    return [re.compile(r['patron'], re.I) for clave in ('gpus', 'cpus') for r in (hardware_yml.get(clave) or [])
+            if r.get('patron')]
 
 
 # --- Modelo generativo -----------------------------------------------------------------------------------------------
@@ -189,10 +234,10 @@ class Generador:
         self.esquema = esquema or ESQUEMA
         self.pensar = False
 
-    def responder(self, sistema, usuario):
-        cuerpo = {'model': self.modelo, 'stream': False, 'format': self.esquema, 'keep_alive': '30m',
+    def responder(self, sistema, usuario, esquema=None, max_tokens=300):
+        cuerpo = {'model': self.modelo, 'stream': False, 'format': esquema or self.esquema, 'keep_alive': '30m',
                   'messages': [{'role': 'system', 'content': sistema}, {'role': 'user', 'content': usuario}],
-                  'options': {'temperature': 0, 'num_ctx': self.contexto, 'num_predict': 500}}
+                  'options': {'temperature': 0, 'num_ctx': self.contexto, 'num_predict': max_tokens}}
         if self.pensar is False:
             cuerpo['think'] = False      # en modelos que «piensan», apagarlo ahorra minutos en CPU
         try:
@@ -211,7 +256,8 @@ class Generador:
 
 
 # --- Corrida ---------------------------------------------------------------------------------------------------------
-def revisar_todo(docs, canon, taxonomia, embebedor, generador, max_palabras=450, cuantos=3, registro=print):
+def revisar_todo(docs, canon, taxonomia, embebedor, generador, max_palabras=450, cuantos=3, registro=print,
+                 patrones_hardware=()):
     buscador = BuscadorLocal(canon['fragmentos'])
     sistema = hoja_fija(canon['fragmentos'], taxonomia)
     validas = set(taxonomia['preguntas'])
@@ -219,18 +265,18 @@ def revisar_todo(docs, canon, taxonomia, embebedor, generador, max_palabras=450,
     for i, doc in enumerate(docs, 1):
         consulta = f"{doc.get('titulo') or ''}\n{palabras(doc.get('texto'), 200)}"
         contexto = buscador.buscar(consulta, embebedor.vectores([consulta])[0], cuantos=cuantos)
+        citas = citas_permitidas(contexto)
         t = time.perf_counter()
-        crudo, stats = generador.responder(sistema, mensaje_documento(doc, contexto, max_palabras))
+        crudo, stats = generador.responder(sistema, mensaje_documento(doc, contexto, max_palabras), esquema_para(citas))
         stats['total_s'] = time.perf_counter() - t
         try:
             salida = json.loads(crudo)
         except json.JSONDecodeError:
             salida = None
-        citas = {f['documento_id'] for f in contexto} | {CANON_REGLAS}
-        chequeo = validar(salida, validas, citas, f"{doc.get('titulo') or ''} {doc.get('texto') or ''}")
+        chequeo = validar(salida, validas, set(citas))
         resultados.append({'doc_id': doc.get('doc_id'), 'url': doc.get('url'), 'fuente': doc.get('fuente'),
                            'titulo': doc.get('titulo'), 'preguntas_embudo': doc.get('preguntas') or [],
-                           'contexto': [f"{f['documento_id']} · {f['seccion']}" for f in contexto],
+                           'contexto': [cita_de(f) for f in contexto], 'datos_codigo': extraer_datos(doc, patrones_hardware),
                            'ia': salida, 'crudo': None if salida else crudo[:500], 'chequeo': chequeo, 'tiempos': stats})
         d = salida or {}
         registro(f"[{i}/{len(docs)}] {stats['total_s']:5.1f} s  {d.get('decision', 'JSON inválido'):9s} "
@@ -244,8 +290,8 @@ def resumir(resultados):
     t = [r['tiempos']['total_s'] for r in resultados]
     gen = [r['tiempos']['genera_tokens'] / r['tiempos']['genera_s'] for r in resultados if r['tiempos']['genera_s']]
     lee = [r['tiempos']['lee_tokens'] / r['tiempos']['lee_s'] for r in resultados if r['tiempos']['lee_s']]
-    extraidos = sum(r['chequeo'].get('datos_extraidos', 0) for r in validos)
-    fieles = sum(r['chequeo'].get('datos_fieles', 0) for r in validos)
+    lee_tokens = [r['tiempos']['lee_tokens'] for r in resultados]
+    gen_tokens = [r['tiempos']['genera_tokens'] for r in resultados]
     con_pregunta = [r for r in validos if r['preguntas_embudo']]
     decisiones = {k: sum(1 for r in validos if r['ia']['decision'] == k) for k in DECISIONES}
     return {
@@ -253,14 +299,16 @@ def resumir(resultados):
         'json_valido': len(validos) / n if n else 0,
         'pregunta_valida': sum(r['chequeo']['pregunta'] for r in validos) / max(len(validos), 1),
         'cita_valida': sum(r['chequeo']['cita'] for r in validos) / max(len(validos), 1),
-        'datos_fieles': fieles / extraidos if extraidos else None,
-        'datos_extraidos': extraidos,
+        'cita_embudo': sum(r['ia']['cita'] == CITA_EMBUDO for r in validos) / max(len(validos), 1),
+        'coherente': sum(r['chequeo']['coherente'] for r in validos) / max(len(validos), 1),
         'coincide_pregunta_embudo': (sum(r['ia']['pregunta'] in r['preguntas_embudo'] for r in con_pregunta)
                                      / len(con_pregunta)) if con_pregunta else None,
         'decisiones': decisiones,
         'no_se': sum(1 for r in validos if r['ia']['no_se']),
         'segundos_por_documento': {'mediana': statistics.median(t) if t else None, 'maximo': max(t) if t else None},
         'tokens_por_segundo': {'genera': statistics.median(gen) if gen else None, 'lee': statistics.median(lee) if lee else None},
+        'tokens_por_documento': {'lee': statistics.median(lee_tokens) if lee_tokens else None,
+                                 'genera': statistics.median(gen_tokens) if gen_tokens else None},
         'horas_estimadas_para_1033': statistics.median(t) * 1033 / 3600 if t else None,
     }
 
@@ -270,14 +318,28 @@ def escribir_planilla(resultados, ruta):
     with open(ruta, 'w', encoding='utf-8-sig', newline='') as f:
         w = csv.writer(f)
         w.writerow(['doc_id', 'url', 'titulo', 'fuente', 'preguntas_embudo', 'ia_decision', 'ia_etapa', 'ia_pregunta',
-                    'ia_motivo', 'ia_cita', 'ia_confianza', 'datos_inventados', 'humano_decision', 'humano_pregunta', 'humano_nota'])
+                    'ia_motivo', 'ia_cita', 'ia_confianza', 'incoherencias', 'datos_codigo', 'humano_decision',
+                    'humano_pregunta', 'humano_nota'])
         for r in resultados:
             d = r['ia'] or {}
-            cita = d.get('cita') or {}
+            datos = r.get('datos_codigo') or {}
             w.writerow([r['doc_id'], r['url'], r['titulo'], r['fuente'], ' '.join(r['preguntas_embudo']),
                         d.get('decision', 'JSON inválido'), d.get('etapa', ''), d.get('pregunta', ''), d.get('motivo', ''),
-                        f"{cita.get('documento_id', '')} · {cita.get('seccion', '')}", d.get('confianza', ''),
-                        '; '.join(r['chequeo'].get('inventados', [])), '', '', ''])
+                        d.get('cita', ''), d.get('confianza', ''), '; '.join(r['chequeo'].get('incoherencias', [])),
+                        '; '.join(f"{k}: {', '.join(v)}" for k, v in datos.items() if v), '', '', ''])
+
+
+def diagnosticar_cache(generador, sistema, registro=print):
+    """Dos llamadas con las mismas instrucciones fijas y mensajes distintos. Si la segunda lee casi lo mismo que la
+    primera, Ollama no está reutilizando la caché y cada documento vuelve a leer las instrucciones completas."""
+    leidos = []
+    for mensaje in ('DOCUMENTO A REVISAR: prueba uno.', 'DOCUMENTO A REVISAR: prueba dos, distinta.'):
+        _, stats = generador.responder(sistema, mensaje, max_tokens=1)
+        leidos.append(stats['lee_tokens'])
+    reutiliza = leidos[1] < leidos[0] * 0.5
+    registro(f'Tokens leídos: primera llamada {leidos[0]}, segunda {leidos[1]}. '
+             + ('La caché SÍ se reutiliza.' if reutiliza else 'La caché NO se reutiliza: cada documento relee las instrucciones.'))
+    return 0
 
 
 def main(argv=None):
@@ -289,7 +351,10 @@ def main(argv=None):
     p.add_argument('--ollama', default=os.environ.get('OLLAMA_HOST', 'http://127.0.0.1:11434'))
     p.add_argument('--n', type=int, default=None, help='revisar solo los primeros N documentos de la muestra')
     p.add_argument('--palabras', type=int, default=450, help='palabras del documento que se le muestran al modelo')
-    p.add_argument('--refrescar-canon', action='store_true')
+    p.add_argument('--refrescar-canon', action='store_true',
+                   help='volver a bajar el canon de Supabase. NO lo uses si comparas con una corrida anterior')
+    p.add_argument('--diagnostico-cache', action='store_true',
+                   help='solo comprobar si Ollama reutiliza las instrucciones fijas entre documentos')
     a = p.parse_args(argv)
 
     url, clave = os.environ.get('SUPABASE_URL'), os.environ.get('SUPABASE_PUBLISHABLE_KEY')
@@ -297,8 +362,13 @@ def main(argv=None):
         sys.exit('Faltan SUPABASE_URL y SUPABASE_PUBLISHABLE_KEY en .env (solo se usan para descargar el canon).')
     canon = descargar_canon(url, clave, 'salidas/canon_local.json', a.refrescar_canon)
     commit = next(d['commit_fijado'] for d in canon['documentos'].values() if d['repositorio'] == 'g7b')
-    with urllib.request.urlopen(urllib.request.Request(TAXONOMIA.format(commit=commit), headers={'User-Agent': 'amatista-ia-revisor'}), timeout=60) as r:
-        taxonomia = yaml.safe_load(r.read().decode('utf-8'))
+    def g7b(archivo):
+        req = urllib.request.Request(G7B_CRUDO.format(commit=commit, archivo=archivo), headers={'User-Agent': 'amatista-ia-revisor'})
+        with urllib.request.urlopen(req, timeout=60) as r:
+            return yaml.safe_load(r.read().decode('utf-8'))
+    taxonomia, hardware = g7b('taxonomia.yml'), g7b('hardware.yml')
+    if a.diagnostico_cache:
+        return diagnosticar_cache(Generador(a.ollama, a.modelo), hoja_fija(canon['fragmentos'], taxonomia))
 
     docs = [json.loads(l) for l in a.muestra.read_text(encoding='utf-8').splitlines() if l.strip()][:a.n]
     embebedor = Ollama(a.ollama, a.embeddings)
@@ -307,8 +377,10 @@ def main(argv=None):
         sys.exit(f'El canon se indexó con {modelos} y aquí está {embebedor.id}: los vectores no serían comparables.')
     print(f'Canon: {len(canon["fragmentos"])} fragmentos · modelo {a.modelo} · {len(docs)} documentos\n')
 
-    resultados = revisar_todo(docs, canon, taxonomia, embebedor, Generador(a.ollama, a.modelo), a.palabras)
-    resumen = {'modelo': a.modelo, 'palabras_por_documento': a.palabras, 'fecha': time.strftime('%Y-%m-%d %H:%M'),
+    resultados = revisar_todo(docs, canon, taxonomia, embebedor, Generador(a.ollama, a.modelo), a.palabras,
+                              patrones_hardware=patrones_de(hardware))
+    resumen = {'revisor': VERSION_REVISOR, 'modelo': a.modelo, 'palabras_por_documento': a.palabras,
+               'canon_fragmentos': len(canon['fragmentos']), 'fecha': time.strftime('%Y-%m-%d %H:%M'),
                **resumir(resultados)}
     Path('salidas').mkdir(exist_ok=True)
     Path('salidas/prueba_revisor.json').write_text(json.dumps({'resumen': resumen, 'resultados': resultados},

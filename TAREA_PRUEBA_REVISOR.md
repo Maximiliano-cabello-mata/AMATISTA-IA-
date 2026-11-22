@@ -116,3 +116,61 @@ Lo que más importa del resultado:
 - **`falsas_alarmas`:** de lo que marcó la IA, cuánto estaba bien.
 
 **Con 20 documentos es una prueba rápida, no una conclusión.** La decisión de usar la IA en serio sale del conjunto de 150–200 documentos marcados a mano.
+
+---
+
+## Versión 2 del revisor (22 de noviembre)
+
+Lo que cambió, por lo que mostraron `codellama` y `qwen3:8b`:
+- **La cita es una lista cerrada** para cada documento. El modelo ya no puede citar el propio documento ni inventar ids.
+- **Los datos los extrae el código**, con `hardware.yml`, la versión del texto o de la URL del manual, y las medidas con unidad. El modelo copiaba los ejemplos del embudo («UHD 620»).
+- **La respuesta es más corta** y no puede pasar de 300 tokens.
+- **El código revisa la coherencia.** Marca, por ejemplo, cuando asigna P6 y a la vez dice que falla la relevancia, como pasó con `qwen3` en «Group» y en «Deleting & Dissolving».
+
+### Paso 7 · Diagnóstico de la caché
+
+```bash
+git pull
+```
+
+```bash
+python -m revisor.revisar salidas/muestra.jsonl --modelo qwen3:8b --diagnostico-cache
+```
+
+Dice si Ollama reutiliza las instrucciones fijas entre documentos. En la versión 1, cada documento leyó entre 2,236 y 3,444 tokens, lo que sugiere que no las reutiliza. Anota la línea completa.
+
+### Paso 8 · Corrida v2 con la misma muestra y el mismo canon
+
+```bash
+python -m revisor.revisar salidas/muestra.jsonl --modelo qwen3:8b
+```
+
+- **No uses `--refrescar-canon`**: la comparación con la versión 1 tiene que ser con el mismo canon de 108 fragmentos. El resumen ahora dice `canon_fragmentos`, y debe ser 108.
+- La segunda revisión de Site usa su propio archivo de canon (`salidas/canon_rubrica.json`), así que no lo altera.
+- Entrega el `resumen` y la tabla documento por documento, igual que antes.
+
+### Predicciones, escritas antes de correr
+
+| # | Predicción | Probabilidad |
+|---|---|---:|
+| H1 | `cita_valida` = 1.00 (la lista cerrada lo garantiza) | 0.95 |
+| H2 | `coherente` ≥ 0.90 | 0.60 |
+| H3 | Tokens generados por documento (mediana) ≤ 120 (antes, 200) | 0.70 |
+| H4 | Segundos por documento (mediana) entre 90 y 125 (antes, 154). Sin caché, la v2 sola no llega a 60 s | 0.60 |
+| H5 | El diagnóstico dice que la caché NO se reutiliza | 0.60 |
+| H6 | `qwen3:8b` v2 manda a revisión entre 6 y 12 de los 20 (antes, 11) | 0.65 |
+| H7 | La decisión de v2 coincide con la de v1 en al menos 15 de los 20 documentos | 0.65 |
+
+### Paso 9 · Lo que de verdad decide: una persona marca los 20
+
+Los modelos ya dieron dos opiniones sobre los mismos 20 documentos. Coincidieron en 13: 8 aceptados y 5 a revisión.
+- **Ambos a revisión:** Limitations, Select All by Trait, Deleting & Dissolving, World Settings y Structure.
+- **No coinciden en 7:** Group, Introduction (grupos de vértices), Startup 4.5, Input, Introduction (Light Probes), UV Project Modifier y Ocean Modifier.
+
+Sin la opinión de una persona no sabemos cuál acierta. Que una persona llene `humano_decision` en `salidas/prueba_revisor.csv` de la corrida v2; son unos 20–30 minutos. Después:
+
+```bash
+python -m revisor.comparar salidas/prueba_revisor.csv
+```
+
+Así se sabe qué tan seguido acierta la IA en lo que importa: los documentos que una persona sí sacaría del lago.

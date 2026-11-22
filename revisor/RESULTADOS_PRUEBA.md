@@ -163,3 +163,24 @@ Medido en la computadora del laboratorio (`Intel Core i3-10100`, 8 hilos, 40 GB 
 | 18 | `Motion Blur` | 4.5 | P6 | aceptar · P6 · 156.1 s (3032/168 tok) | aceptar · P6 · 155.1 s (2656/205 tok) |
 | 19 | `Ocean Modifier` | 5.2 | P6 P5 P1 | aceptar · P6 · 196.9 s (3534/172 tok) | revision · ninguna · 188.0 s (3114/203 tok) |
 | 20 | `Mesh to Curve Node` | 5.2 | P6 | aceptar · P6 · 134.6 s (3042/170 tok) | aceptar · P6 · 133.6 s (2640/194 tok) |
+
+---
+
+## Análisis (22 de noviembre)
+
+**Decisión: `codellama` se descarta; `qwen3:8b` es el candidato.**
+- Sus motivos hablan del contenido real de cada página.
+- Solo contaminó 2 datos con los ejemplos del canon (contra 45 de `codellama`).
+- En 14 de 20 documentos entendió qué citar, pero lo puso en el campo equivocado.
+
+**Lo que no era culpa del modelo y se corrigió en la versión 2 del revisor:**
+- **La comprobación de datos no miraba la URL.** La versión de una página del manual (`5.2`, `4.5`, `3.6`) es un dato real. Con la URL incluida, la fidelidad de `qwen3` pasa de 0.00 a 0.89 (17 de 19).
+- **La cita era un campo libre.** Ahora es una lista cerrada.
+- **La extracción de datos no le tocaba al modelo**, según la regla del proyecto: lo exacto se hace por código. Ahora la hace el código.
+
+**La velocidad es el límite real.** En `qwen3`, cada documento se va en partes casi iguales entre leer unos 2,700 tokens (unos 64 s) y generar unos 200 (unos 85 s). La versión 2 recorta la parte de generar. Leer solo baja si Ollama reutiliza las instrucciones fijas (diagnóstico del paso 7), si se muestran menos palabras o si se usa un modelo más chico. Cada uno de esos cambios es una corrida aparte.
+
+**Lo que todavía no se sabe:** si `qwen3` acierta.
+- Mandó a revisión 11 de 20 páginas del manual, casi todas por «relevancia».
+- La pregunta P6 («cómo se hace algo en una versión concreta») cubre casi cualquier página del manual. `qwen3` la interpreta de forma más estrecha que el embudo.
+- No sabemos si es demasiado estricto o si tiene razón. Lo dice la persona que marque los 20.
