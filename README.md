@@ -79,6 +79,14 @@ El híbrido supera al texto solo: 6 preguntas más con el documento correcto en 
 
 Mientras se resuelven, el revisor pide **5 fragmentos** (`cuantos = 5`) en lugar de 3: con eso p20 entra y p15 sigue fuera.
 
+## Resultados de la prueba rápida del revisor (20 documentos)
+
+Detalle completo en [`revisor/RESULTADOS_PRUEBA.md`](revisor/RESULTADOS_PRUEBA.md).
+
+| Modelo | `json_valido` | `pregunta_valida` | `cita_valida` | `datos_fieles` | `coincide_pregunta_embudo` | Decisiones (`aceptar`/`revision`/`rechazar`) | Mediana s/doc | Genera / Lee (tok/s) | Horas est. (1,033 docs) |
+|---|---:|---:|---:|---:|---:|---|---:|---:|---:|
+| `codellama:latest` (`8fdf8f752f6e`) | 1.00 | 1.00 | 0.05 | 0.21 | 0.75 | 14 / 6 / 0 | 149.1 s | 2.7 / 34.7 | 42.8 h |
+
 ## En la computadora del laboratorio
 
 **La guía completa, paso a paso, está en [`LABORATORIO.md`](LABORATORIO.md).** Está pensada para que la siga un agente de IA o una persona, con [`AGENTS.md`](AGENTS.md) como reglas. Lo de abajo es el resumen.
