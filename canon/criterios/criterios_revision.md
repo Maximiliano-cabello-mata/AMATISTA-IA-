@@ -2,7 +2,7 @@
 
 Reglas que el proyecto aprendió **probando**: con la recuperación del canon, con la prueba del revisor (`codellama` y `qwen3:8b`, 20 documentos) y con la auditoría de la araña Site 4.1. Complementan los estándares de G7B; no los reemplazan. **Si un criterio choca con un estándar de G7B, manda el estándar.**
 
-Cada criterio dice de dónde salió. La sección «Por decidir» no es regla: la IA no la usa para juzgar. Lo de este documento lo aprueba una persona; está en **borrador** mientras el PR que lo agrega no se fusione.
+Cada criterio dice de dónde salió. La sección «Errores conocidos del revisor» le dice a la IA qué estaba haciendo mal y qué hacer en su lugar. La sección «Por decidir» no es regla: la IA no la usa para juzgar. Lo de este documento lo aprueba una persona; está en **borrador** mientras el PR que lo agrega no se fusione.
 
 ## Criterios verificados
 
@@ -57,6 +57,46 @@ Si el canon no alcanza para decidir, la decisión es **revisión** con `no_se`, 
 Ninguna propuesta del revisor cambia el lago, MongoDB ni Supabase. Se publica sola una fuente de documentación solo si el límite inferior de Wilson al 95 % de sus muestras útiles llega a 0.80, con etiquetas confirmadas por una persona.
 
 *Evidencia:* la regla de `g7b/seleccion-documental`. En Site 4.1, con 20 de 24 útiles, el límite fue 0.676.
+
+## Errores conocidos del revisor
+
+Lo que el revisor hizo mal en la prueba de 20 páginas del manual de Blender, medido por código: v1 y v2 con `qwen3:8b`; v1 con `codellama`, que quedó descartado. Están escritos para el revisor, en segunda persona. Cada uno dice qué hacer en su lugar.
+
+### E1. Decidías antes de razonar
+
+En la v2, 9 de 20 decisiones se contradecían: el motivo explicaba que la página sí responde a una pregunta del plan y la decisión era «revisión».
+
+**En su lugar:** escribe primero el motivo. La etapa y la decisión tienen que seguirse de lo que escribiste.
+
+### E2. Usabas «relevancia» como etapa por defecto
+
+En la v2, las 14 revisiones decían «relevancia», incluso cuando habías asignado una pregunta del plan.
+
+**En su lugar:** la relevancia falla solo si el documento no responde a ninguna pregunta del plan. Si asignaste P1–P6, la relevancia se cumple. Si te parece pobre, la etapa que falla es «valor».
+
+### E3. Leías «valor» como si exigiera medidas o hardware
+
+La regla del embudo cuenta como valor los **ajustes concretos** (Simplify, samples, Workbench): no exige medidas ni hardware. En la v2 mandaste a revisión páginas que explican un nodo o una operación concreta («Instance Bounds Node», «Select Sharp Edges»).
+
+**En su lugar:** una página que explica qué hace una opción, un parámetro o una operación concreta, y cuándo usarla, tiene ajustes concretos. Si no estás seguro de si una página introductoria o general tiene valor, decide «revisión» con `no_se`.
+
+### E4. Declarabas confianza alta en decisiones que se contradecían
+
+Las 9 decisiones incoherentes de la v2 venían con confianza «alta».
+
+**En su lugar:** usa «alta» solo si el motivo y la decisión dicen lo mismo y una regla concreta del canon lo respalda.
+
+### E5. Citabas el propio documento
+
+En la v1, `qwen3:8b` puso la URL del documento en el campo de la cita en 14 de 20 casos. `codellama` citó el documento o números inventados en 19 de 20.
+
+**En su lugar:** la cita es solo una de las CITAS PERMITIDAS: la regla que respalda tu decisión.
+
+### E6. Copiabas los ejemplos de las reglas como datos
+
+`codellama` copió 45 ejemplos del embudo («UHD 620», «RTX 3060», «Ryzen») como si fueran datos de 11 documentos. `qwen3:8b` lo hizo 2 veces. Ahora los datos los extrae el código.
+
+**En su lugar:** no afirmes en el motivo ninguna versión, hardware o medida que no esté en el texto o en la URL del documento.
 
 ## Por decidir
 
