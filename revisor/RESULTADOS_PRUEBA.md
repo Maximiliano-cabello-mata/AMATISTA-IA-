@@ -184,3 +184,96 @@ Medido en la computadora del laboratorio (`Intel Core i3-10100`, 8 hilos, 40 GB 
 - Mandó a revisión 11 de 20 páginas del manual, casi todas por «relevancia».
 - La pregunta P6 («cómo se hace algo en una versión concreta») cubre casi cualquier página del manual. `qwen3` la interpreta de forma más estrecha que el embudo.
 - No sabemos si es demasiado estricto o si tiene razón. Lo dice la persona que marque los 20.
+
+---
+
+## Corrida 3 · Versión 2 del revisor con `qwen3:8b` (`500a1f067a9f`, 108 fragmentos)
+
+### Paso 7 · Diagnóstico de la caché (`--diagnostico-cache`)
+
+```text
+Tokens leídos: primera llamada 1173, segunda 1176. La caché NO se reutiliza: cada documento relee las instrucciones.
+```
+
+### Paso 8 · Resumen exacto (`revisor.revisar` v2)
+
+```json
+{
+  "revisor": 2,
+  "modelo": "qwen3:8b",
+  "palabras_por_documento": 450,
+  "canon_fragmentos": 108,
+  "fecha": "2026-11-22 01:19",
+  "documentos": 20,
+  "json_valido": 1.0,
+  "pregunta_valida": 1.0,
+  "cita_valida": 1.0,
+  "cita_embudo": 0.5,
+  "coherente": 0.55,
+  "coincide_pregunta_embudo": 0.75,
+  "decisiones": {
+    "aceptar": 6,
+    "revision": 14,
+    "rechazar": 0
+  },
+  "no_se": 0,
+  "segundos_por_documento": {
+    "mediana": 124.47994835000281,
+    "maximo": 198.4852652000045
+  },
+  "tokens_por_segundo": {
+    "genera": 2.3645411871950284,
+    "lee": 37.85668911925164
+  },
+  "tokens_por_documento": {
+    "lee": 2726.0,
+    "genera": 116.5
+  },
+  "horas_estimadas_para_1033": 35.71882962376469
+}
+```
+
+### Verificación de las predicciones H1–H7 (escritas antes de correr en `9b49e3f`)
+
+| # | Predicción | p | Resultado medido | Cumple |
+|---|---|---:|---|---|
+| **H1** | `cita_valida` = 1.00 (la lista cerrada lo garantiza) | 0.95 | **`1.00`** (20/20; `cita_embudo = 0.50`) | ✓ |
+| **H2** | `coherente` ≥ 0.90 | 0.60 | **`0.55`** (11/20 coherentes; 9 con `asigna una pregunta pero dice que falla la relevancia`) | ✗ |
+| **H3** | Tokens generados por documento (mediana) ≤ 120 (antes, 200) | 0.70 | **`116.5`** tokens generados (mediana; leídos: `2726.0`) | ✓ |
+| **H4** | Segundos por documento (mediana) entre 90 y 125 (antes, 154) | 0.60 | **`124.48 s`** (máximo `198.49 s`; horas para 1,033 docs: `44.33 → 35.72 h`, −19.4 %) | ✓ |
+| **H5** | El diagnóstico dice que la caché NO se reutiliza | 0.60 | **No se reutiliza** (`1173` vs `1176` tokens leídos) | ✓ |
+| **H6** | `qwen3:8b` v2 manda a revisión entre 6 y 12 de los 20 (antes, 11) | 0.65 | **`14` a revisión** (`6 aceptar`, `14 revision`, `0 rechazar`, `no_se = 0`) | ✗ |
+| **H7** | La decisión de v2 coincide con la de v1 en al menos 15 de los 20 documentos | 0.65 | **`17 de 20` coinciden** (los 11 de `revision` de v1 siguen en `revision`, y 6 de `aceptar` siguen en `aceptar`) | ✓ |
+
+**Resultado de predicciones v2:** **5 de 7 cumplidas** (`H1`, `H3`, `H4`, `H5`, `H7`).
+
+### Por qué fallaron H2 (`coherente = 0.55`) y H6 (`14 en revisión`)
+
+Las dos fallas tienen la misma causa en los 9 documentos marcados con la incoherencia `asigna una pregunta pero dice que falla la relevancia` (`Limitations`, `Group`, `Deleting & Dissolving`, `World Settings`, `Startup 4.5`, `Input`, `Instance Bounds Node`, `Select Sharp Edges`, `Ocean Modifier`):
+1. **Orden de campos en el esquema JSON con `think: false`:** en `ESQUEMA`, el modelo está obligado a emitir `"decision"` y `"etapa"` en los primeros tokens (antes de `"pregunta"` y `"motivo"`). Sin cadena de pensamiento previa (`think: false`), empieza por `"decision": "revision", "etapa": "relevancia"`, pero al llegar a `"pregunta"` y `"motivo"` redacta una justificación positiva con `"confianza": "alta"` explicando que el documento **sí** responde a `P6`/`P2`/`P1`.
+2. **Ambigüedad en la instrucción de `etapa`:** `hoja_fija` define `- etapa: la etapa que falla, o la que más pesa en tu decisión. Si acepta, «ninguna».` Cuando el modelo elige `revision`, interpreta que debe indicar *«la etapa que más pesa en su decisión»* (`relevancia`) aunque haya asignado una pregunta válida.
+
+### Tabla documento por documento (v1 `codellama` · v1 `qwen3:8b` · v2 `qwen3:8b`)
+
+| # | Título | Ver | Embudo | v1 `codellama` (dec · preg · s) | v1 `qwen3:8b` (dec · preg · s) | v2 `qwen3:8b` (dec · etapa · preg · s · lee/gen tok · coherente) |
+|---:|---|---|---|---|---|---|
+| 1 | `Limitations` | 5.2 | P6 P1 P2 | revision · ninguna · 248.7s | revision · ninguna · 216.2s | revision · relevancia · P6 · 138.6s (2834/119) · ✗ |
+| 2 | `Group` | 5.2 | P6 P1 | aceptar · P6 · 152.0s | revision · P6 · 145.0s | revision · relevancia · P6 · 111.2s (2574/106) · ✗ |
+| 3 | `Startup ` | 3.6 | P2 | aceptar · P2 · 127.5s | aceptar · P2 · 130.3s | revision · relevancia · ninguna · 104.2s (2502/127) · ✓ |
+| 4 | `Is Edge Manifold Node` | 5.2 | P6 | aceptar · P6 · 114.9s | aceptar · P6 · 131.2s | aceptar · ninguna · P6 · 102.0s (2582/114) · ✓ |
+| 5 | `Introduction` | 4.5 | P6 P5 | aceptar · P6 · 146.1s | revision · ninguna · 157.9s | revision · relevancia · ninguna · 125.8s (2854/129) · ✓ |
+| 6 | `Displace Hair Curves ` | 3.6 | P6 | aceptar · P6 · 179.7s | aceptar · P6 · 163.3s | aceptar · ninguna · P6 · 135.3s (2739/139) · ✓ |
+| 7 | `Select All by Trait` | 4.5 | P6 P1 | revision · ninguna · 139.3s | revision · ninguna · 153.8s | revision · relevancia · ninguna · 116.1s (2930/113) · ✓ |
+| 8 | `Deleting & Dissolving` | 5.2 | P6 P1 | revision · P6 · 172.0s | revision · P6 · 183.6s | revision · relevancia · P6 · 141.1s (3235/101) · ✗ |
+| 9 | `Set ID Node` | 5.2 | P6 | aceptar · P6 · 128.2s | aceptar · P6 · 121.6s | aceptar · ninguna · P6 · 101.4s (2412/107) · ✓ |
+| 10 | `World Settings` | 4.5 | P1 P6 | revision · ninguna · 219.1s | revision · ninguna · 205.8s | revision · relevancia · P6 · 198.5s (3521/161) · ✗ |
+| 11 | `Startup` | 4.5 | P2 | aceptar · P2 · 128.9s | revision · ninguna · 129.6s | revision · relevancia · P2 · 99.3s (2603/105) · ✗ |
+| 12 | `Input` | 5.2 | P6 P1 P2 P4 | aceptar · P6 · 184.1s | revision · ninguna · 179.5s | revision · relevancia · P6 · 137.0s (3392/97) · ✗ |
+| 13 | `Instance Bounds Node` | 5.2 | P1 | aceptar · P1 · 154.4s | aceptar · P1 · 152.1s | revision · relevancia · P1 · 123.7s (2701/119) · ✗ |
+| 14 | `Select Sharp Edges` | 5.2 | P6 | aceptar · P6 · 123.0s | aceptar · P6 · 117.0s | revision · relevancia · P6 · 106.2s (2321/136) · ✗ |
+| 15 | `Introduction ` | 3.6 | P6 | aceptar · P6 · 120.0s | revision · ninguna · 118.0s | revision · relevancia · ninguna · 83.2s (2297/113) · ✓ |
+| 16 | `Structure ` | 3.6 | P6 P1 P5 | revision · ninguna · 185.0s | revision · ninguna · 195.1s | revision · relevancia · ninguna · 148.4s (3292/126) · ✓ |
+| 17 | `UV Project Modifier` | 5.2 | P6 | revision · ninguna · 138.4s | aceptar · P6 · 161.4s | aceptar · ninguna · P6 · 114.0s (2895/97) · ✓ |
+| 18 | `Motion Blur` | 4.5 | P6 | aceptar · P6 · 156.1s | aceptar · P6 · 155.1s | aceptar · ninguna · P6 · 125.2s (2702/122) · ✓ |
+| 19 | `Ocean Modifier` | 5.2 | P6 P5 P1 | aceptar · P6 · 196.9s | revision · ninguna · 188.0s | revision · relevancia · P6 · 147.9s (3183/102) · ✗ |
+| 20 | `Mesh to Curve Node` | 5.2 | P6 | aceptar · P6 · 134.6s | aceptar · P6 · 133.6s | aceptar · ninguna · P6 · 131.0s (2713/134) · ✓ |
