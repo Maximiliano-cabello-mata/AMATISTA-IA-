@@ -62,3 +62,7 @@ preguntas:
   - {id: p44, esperado: amatista/conexion-g7b-geoda, pregunta: "¿Quién guarda los datos personales, Amatista o G7B?"}
   - {id: p45, esperado: amatista/conexion-g7b-geoda, pregunta: "¿Qué hace el script de Oracle 014_g7b.sql?"}
   - {id: p46, esperado: amatista/conexion-g7b-geoda, pregunta: "¿Qué rutas nuevas tiene backend/api/g7b.py?"}
+  # Rúbrica de utilidad de las arañas de documentación (canon v2, agregadas antes de medir)
+  - {id: p47, esperado: g7b/seleccion-documental, pregunta: "¿Qué límite de Wilson se exige para habilitar la publicación automática de una fuente?"}
+  - {id: p48, esperado: g7b/site, pregunta: "When does a documentation block count as useful in the Site audit?"}
+  - {id: p49, esperado: g7b/site, pregunta: "¿Qué fallas tuvo el primer piloto de Site y qué se cambió?"}

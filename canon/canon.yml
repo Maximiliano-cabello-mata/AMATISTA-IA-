@@ -13,7 +13,7 @@
 # `version`. El indexador solo vuelve a calcular los fragmentos cuyo hash cambió.
 
 contrato: amatista.ia.canon/1
-version: 1
+version: 2
 fecha: 2026-11-22
 
 repositorios:
@@ -102,6 +102,21 @@ documentos:
     excluir_secciones: ["Fuentes"]
     por_que: La decisión vigente sobre IA en G7B (local por omisión, conjunto de prueba antes de elegir modelo, ningún dato de estudiantes a capas gratuitas).
 
+  - id: g7b/seleccion-documental
+    repo: g7b
+    ruta: algoritmos/documentacion/README.md
+    tipo: regla
+    solo_secciones: ["Objetivo de utilidad del 80 %"]
+    por_que: Qué es un bloque útil de documentación (responde una pregunta técnica o logra el objetivo, con condición y efecto correctos) y la regla de Wilson al 95 % para habilitar la publicación automática de una fuente.
+
+  - id: g7b/site
+    repo: g7b
+    ruta: algoritmos/documentacion/site-4.md
+    tipo: regla
+    idioma: en
+    solo_secciones: ["Evaluating the 80% target", "Changes after the first pilot"]
+    por_que: La rúbrica de la araña Site 4.1 y las fallas que ya se observaron (descripciones genéricas de la interfaz, ejemplos imprecisos, pasajes repetidos). La IA juzga los bloques con el mismo criterio que la auditoría de la araña. Los resultados del piloto no entran porque son un registro de un momento.
+
   - id: amatista/direccion
     repo: amatista
     ruta: PROYECTO.md
@@ -138,8 +153,8 @@ excluidos:
     por_que: Planeación del 3 de noviembre, superada por los estándares posteriores; mezclaría reglas viejas.
   - patron: "g7b: docs/OPERACION_24_7.md, docs/TAREAS_24_7.md, docs/GEODA_PUENTE_24_7.md, docs/azure/*"
     por_que: Operación e infraestructura, no estándares de datos.
-  - patron: "g7b: docs/ARANA_MANUALES.md, docs/arana_fragmentos.md, docs/GEODAR_RADAR_MAPA.md"
-    por_que: Cómo funcionan las arañas por dentro; no cambia cómo se juzga un dato.
+  - patron: "g7b: docs/ARANA_MANUALES.md, docs/arana_fragmentos.md, docs/GEODAR_RADAR_MAPA.md; de algoritmos/documentacion/, todo salvo la rúbrica"
+    por_que: Cómo funcionan las arañas por dentro (frontera, prioridad, gradiente); no cambia cómo se juzga un dato. La excepción es la rúbrica de utilidad, que sí es un criterio de juicio (versión 2 del canon).
   - patron: "g7b: docs/OFERTAS_Y_GITHUB.md, docs/estadia/*, docs/hack4edu/*, docs/historia/*"
     por_que: Contexto comercial, académico o histórico.
   - patron: "g7b: docs/auditorias/*, docs/bitacoras/*, docs/reportes/*, docs/investigacion/* (salvo la decisión de IA)"

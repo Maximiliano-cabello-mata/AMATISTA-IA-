@@ -184,12 +184,13 @@ def validar(salida, preguntas_validas, citas_validas, texto):
 
 # --- Modelo generativo -----------------------------------------------------------------------------------------------
 class Generador:
-    def __init__(self, base, modelo, contexto=8192):
+    def __init__(self, base, modelo, contexto=8192, esquema=None):
         self.base, self.modelo, self.contexto = base.rstrip('/'), modelo, contexto
+        self.esquema = esquema or ESQUEMA
         self.pensar = False
 
     def responder(self, sistema, usuario):
-        cuerpo = {'model': self.modelo, 'stream': False, 'format': ESQUEMA, 'keep_alive': '30m',
+        cuerpo = {'model': self.modelo, 'stream': False, 'format': self.esquema, 'keep_alive': '30m',
                   'messages': [{'role': 'system', 'content': sistema}, {'role': 'user', 'content': usuario}],
                   'options': {'temperature': 0, 'num_ctx': self.contexto, 'num_predict': 500}}
         if self.pensar is False:

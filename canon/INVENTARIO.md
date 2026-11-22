@@ -6,7 +6,7 @@ Qué documentos del proyecto aprende la IA, cuáles no y qué hay que resolver a
 - G7B: `main` en `81104a1`.
 - Amatista: `recuperacion` en `b689c48`.
 
-## 1. Lo que entra (13 documentos)
+## 1. Lo que entra (15 documentos, versión 2)
 
 | Documento | Tipo | Para qué le sirve a la IA |
 |---|---|---|
@@ -21,6 +21,8 @@ Qué documentos del proyecto aprende la IA, cuáles no y qué hay que resolver a
 | G7B · `docs/GEODA.md` (sin «Lo que sigue») | contrato | Cómo usa Geoda lo revisado |
 | G7B · `docs/GEODA_KERNEL.md` | contrato | Escalera de evidencia del núcleo |
 | G7B · `docs/investigacion/2026-11-17_decision_ia.md` | política | La decisión vigente sobre IA |
+| G7B · `algoritmos/documentacion/README.md` (solo «Objetivo de utilidad del 80 %») | regla | Qué es un bloque útil de documentación y la regla de Wilson para habilitar una fuente (**v2**) |
+| G7B · `algoritmos/documentacion/site-4.md` (solo la rúbrica y los cambios del primer piloto) | regla | La rúbrica de la araña Site 4.1 y las fallas ya observadas, en inglés (**v2**) |
 | Amatista · `PROYECTO.md` (solo §1) | visión | Qué es Amatista y su relación con G7B |
 | Amatista · `docs/arquitectura/2026-11-02_conexion_g7b_y_geoda.md` | contrato | La frontera de privacidad: solo Amatista guarda datos personales |
 
@@ -35,7 +37,7 @@ Qué documentos del proyecto aprende la IA, cuáles no y qué hay que resolver a
 |---|---|
 | Datos del lago: telemetría, foros, documentos de conocimiento | Son lo que la IA va a revisar |
 | `PLAN.md`, `PLAN_MAESTRO.md` | Planeación del 3 de noviembre, superada |
-| Operación 24/7, Azure, arañas por dentro | Infraestructura, no estándares de datos |
+| Operación 24/7, Azure, arañas por dentro (salvo la rúbrica de utilidad) | Infraestructura, no estándares de datos |
 | Ofertas, estadía, Hack4Edu, historia | Contexto comercial, académico o histórico |
 | Auditorías, bitácoras, reportes, investigación (salvo la decisión de IA) | Registros de un momento que pueden contradecir el presente |
 | El resto de Amatista (plataforma, motor, rediseño) | No cambia cómo se juzga un dato de G7B |
@@ -50,7 +52,17 @@ Qué documentos del proyecto aprende la IA, cuáles no y qué hay que resolver a
 | **C4** | `TELEMETRIA.md` (3 de noviembre) tiene «Criterios pendientes antes del cubo», pero el cubo ya existe | Entra, marcado como histórico en esa sección; actualizar el documento en G7B |
 | **C5** | `CONSENTIMIENTO_TELEMETRIA.md` está marcado como **BORRADOR** | Entra con advertencia: la IA lo trata como propuesta, no como regla aprobada. Aprobarlo (o corregirlo) es decisión del proyecto |
 
-## 4. Siguiente paso
+## 4. Versión 2 (22 de noviembre)
+
+**Qué se agregó.** La rúbrica de utilidad de las arañas de documentación, para que la IA juzgue los bloques con el mismo criterio que la auditoría de Site. Los resultados del piloto quedan fuera: son un registro de un momento.
+
+**Qué cambia en las cifras:**
+- 15 documentos y 111 fragmentos; los 108 anteriores no cambian.
+- 3 preguntas nuevas, escritas antes de medir, para un total de 49.
+- Solo con texto (función real, Postgres local): recall@3 de 0.898 (44/49). Las 3 nuevas salen entre los 3 primeros.
+- La búsqueda híbrida se mide en el laboratorio después de volver a indexar.
+
+## 5. Siguiente paso
 
 1. Resolver C1, C3 y C5. Son decisiones del proyecto, no de la IA.
 2. Aplicar la migración de Supabase (`supabase/migrations/`).

@@ -1,6 +1,6 @@
 # Reglas para agentes de IA en este repositorio
 
-Este repositorio construye la IA que revisa los datos del lago de G7B. Para instalarla en la computadora del laboratorio, sigue [`LABORATORIO.md`](LABORATORIO.md) paso por paso. La prueba del revisor está en [`TAREA_PRUEBA_REVISOR.md`](TAREA_PRUEBA_REVISOR.md). Responde en español.
+Este repositorio construye la IA que revisa los datos del lago de G7B. Para instalarla en la computadora del laboratorio, sigue [`LABORATORIO.md`](LABORATORIO.md) paso por paso. Las tareas del revisor están en [`TAREA_PRUEBA_REVISOR.md`](TAREA_PRUEBA_REVISOR.md) y [`TAREA_SEGUNDA_REVISION.md`](TAREA_SEGUNDA_REVISION.md). Responde en español.
 
 ## Claves
 
