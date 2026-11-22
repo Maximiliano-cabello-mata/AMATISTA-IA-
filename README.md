@@ -94,6 +94,8 @@ Detalle completo en [`revisor/RESULTADOS_PRUEBA.md`](revisor/RESULTADOS_PRUEBA.m
 | `qwen3:8b` (v2 `criterios`, 119 frags, con `--criterios`) | 1.00 | 1.00 | **1.00** | coherente 0.70 | **0.90** | 6 / 14 / 0 | 134.7 s | 2.0 / 46.4 | 38.6 h |
 | `qwen3:8b` (v3, 119 frags, razona antes de decidir) | 1.00 | 1.00 | **1.00** | **coherente 0.90** | 0.25 | 1 / 11 / 8 *(efectivas: 1 / 9 / 8 + 2 persona)* | 116.2 s | 2.7 / 42.0 | 33.3 h |
 | `qwen3:8b` (v3 `--cuantos 1`, 119 frags) | 1.00 | 1.00 | **1.00** | coherente 0.85 | 0.15 | 3 / 6 / 11 *(efectivas: 3 / 3 / 11 + 3 persona)* | **75.8 s** | 3.1 / 62.4 | **21.7 h** |
+| `qwen3:8b` (v3 `canon4`, 126 frags, sin `--criterios`) | 1.00 | 1.00 | **1.00** | **coherente 0.95** | 0.30 | 3 / 9 / 8 *(efectivas: 3 / 8 / 8 + 1 persona)* | 113.7 s | 2.6 / 44.9 | 32.6 h |
+| `qwen3:8b` (v3 `criterios_v3`, 126 frags, con `--criterios` E1–E6) | 1.00 | 1.00 | **1.00** | **coherente 0.90** | **0.80** | **9 / 11 / 0** *(efectivas: 9 / 9 / 0 + 2 persona)* | 155.3 s | 2.0 / 51.7 | 44.6 h |
 
 *\*En `qwen3:8b`, 17 de los 19 datos extraídos son la versión real de Blender (`5.2`, `4.5`, `3.6`) leída de `url` (que `validar` no incluye en `titulo + texto`; si se incluye `url`, la fidelidad es 17/19 = 0.895, con solo 2 datos contaminados del canon frente a 45 en `codellama:latest`).*
 

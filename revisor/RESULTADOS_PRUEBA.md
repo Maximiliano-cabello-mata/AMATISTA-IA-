@@ -621,3 +621,149 @@ supabase bge-m3@790764642607 texto=1.0 vector=1.0: recall@1 0.84 · recall@3 0.9
 | **H19** | Con `--cuantos 1`, la mediana de segundos es al menos 10 s menor que la de `v3` | 0.70 | **`75.77 s` vs `116.19 s`** (`-40.42 s`, `-34.8 %`; horas para 1,033 docs bajan de `33.34 → 21.74 h`) | ✓ |
 | **H21** | Con la primera llamada fría, entre documentos SÍ se reutiliza la caché (`paso 2 < 50 % del paso 1`) | 0.60 | **`56.4 s → 1.7 s`** (3.0 % del tiempo frío; 33× más rápido) | ✓ |
 | **H22** | Con otra lista de citas en el esquema, la caché NO se reutiliza | 0.50 | **Sí se reutiliza (`1.6 s`)**: cambiar el `enum` del esquema JSON no invalida la caché KV del prefijo del prompt | ✗ |
+
+---
+
+## Corridas 8 y 9 · Paso 17 (Revisor v3 + Canon v4, 126 fragmentos): `canon4` (sin `--criterios`) vs `criterios_v3` (con `--criterios` y errores conocidos E1–E6)
+
+### Resumen exacto de `canon4` (v3, 126 fragmentos, sin `--criterios`)
+
+```json
+{
+  "revisor": 3,
+  "criterios": false,
+  "modelo": "qwen3:8b",
+  "palabras_por_documento": 450,
+  "cuantos": 3,
+  "umbral": null,
+  "canon_fragmentos": 126,
+  "fecha": "2026-11-22 14:05",
+  "documentos": 20,
+  "json_valido": 1.0,
+  "pregunta_valida": 1.0,
+  "cita_valida": 1.0,
+  "cita_embudo": 0.75,
+  "coherente": 0.95,
+  "motivo_primero": 1.0,
+  "coincide_pregunta_embudo": 0.3,
+  "decisiones": {
+    "aceptar": 3,
+    "revision": 9,
+    "rechazar": 8
+  },
+  "decisiones_efectivas": {
+    "aceptar": 3,
+    "revision": 8,
+    "rechazar": 8,
+    "persona": 1
+  },
+  "etapas": {
+    "relevancia": 13,
+    "valor": 3,
+    "ninguna": 4
+  },
+  "no_se": 0,
+  "segundos_por_documento": {
+    "mediana": 113.7316933500042,
+    "maximo": 162.13062149999314
+  },
+  "tokens_por_segundo": {
+    "genera": 2.629252840145342,
+    "lee": 44.87206694600207
+  },
+  "tokens_por_documento": {
+    "lee": 2676.5,
+    "genera": 146.5
+  },
+  "horas_estimadas_para_1033": 32.634677564042875
+}
+```
+
+### Resumen exacto de `criterios_v3` (v3, 126 fragmentos, con `--criterios` E1–E6)
+
+```json
+{
+  "revisor": 3,
+  "criterios": true,
+  "modelo": "qwen3:8b",
+  "palabras_por_documento": 450,
+  "cuantos": 3,
+  "umbral": null,
+  "canon_fragmentos": 126,
+  "fecha": "2026-11-22 15:01",
+  "documentos": 20,
+  "json_valido": 1.0,
+  "pregunta_valida": 1.0,
+  "cita_valida": 1.0,
+  "cita_embudo": 0.4,
+  "coherente": 0.9,
+  "motivo_primero": 1.0,
+  "coincide_pregunta_embudo": 0.8,
+  "decisiones": {
+    "aceptar": 9,
+    "revision": 11,
+    "rechazar": 0
+  },
+  "decisiones_efectivas": {
+    "aceptar": 9,
+    "revision": 9,
+    "rechazar": 0,
+    "persona": 2
+  },
+  "etapas": {
+    "relevancia": 3,
+    "valor": 8,
+    "ninguna": 9
+  },
+  "no_se": 0,
+  "segundos_por_documento": {
+    "mediana": 155.3376158999963,
+    "maximo": 291.05603300000075
+  },
+  "tokens_por_segundo": {
+    "genera": 2.023529972512473,
+    "lee": 51.680634314941976
+  },
+  "tokens_por_documento": {
+    "lee": 4270.5,
+    "genera": 153.5
+  },
+  "horas_estimadas_para_1033": 44.57326589574894
+}
+```
+
+### Verificación de las predicciones H23–H26 (4 de 4 cumplidas)
+
+| # | Predicción | p | Resultado medido | Cumple |
+|---|---|---:|---|---|
+| **H23** | `v3` con `--criterios` (canon v4) rechaza 2 o menos de 20 (`v3` sin criterios: 8; `canon4`: 8) | 0.70 | **`0` rechazos** (`9 aceptar`, `11 revision`, `0 rechazar`; efectivas: `9 aceptar`, `9 revision`, `2 persona`) | ✓ |
+| **H24** | `v3` con `--criterios` asigna pregunta del plan en 12 o más de 20 (`v3` sin criterios: 5; `canon4`: 6) | 0.60 | **`16 de 20` con pregunta asignada** (`coincide_pregunta_embudo` sube de `0.25`/`0.30` a **`0.80`**) | ✓ |
+| **H25** | `v3` con `--criterios` acepta 5 o más de 20 (`v3` sin criterios: 1; `canon4`: 3) | 0.55 | **`9 de 20` aceptados** (los 9 con coherencia perfecta) | ✓ |
+| **H26** | `v3` con `--criterios` tiene `coherente >= 0.85` | 0.65 | **`0.90`** (18/20 coherentes; en `canon4`: `0.95`, 19/20) | ✓ |
+
+*(Además, entre `canon4` y `criterios_v3`, los no aceptados bajan de `17` [`9 revision + 8 rechazar`] a `11` [`11 revision + 0 rechazar`], la etapa `relevancia` baja de `13` a solo `3`, y la mediana de tiempo pasa de `113.73 s` a `155.34 s`, `+41.61 s >= 25 s`).*
+
+### Tabla documento por documento en Canon v4 (`canon4` vs `criterios_v3`)
+
+| # | Título | Ver | Embudo | `canon4` (dec → ef · etapa · preg · s · coh) | `criterios_v3` (dec → ef · etapa · preg · s · lee/gen · coh) |
+|---:|---|---|---|---|---|
+| 1 | `Limitations` | 5.2 | P6 P1 P2 | revision · valor · P6 · 162.1s · ✓ | revision → persona · relevancia · P6 · 291.1s (4651/167) · ✗ |
+| 2 | `Group` | 5.2 | P6 P1 | revision · relevancia · ninguna · 117.3s · ✓ | revision · valor · ninguna · 149.8s (4116/152) · ✓ |
+| 3 | `Startup ` | 3.6 | P2 | revision → persona · ninguna · P2 · 101.4s · ✗ | revision → persona · relevancia · P2 · 144.0s (4043/153) · ✗ |
+| 4 | `Is Edge Manifold Node` | 5.2 | P6 | rechazar · relevancia · ninguna · 86.0s · ✓ | aceptar · ninguna · P6 · 98.7s (3954/133) · ✓ |
+| 5 | `Introduction` | 4.5 | P6 P5 | rechazar · relevancia · ninguna · 107.7s · ✓ | revision · valor · ninguna · 134.3s (4210/142) · ✓ |
+| 6 | `Displace Hair Curves ` | 3.6 | P6 | revision · relevancia · ninguna · 125.7s · ✓ | revision · valor · P6 · 168.7s (4368/159) · ✓ |
+| 7 | `Select All by Trait` | 4.5 | P6 P1 | rechazar · relevancia · ninguna · 133.0s · ✓ | aceptar · ninguna · P6 · 206.5s (4491/213) · ✓ |
+| 8 | `Deleting & Dissolving` | 5.2 | P6 P1 | revision · relevancia · ninguna · 151.3s · ✓ | aceptar · ninguna · P6 · 197.2s (4679/193) · ✓ |
+| 9 | `Set ID Node` | 5.2 | P6 | revision · relevancia · ninguna · 95.2s · ✓ | revision · valor · P6 · 119.5s (3977/141) · ✓ |
+| 10 | `World Settings` | 4.5 | P1 P6 | aceptar · ninguna · P6 · 85.4s · ✓ | aceptar · ninguna · P6 · 234.1s (4862/201) · ✓ |
+| 11 | `Startup` | 4.5 | P2 | revision · relevancia · ninguna · 116.7s · ✓ | aceptar · ninguna · P2 · 175.9s (4381/171) · ✓ |
+| 12 | `Input` | 5.2 | P6 P1 P2 P4 | revision · relevancia · ninguna · 153.1s · ✓ | aceptar · ninguna · P6 · 220.4s (4904/164) · ✓ |
+| 13 | `Instance Bounds Node` | 5.2 | P1 | rechazar · relevancia · ninguna · 109.9s · ✓ | revision · valor · P1 · 153.9s (4178/154) · ✓ |
+| 14 | `Select Sharp Edges` | 5.2 | P6 | rechazar · valor · P6 · 89.2s · ✓ | aceptar · ninguna · P6 · 100.3s (3870/117) · ✓ |
+| 15 | `Introduction ` | 3.6 | P6 | rechazar · valor · ninguna · 86.0s · ✓ | revision · valor · ninguna · 129.6s (3926/140) · ✓ |
+| 16 | `Structure ` | 3.6 | P6 P1 P5 | rechazar · relevancia · ninguna · 132.5s · ✓ | revision · valor · P6 · 192.7s (4630/164) · ✓ |
+| 17 | `UV Project Modifier` | 5.2 | P6 | revision · relevancia · ninguna · 110.7s · ✓ | revision · valor · P6 · 143.5s (4188/135) · ✓ |
+| 18 | `Motion Blur` | 4.5 | P6 | aceptar · ninguna · P6 · 137.6s · ✓ | aceptar · ninguna · P6 · 156.8s (4331/141) · ✓ |
+| 19 | `Ocean Modifier` | 5.2 | P6 P5 P1 | rechazar · relevancia · ninguna · 145.7s · ✓ | revision · relevancia · ninguna · 209.5s (4637/198) · ✓ |
+| 20 | `Mesh to Curve Node` | 5.2 | P6 | aceptar · ninguna · P6 · 95.0s · ✓ | aceptar · ninguna · P6 · 124.6s (4069/149) · ✓ |

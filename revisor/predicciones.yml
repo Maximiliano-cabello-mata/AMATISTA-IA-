@@ -9,6 +9,7 @@ predicciones:
   - {id: H5, corrida: v2-qwen3, p: 0.60, texto: "el diagnóstico dice que la caché NO se reutiliza", resultado: true}
   - {id: H6, corrida: v2-qwen3, p: 0.65, texto: "manda a revisión entre 6 y 12 de 20", resultado: false}
   - {id: H7, corrida: v2-qwen3, p: 0.65, texto: "coincide con v1 en al menos 15 de 20 decisiones", resultado: true}
+  # NOTA (22 nov): H8–H10 se evaluaron en v2 (canon3 vs criterios: 0.70 >= 0.50, 14 vs 13, +28.6 s); en v3 (canon4 vs criterios_v3): coherente 0.90 vs 0.95, revision+rechazar 11 vs 17, y mediana 155.3 s vs 113.7 s (+41.6 s).
   - {id: H8, corrida: criterios, p: 0.70, texto: "coherente de «criterios» >= coherente de «canon4»", resultado: true}
   - {id: H9, corrida: criterios, p: 0.55, texto: "«criterios» manda a revisión menos documentos que «canon4»", resultado: false}
   - {id: H10, corrida: criterios, p: 0.75, texto: "la mediana de segundos por documento de «criterios» es al menos 25 s mayor que la de «canon4»", resultado: true}
@@ -22,10 +23,9 @@ predicciones:
   - {id: H18, corrida: cache-variantes, p: 0.50, texto: "«el mismo mensaje dos veces» reutiliza la caché", resultado: true}
   - {id: H19, corrida: v3_c1, p: 0.70, texto: "con --cuantos 1, la mediana de segundos es al menos 10 s menor que la de v3", resultado: true}
   - {id: H20, corrida: v3_4b, p: 0.70, texto: "con qwen3:4b, la mediana de segundos es como mucho el 70 % de la de v3", resultado: null}
-  # Escritas el 22 de noviembre, después de la v3 y ANTES de las corridas siguientes.
   - {id: H21, corrida: cache-fria, p: 0.60, texto: "con la primera llamada fría, entre documentos SÍ se reutiliza la caché (paso 2 < 50 % del paso 1)", resultado: true}
   - {id: H22, corrida: cache-fria, p: 0.50, texto: "con otra lista de citas en el esquema, la caché NO se reutiliza", resultado: false}
-  - {id: H23, corrida: criterios, p: 0.70, texto: "v3 con --criterios (canon v4) rechaza 2 o menos de 20 (v3 sin criterios: 8)", resultado: null}
-  - {id: H24, corrida: criterios, p: 0.60, texto: "v3 con --criterios asigna pregunta del plan en 12 o más de 20 (v3 sin criterios: 5)", resultado: null}
-  - {id: H25, corrida: criterios, p: 0.55, texto: "v3 con --criterios acepta 5 o más de 20 (v3 sin criterios: 1)", resultado: null}
-  - {id: H26, corrida: criterios, p: 0.65, texto: "v3 con --criterios tiene coherente >= 0.85", resultado: null}
+  - {id: H23, corrida: criterios, p: 0.70, texto: "v3 con --criterios (canon v4) rechaza 2 o menos de 20 (v3 sin criterios: 8)", resultado: true}
+  - {id: H24, corrida: criterios, p: 0.60, texto: "v3 con --criterios asigna pregunta del plan en 12 o más de 20 (v3 sin criterios: 5)", resultado: true}
+  - {id: H25, corrida: criterios, p: 0.55, texto: "v3 con --criterios acepta 5 o más de 20 (v3 sin criterios: 1)", resultado: true}
+  - {id: H26, corrida: criterios, p: 0.65, texto: "v3 con --criterios tiene coherente >= 0.85", resultado: true}
