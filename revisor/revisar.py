@@ -383,13 +383,15 @@ def diagnosticar_cache(generador, sistema, registro=print, variantes=None):
     primera, Ollama no reutilizó la caché. Con varias variantes se ve qué la impide."""
     resultados = []
     for nombre, mensajes, formato, apagar in (variantes or VARIANTES_CACHE[:1]):
-        leidos = []
+        leidos, segundos = [], []
         for mensaje in mensajes:
             _, stats = generador.responder(sistema, mensaje, max_tokens=1, formato=formato, apagar_pensar=apagar)
             leidos.append(stats['lee_tokens'])
-        reutiliza = leidos[1] < leidos[0] * 0.5
-        resultados.append({'variante': nombre, 'leidos': leidos, 'reutiliza': reutiliza})
-        registro(f'[{nombre}] tokens leídos: primera {leidos[0]}, segunda {leidos[1]}. '
+            segundos.append(stats.get('lee_s', 0.0))
+        # Por tokens o por tiempo: algunas versiones de Ollama cuentan todos los tokens aunque los tome de la caché.
+        reutiliza = leidos[1] < leidos[0] * 0.5 or (segundos[0] > 0 and segundos[1] < segundos[0] * 0.5)
+        resultados.append({'variante': nombre, 'leidos': leidos, 'segundos': segundos, 'reutiliza': reutiliza})
+        registro(f'[{nombre}] tokens leídos: primera {leidos[0]} ({segundos[0]:.1f} s), segunda {leidos[1]} ({segundos[1]:.1f} s). '
                  + ('La caché SÍ se reutiliza.' if reutiliza else 'La caché NO se reutiliza.'))
     return resultados
 

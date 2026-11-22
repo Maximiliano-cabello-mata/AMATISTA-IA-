@@ -9,6 +9,9 @@ predicciones:
   - {id: H5, corrida: v2-qwen3, p: 0.60, texto: "el diagnóstico dice que la caché NO se reutiliza", resultado: true}
   - {id: H6, corrida: v2-qwen3, p: 0.65, texto: "manda a revisión entre 6 y 12 de 20", resultado: false}
   - {id: H7, corrida: v2-qwen3, p: 0.65, texto: "coincide con v1 en al menos 15 de 20 decisiones", resultado: true}
+  # NOTA (22 nov): H8–H10 se evaluaron con las corridas «canon3» y «criterios» del revisor v2 y el canon v3 (119
+  # fragmentos): criterios C1–C7 SIN los errores conocidos E1–E6. Responden a la versión anterior de estas hipótesis
+  # (antes H10 pedía +10 s; se midieron +28.6 s, así que se cumple con las dos versiones).
   - {id: H8, corrida: criterios, p: 0.70, texto: "coherente de «criterios» >= coherente de «canon4»", resultado: true}
   - {id: H9, corrida: criterios, p: 0.55, texto: "«criterios» manda a revisión menos documentos que «canon4»", resultado: false}
   - {id: H10, corrida: criterios, p: 0.75, texto: "la mediana de segundos por documento de «criterios» es al menos 25 s mayor que la de «canon4»", resultado: true}

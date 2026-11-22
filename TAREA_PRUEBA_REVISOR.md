@@ -335,3 +335,32 @@ Para el reporte:
 - agrega a `revisor/comportamiento.yml` los conteos de cada corrida nueva;
 - marca en `revisor/predicciones.yml` cuáles de H8–H20 se cumplieron;
 - sube los resúmenes y la tabla documento por documento, con la etapa y la `decision_efectiva`, igual que en la v2.
+
+---
+
+## Ajuste a los pasos 14–18 (22 de noviembre, después de las corridas `canon3` y `criterios`)
+
+Se corrieron los pasos 10–11 viejos, con el revisor v2 y el canon v3. Sus resultados valen y quedan registrados, pero el canon guardado en `salidas/canon_local.json` ya tiene **119 fragmentos**. Por eso la v3 se compara ahora con `canon3`: **mismo canon, solo cambia el revisor.**
+
+Antes de correr cualquier cosa:
+
+```bash
+git pull
+```
+
+Comprueba que el resumen de cada corrida diga **`revisor: 3`**. Si dice 2, el código no se actualizó.
+
+1. **Paso 13 bis · diagnóstico con tiempos.** Ahora muestra también los segundos. Con 0 de 4 variantes reutilizando la caché, falta confirmar que de verdad vuelve a leer todo.
+
+   ```bash
+   python -m revisor.revisar salidas/muestra.jsonl --modelo qwen3:8b --diagnostico-cache --variantes
+   ```
+
+2. **Paso 14 · v3 con el canon de 119**, sin `--refrescar-canon`:
+
+   ```bash
+   python -m revisor.revisar salidas/muestra.jsonl --modelo qwen3:8b --nombre v3
+   ```
+
+3. **Paso 15 · velocidad**, igual que antes, con el mismo canon de 119: `v3_c1`, después `v3_4b` y al final `v3_p300`.
+4. **Pasos 16–18** sin cambios: volver a indexar a v4, correr `canon4` y `criterios` con `--refrescar-canon` en la primera, y calcular la confianza.

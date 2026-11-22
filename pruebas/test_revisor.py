@@ -128,11 +128,17 @@ def test_diagnostico_de_cache():
 
         def responder(self, sistema, usuario, esquema=None, max_tokens=300, formato=True, apagar_pensar=True):
             self.llamadas = getattr(self, 'llamadas', []) + [(usuario, formato, apagar_pensar)]
-            return '{}', {'lee_tokens': self.leidos.pop(0)}
+            return '{}', {'lee_tokens': self.leidos.pop(0), 'lee_s': 30.0}
     mensajes = []
     diagnosticar_cache(G([1200, 40]), 'hoja', registro=mensajes.append)
     diagnosticar_cache(G([1200, 1190]), 'hoja', registro=mensajes.append)
     assert 'SÍ se reutiliza' in mensajes[0] and 'NO se reutiliza' in mensajes[1]
+    # Mismos tokens contados, pero la segunda lectura tarda mucho menos: también es caché.
+    class GT(G):
+        def responder(self, *a, **k):
+            r = super().responder(*a, **k)
+            return r[0], {**r[1], 'lee_s': 30.0 if len(self.leidos) % 2 else 2.0}
+    assert diagnosticar_cache(GT([1200, 1200]), 'hoja', registro=lambda *_: None)[0]['reutiliza']
     from revisor.revisar import VARIANTES_CACHE
     g = G([1200, 1190, 1200, 30, 1200, 1195, 1200, 20])
     r = diagnosticar_cache(g, 'hoja', registro=lambda *_: None, variantes=VARIANTES_CACHE)
