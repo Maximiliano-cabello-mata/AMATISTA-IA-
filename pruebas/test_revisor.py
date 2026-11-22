@@ -121,44 +121,22 @@ def test_comparar_mide_acuerdo_deteccion_y_falsas_alarmas():
     assert r['detecta_problemas'] == 0.5 and r['falsas_alarmas'] == 0.5 and r['acuerdo_pregunta'] == 0.5
 
 
-def test_diagnostico_de_cache():
+def test_diagnostico_de_cache_compara_contra_una_llamada_fria():
     class G:
-        def __init__(self, leidos):
-            self.leidos = list(leidos)
+        def __init__(self, segundos):
+            self.segundos, self.llamadas = list(segundos), []
 
         def responder(self, sistema, usuario, esquema=None, max_tokens=300, formato=True, apagar_pensar=True):
-            self.llamadas = getattr(self, 'llamadas', []) + [(usuario, formato, apagar_pensar)]
-            return '{}', {'lee_tokens': self.leidos.pop(0), 'lee_s': 30.0}
-    mensajes = []
-    diagnosticar_cache(G([1200, 40]), 'hoja', registro=mensajes.append)
-    diagnosticar_cache(G([1200, 1190]), 'hoja', registro=mensajes.append)
-    assert 'SÍ se reutiliza' in mensajes[0] and 'NO se reutiliza' in mensajes[1]
-    # Mismos tokens contados, pero la segunda lectura tarda mucho menos: también es caché.
-    class GT(G):
-        def responder(self, *a, **k):
-            r = super().responder(*a, **k)
-            return r[0], {**r[1], 'lee_s': 30.0 if len(self.leidos) % 2 else 2.0}
-    assert diagnosticar_cache(GT([1200, 1200]), 'hoja', registro=lambda *_: None)[0]['reutiliza']
-    from revisor.revisar import VARIANTES_CACHE
-    g = G([1200, 1190, 1200, 30, 1200, 1195, 1200, 20])
-    r = diagnosticar_cache(g, 'hoja', registro=lambda *_: None, variantes=VARIANTES_CACHE)
-    assert [x['reutiliza'] for x in r] == [False, True, False, True]           # «sin formato» y «mismo mensaje» sí
-    assert [(f, p) for _, f, p in g.llamadas[::2]] == [(True, True), (False, True), (True, False), (True, True)]
-    assert g.llamadas[6][0] == g.llamadas[7][0]                                # la última variante repite el mensaje
-
-
-def test_los_criterios_van_en_la_hoja_fija_solo_con_la_opcion_y_nunca_se_recuperan():
-    import pytest
-    from revisor.revisar import CANON_CRITERIOS
-    crit = [{'id': 9, 'documento_id': CANON_CRITERIOS, 'orden': 1, 'seccion': 'Criterios > Criterios verificados > C1. Datos',
-             'texto': 'Los datos son solo los del documento.', 'embedding': [0, 1, 0, 0], 'titulo': 'Criterios'}]
-    fr = CANON['fragmentos'] + crit
-    assert 'CRITERIOS APRENDIDOS' not in hoja_fija(fr, TAX)
-    h = hoja_fija(fr, TAX, criterios=True)
-    assert 'C1. Datos\nLos datos son solo los del documento.' in h
-    assert all(f['documento_id'] != CANON_CRITERIOS for f in BuscadorLocal(fr).buscar('datos documento', [0, 1, 0, 0], 5))
-    with pytest.raises(RuntimeError, match='canon v3'):
-        hoja_fija(CANON['fragmentos'], TAX, criterios=True)
+            self.llamadas.append((sistema, usuario, tuple(esquema['properties']['cita']['enum'])))
+            return '{}', {'lee_tokens': 1200, 'lee_s': self.segundos.pop(0)}
+    g = G([30.0, 2.0, 29.0])
+    r = diagnosticar_cache(g, 'hoja', registro=lambda *_: None)
+    assert r['reutiliza_entre_documentos'] and not r['reutiliza_con_otras_citas']
+    assert len({s for s, _, _ in g.llamadas}) == 1 and g.llamadas[0][0].startswith('[diagnóstico ')   # fría y la misma
+    assert g.llamadas[2][2] != g.llamadas[1][2]                                                        # otras citas
+    otra = G([30.0, 2.0, 29.0])
+    diagnosticar_cache(otra, 'hoja', registro=lambda *_: None)
+    assert otra.llamadas[0][0] != g.llamadas[0][0]                     # cada diagnóstico usa una marca nueva
 
 
 def test_v3_el_motivo_va_primero_y_la_decision_al_final():

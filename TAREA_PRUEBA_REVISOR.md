@@ -364,3 +364,31 @@ Comprueba que el resumen de cada corrida diga **`revisor: 3`**. Si dice 2, el c�
 
 3. **Paso 15 · velocidad**, igual que antes, con el mismo canon de 119: `v3_c1`, después `v3_4b` y al final `v3_p300`.
 4. **Pasos 16–18** sin cambios: volver a indexar a v4, correr `canon4` y `criterios` con `--refrescar-canon` en la primera, y calcular la confianza.
+
+---
+
+## Siguiente (22 de noviembre, después de la v3)
+
+La v3 confirmó que razonar antes de decidir quita las contradicciones. Pero sin criterios se volvió demasiado dura: 8 rechazos. Por eso **las corridas con criterios van antes que las de velocidad.**
+
+```bash
+git pull
+```
+
+1. **Diagnóstico de caché nuevo**, con la primera llamada fría y una variante con otra lista de citas (H21–H22):
+
+   ```bash
+   python -m revisor.revisar salidas/muestra.jsonl --modelo qwen3:8b --diagnostico-cache
+   ```
+
+2. **Volver a indexar el canon v4**, que agrega los errores conocidos (paso 16):
+
+   ```bash
+   python -m indexador.indexar canon/canon.yml
+   ```
+
+   Se espera `1 documentos actualizados (15 fragmentos)`.
+3. **Las dos corridas del paso 17:** `canon4` con `--refrescar-canon` y después `criterios` (H8–H10 y H23–H26).
+4. **Después, la velocidad:** `v3_c1` y `v3_4b`.
+
+**Lo que más destraba, y no lo puede hacer la IA:** que una persona marque los 20 documentos en `salidas/prueba_revisor_v3.csv` y decida si las páginas del manual que explican un nodo o una operación responden a P6.

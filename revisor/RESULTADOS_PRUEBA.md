@@ -516,3 +516,21 @@ supabase bge-m3@790764642607 texto=1.0 vector=1.0: recall@1 0.80 · recall@3 0.9
 | 18 | `Motion Blur` | 4.5 | P6 | aceptar · ninguna · P6 · 49.1s · ✓ | aceptar · ninguna · P6 · 136.7s (2737/156) · ✓ |
 | 19 | `Ocean Modifier` | 5.2 | P6 P5 P1 | revision · relevancia · P6 · 119.7s · ✗ | rechazar · relevancia · ninguna · 142.9s (3043/166) · ✓ |
 | 20 | `Mesh to Curve Node` | 5.2 | P6 | aceptar · ninguna · P6 · 77.3s · ✓ | revision · valor · P6 · 100.7s (2475/158) · ✓ |
+
+---
+
+## Análisis de la corrida v3 (22 de noviembre)
+
+**1. La coherencia subió por el camino equivocado.** El revisor razona antes de decidir (`motivo_primero` = 1.00) y la coherencia pasó de 0.50 a 0.90. Pero de los 8 documentos que dejaron de ser incoherentes, **7 lo lograron cambiando la pregunta a «ninguna»**; ninguno pasó a aceptado. Los documentos con pregunta del plan asignada bajaron de 16 a 5 de 20.
+
+El modelo resolvió la contradicción declarando irrelevantes las páginas, en vez de reconocer que respondían a P6. La comprobación de coherencia por código se cumple, pero no garantiza que la decisión sea buena.
+
+**2. La v3 sin criterios es la más dura de todas:** 1 aceptado, 11 a revisión y **8 rechazados**. Antes: 6 aceptados y 0–1 rechazos. Rechaza páginas de nodos y modificadores concretos («Is Edge Manifold Node», «Instance Bounds Node», «Select Sharp Edges»). Por la regla del embudo, esas páginas tienen ajustes concretos y responden a P6.
+
+Dos causas probables:
+- la instrucción del motivo pide decir «si alguna etapa del embudo falla», y eso empuja a buscar fallas;
+- sin los criterios, falta C6: no rechazar sin una regla concreta.
+
+**3. Las decisiones en páginas limítrofes cambian mucho entre versiones.** De los 6 que aceptó la v2, la v3 solo mantuvo 1. Sin etiquetas de una persona no se puede saber qué versión acierta. **La decisión sobre P6 y las páginas del manual («Por decidir» en los criterios) es la que más mueve el resultado.**
+
+**4. Caché: el diagnóstico tenía un defecto.** Su primera llamada ya estaba tibia: 1,208 tokens en 1.5 s, cuando en frío tomarían unos 30 s. En realidad, las instrucciones fijas **sí** quedaban en caché en el diagnóstico. Pero en las corridas, agregar 950 tokens de criterios costó unos 20 s más de lectura por documento, así que algo de la corrida real impide reutilizarlas. Una causa candidata es que el esquema cambia con cada documento, porque la lista de citas es distinta. El diagnóstico nuevo parte de una llamada fría y prueba ese caso.

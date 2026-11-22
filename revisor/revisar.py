@@ -369,31 +369,32 @@ def escribir_planilla(resultados, ruta):
                         '; '.join(f"{k}: {', '.join(v)}" for k, v in datos.items() if v), '', '', ''])
 
 
-VARIANTES_CACHE = [
-    # (nombre, mensajes, formato obligatorio, apagar «pensar»)
-    ('como hoy: formato + sin pensar', ('DOCUMENTO A REVISAR: prueba uno.', 'DOCUMENTO A REVISAR: prueba dos, distinta.'), True, True),
-    ('sin formato obligatorio', ('DOCUMENTO A REVISAR: prueba uno.', 'DOCUMENTO A REVISAR: prueba dos, distinta.'), False, True),
-    ('sin el parámetro think', ('DOCUMENTO A REVISAR: prueba uno.', 'DOCUMENTO A REVISAR: prueba dos, distinta.'), True, False),
-    ('el mismo mensaje dos veces', ('DOCUMENTO A REVISAR: prueba uno.', 'DOCUMENTO A REVISAR: prueba uno.'), True, True),
-]
-
-
 def diagnosticar_cache(generador, sistema, registro=print, variantes=None):
-    """Para cada variante, dos llamadas con las mismas instrucciones fijas. Si la segunda lee casi lo mismo que la
-    primera, Ollama no reutilizó la caché. Con varias variantes se ve qué la impide."""
-    resultados = []
-    for nombre, mensajes, formato, apagar in (variantes or VARIANTES_CACHE[:1]):
-        leidos, segundos = [], []
-        for mensaje in mensajes:
-            _, stats = generador.responder(sistema, mensaje, max_tokens=1, formato=formato, apagar_pensar=apagar)
-            leidos.append(stats['lee_tokens'])
-            segundos.append(stats.get('lee_s', 0.0))
-        # Por tokens o por tiempo: algunas versiones de Ollama cuentan todos los tokens aunque los tome de la caché.
-        reutiliza = leidos[1] < leidos[0] * 0.5 or (segundos[0] > 0 and segundos[1] < segundos[0] * 0.5)
-        resultados.append({'variante': nombre, 'leidos': leidos, 'segundos': segundos, 'reutiliza': reutiliza})
-        registro(f'[{nombre}] tokens leídos: primera {leidos[0]} ({segundos[0]:.1f} s), segunda {leidos[1]} ({segundos[1]:.1f} s). '
-                 + ('La caché SÍ se reutiliza.' if reutiliza else 'La caché NO se reutiliza.'))
-    return resultados
+    """¿Ollama reutiliza las instrucciones fijas entre documentos?
+
+    Tres llamadas con las mismas instrucciones fijas, a las que se antepone una marca única para que la primera llamada
+    sea FRÍA (nunca vista). La segunda cambia solo el mensaje del documento: si tarda mucho menos que la primera, la
+    caché funciona entre documentos. La tercera cambia además la lista de citas permitidas del esquema, como pasa en
+    una corrida real (cada documento tiene sus citas). Se compara por tiempo: Ollama puede contar todos los tokens
+    aunque los tome de la caché. «variantes» se ignora (se conserva por compatibilidad con --variantes).
+    """
+    import uuid
+    fria = f'[diagnóstico {uuid.uuid4().hex}]\n' + sistema
+    pasos = [('1. fría', 'DOCUMENTO A REVISAR: prueba uno.', esquema_para([CITA_EMBUDO])),
+             ('2. otro documento, mismo esquema', 'DOCUMENTO A REVISAR: prueba dos, distinta.', esquema_para([CITA_EMBUDO])),
+             ('3. otro documento y otras citas', 'DOCUMENTO A REVISAR: prueba tres.', esquema_para([CITA_EMBUDO, 'g7b/cubo · Calidad']))]
+    medidas = []
+    for nombre, mensaje, esquema in pasos:
+        _, stats = generador.responder(fria, mensaje, esquema=esquema, max_tokens=1)
+        medidas.append({'paso': nombre, 'tokens': stats['lee_tokens'], 'segundos': stats.get('lee_s', 0.0)})
+        registro(f"[{nombre}] {stats['lee_tokens']} tokens contados, {stats.get('lee_s', 0.0):.1f} s de lectura")
+    fria_s = medidas[0]['segundos'] or 1e-9
+    resultado = {'medidas': medidas,
+                 'reutiliza_entre_documentos': medidas[1]['segundos'] < fria_s * 0.5,
+                 'reutiliza_con_otras_citas': medidas[2]['segundos'] < fria_s * 0.5}
+    registro('Entre documentos: ' + ('la caché SÍ se reutiliza.' if resultado['reutiliza_entre_documentos'] else 'NO se reutiliza.')
+             + ' Con otra lista de citas: ' + ('SÍ.' if resultado['reutiliza_con_otras_citas'] else 'NO.'))
+    return resultado
 
 
 def main(argv=None):
@@ -412,7 +413,7 @@ def main(argv=None):
                    help='agregar los criterios aprendidos (ia/criterios, canon v3) a las instrucciones fijas')
     p.add_argument('--diagnostico-cache', action='store_true',
                    help='solo comprobar si Ollama reutiliza las instrucciones fijas entre documentos')
-    p.add_argument('--variantes', action='store_true', help='con --diagnostico-cache: probar las 4 variantes')
+    p.add_argument('--variantes', action='store_true', help='(obsoleto) el diagnóstico ya prueba sus variantes')
     p.add_argument('--cuantos', type=int, default=3, help='fragmentos del canon que se muestran por documento')
     p.add_argument('--umbral', type=float, default=None,
                    help='solo mostrar fragmentos con similitud coseno al documento de al menos este valor')
@@ -429,8 +430,7 @@ def main(argv=None):
             return yaml.safe_load(r.read().decode('utf-8'))
     taxonomia, hardware = g7b('taxonomia.yml'), g7b('hardware.yml')
     if a.diagnostico_cache:
-        diagnosticar_cache(Generador(a.ollama, a.modelo), hoja_fija(canon['fragmentos'], taxonomia),
-                           variantes=VARIANTES_CACHE if a.variantes else None)
+        diagnosticar_cache(Generador(a.ollama, a.modelo), hoja_fija(canon['fragmentos'], taxonomia))
         return 0
 
     docs = [json.loads(l) for l in a.muestra.read_text(encoding='utf-8').splitlines() if l.strip()][:a.n]
