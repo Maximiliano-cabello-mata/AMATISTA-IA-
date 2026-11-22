@@ -149,3 +149,14 @@ def test_el_trabajo_revisa_cierra_solo_y_se_pausa_con_dos_lotes_esperando(tmp_pa
     assert '2 lotes esperan tu veredicto' in t.motivo                        # se pausó con 20 revisados de 35
     assert len(c.revisados()) == 20
     assert (tmp_path / 'escritorio' / 'lote_001' / 'planilla.csv').is_file()
+
+
+def test_carpeta_escritorio_encuentra_onedrive_empresarial(tmp_path, monkeypatch):
+    from consola.nucleo import carpeta_escritorio
+    onedrive = tmp_path / 'OneDrive - Universidad'
+    (onedrive / 'Escritorio').mkdir(parents=True)
+    monkeypatch.setattr('consola.nucleo.os.name', 'posix')
+    monkeypatch.setenv('USERPROFILE', str(tmp_path))
+    monkeypatch.setenv('OneDriveCommercial', str(onedrive))
+    monkeypatch.delenv('OneDrive', raising=False)
+    assert carpeta_escritorio() == onedrive / 'Escritorio' / 'Amatista IA · cierres'

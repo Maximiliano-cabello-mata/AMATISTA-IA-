@@ -197,7 +197,7 @@ def cmd_instalar_acceso():
     if os.name == 'nt':
         ruta = escritorio / 'Iniciar Amatista IA.bat'
         activar = RAIZ / '.venv' / 'Scripts' / 'activate.bat'
-        ruta.write_text('@echo off\r\ntitle Amatista IA - consola\r\n' f'cd /d "{RAIZ}"\r\n'
+        ruta.write_text('@echo off\r\nchcp 65001 >nul\r\ntitle Amatista IA - consola\r\n' f'cd /d "{RAIZ}"\r\n'
                         + (f'call "{activar}"\r\n' if activar.is_file() else '') + 'python -m consola\r\npause\r\n', encoding='utf-8')
     else:
         ruta = escritorio / 'iniciar-amatista-ia.sh'
