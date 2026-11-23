@@ -173,3 +173,57 @@ def test_v3_los_errores_conocidos_entran_con_los_criterios():
         {'id': 11, 'documento_id': CANON_CRITERIOS, 'orden': 3, 'seccion': 'X > Errores conocidos del revisor', 'texto': 'intro', 'embedding': [0, 0, 0, 1]}]
     h = hoja_fija(fr, TAX, criterios=True)
     assert 'C1. Datos\nc' in h and 'E1. Decidías antes\ne' in h and 'intro' not in h and 'TUS ERRORES CONOCIDOS' in h
+
+
+# --- v4 ------------------------------------------------------------------------------------------------------------
+from revisor.revisar import CANON_RUBRICA, citas_fijas, errores_en_motivo, observacion  # noqa: E402
+
+CANON4 = {'fragmentos': CANON['fragmentos'] + [
+    {**frag(4, CANON_RUBRICA, 'Objetivo de utilidad del 80 %', 'Un bloque útil responde una pregunta técnica.', 3), 'orden': 1}]}
+URL_52 = 'https://docs.blender.org/manual/en/5.2/render/x.html'
+
+
+class SinEmbebedor:
+    def vectores(self, textos):
+        raise AssertionError('la v4 no recupera por parecido: no debe calcular vectores')
+
+
+def test_v4_citas_fijas_en_la_hoja_y_mensaje_sin_fragmentos():
+    assert citas_fijas(CANON4['fragmentos']) == [CITA_EMBUDO, f'{CANON_RUBRICA} · Objetivo de utilidad del 80 %']
+    h = hoja_fija(CANON4['fragmentos'], TAX, version=4)
+    assert 'REGLA DE UTILIDAD' in h and 'Un bloque útil' in h and h.rstrip().endswith('Objetivo de utilidad del 80 %')
+    m = mensaje_documento({'titulo': 't', 'texto': 'x', 'url': URL_52}, [], 50, version=4)
+    assert m.startswith('DOCUMENTO A REVISAR') and 'FRAGMENTOS' not in m and 'CITAS PERMITIDAS' not in m
+    assert 'REGLA DE UTILIDAD' not in hoja_fija(CANON4['fragmentos'], TAX)          # la v3 (consola) no cambia
+
+
+def test_v4_errores_en_motivo():
+    rev = lambda m: errores_en_motivo({'decision': 'revision', 'motivo': m})
+    assert rev('Explica el nodo. No menciona versiones concretas ni hardware.') == ['E3']
+    assert rev('Describe sus parámetros, lo que le da valor según el embudo.') == ['E1']
+    assert rev('Ofrece ajustes concretos, pero las definiciones solo repiten el nombre.') == []
+    assert rev('No proporciona ajustes concretos ni ejemplos.') == []
+    assert errores_en_motivo({'decision': 'aceptar', 'motivo': 'No menciona versiones.'}) == []   # solo si no acepta
+    obs = observacion(['E3'], {'decision': 'revision', 'motivo': 'x'}, {'url': URL_52})
+    assert 'URL: 5.2' in obs and 'E3' in obs and 'aceptar' not in obs           # nombra el error, no sugiere la decisión
+
+
+def test_v4_reintenta_una_vez_y_si_el_error_sigue_decide_una_persona():
+    docs = [{'doc_id': 'a', 'titulo': 'Nodo', 'texto': 'x', 'url': URL_52, 'preguntas': ['P6']},
+            {'doc_id': 'b', 'titulo': 'Nodo 2', 'texto': 'y', 'url': URL_52, 'preguntas': ['P6']},
+            {'doc_id': 'c', 'titulo': 'Nodo 3', 'texto': 'z', 'url': URL_52, 'preguntas': ['P6']}]
+    e3 = salida(decision='revision', etapa='valor', pregunta='P6', motivo='No menciona versiones ni hardware.')
+    gen = FalsoGenerador([json.dumps(e3), json.dumps(salida(pregunta='P6', motivo='Explica el nodo y su efecto.')),
+                          json.dumps(e3), json.dumps(e3),
+                          json.dumps(salida(decision='revision', etapa='valor', pregunta='P6', motivo='Las opciones solo repiten su nombre.'))])
+    tax = {'preguntas': {'P6': {'nombre': 'x'}}}
+    r = revisar_todo(docs, CANON4, tax, SinEmbebedor(), gen, registro=lambda *_: None, version=4)
+    assert [x['decision_efectiva'] for x in r] == ['aceptar', 'persona', 'revision']
+    assert r[0]['reintento']['errores'] == ['E3'] and r[0]['reintento']['primera']['decision'] == 'revision'
+    assert r[1]['reintento']['errores_despues'] == ['E3'] and r[2]['reintento'] is None
+    assert len(set(gen.sistemas)) == 1 and all(e['properties']['cita']['enum'] == citas_fijas(CANON4['fragmentos'])
+                                              for e in gen.esquemas)        # hoja y esquema idénticos: caché
+    s = resumir(r)
+    assert s['reintentos'] == 2 and s['reintento_por_error'] == {'E3': 2, 'E1': 0}
+    assert s['reintento_cambia_decision'] == 1 and s['reintento_sigue_con_error'] == 1
+    assert r[0]['tiempos']['genera_tokens'] == 240                            # cuenta las dos llamadas

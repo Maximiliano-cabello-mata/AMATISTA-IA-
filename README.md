@@ -10,6 +10,7 @@ La IA que revisa los datos del lago de G7B «a la manera de G7B». Conoce el pro
 |---|---|
 | Canon | **v5**: 17 documentos, 135 fragmentos. En Supabase está indexada la v3; la v5 se indexa al arrancar la consola. Recall@3 híbrido de 0.96 medido con la v3 |
 | Revisor | **v3 con criterios** (C1–C7, E1–E6): primero el motivo, cita de lista cerrada, datos por código, coherencia revisada. Su criterio todavía no está validado: no hay etiquetas humanas |
+| Revisor v4 | Implementada (`--version 4`): citas fijas y reintento ante E3 o E1. Se mide con [`TAREA_V4.md`](TAREA_V4.md) |
 | Consola 24/7 | En marcha en el laboratorio. Lote 1 cerrado el 23 de noviembre, esperando el veredicto de la persona ([segunda opinión](revisor/SEGUNDA_OPINION_LOTE_001.md)) |
 | Pesos de confianza | En uso: 25 predicciones resueltas, Brier 0.197 |
 | Segunda revisión de Site 4.1 | Lista, sin correr |
@@ -42,6 +43,7 @@ evaluacion/evaluar.py        recall@1, recall@3 y MRR, contra Supabase o sin red
 laboratorio/verificar.py     comprueba Ollama, bge-m3 y Supabase sin mostrar claves
 revisor/                     prueba del revisor: muestra de MongoDB, revisión local con un 8B, comparación con una persona
 consola/                     consola del auditor 24/7: lotes de 100, cierre con 20 muestras al escritorio, veredicto y freno
+control/                     conjunto de control C1: documentos públicos para comparar versiones del revisor
 docs/HISTORIA.md             cómo se construyó: canon v1–v5, revisor v1–v3, herramientas y decisiones
 TAREA_CONSOLA.md             la tarea vigente para el agente del laboratorio
 TAREA_PRUEBA_REVISOR.md      la tarea para el agente del laboratorio

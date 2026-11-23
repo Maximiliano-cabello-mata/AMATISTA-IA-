@@ -35,3 +35,9 @@ predicciones:
   - {id: H29, corrida: lote-002, p: 0.80, texto: "la IA no rechaza ninguno de los 100 documentos", resultado: null}
   - {id: H30, corrida: lote-002, p: 0.75, texto: "la cita es el embudo o la rúbrica de selección en 8 o menos de las 20 muestras", resultado: null}
   - {id: H31, corrida: lote-002, p: 0.80, texto: "confianza «alta» en 16 o más de las 20 muestras", resultado: null}
+  # Revisor v4 en el lote 1 (23 nov), escritas antes de correrla. Las del conjunto de control están en su clave (control/clave_c1.sha256).
+  - {id: H32, corrida: v4-lote001, p: 0.97, texto: "cita del embudo o de la regla de utilidad en 100 de 100 (por construcción)", resultado: null}
+  - {id: H33, corrida: v4-lote001, p: 0.70, texto: "la mediana de segundos por documento es al menos 15 s menor que la de la v3 en el mismo lote", resultado: null}
+  - {id: H34, corrida: v4-lote001, p: 0.60, texto: "el código encuentra E3 o E1 en 15 o más de los 100", resultado: null}
+  - {id: H35, corrida: v4-lote001, p: 0.55, texto: "tras el reintento, cambia la decisión en la mitad o más de los reintentos", resultado: null}
+  - {id: H36, corrida: v4-lote001, p: 0.80, texto: "la v4 acepta más documentos que la v3 en el lote 1 (decisión efectiva)", resultado: null}

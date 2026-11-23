@@ -89,5 +89,5 @@ Se hacen después de ver el lote 1. Por eso el lote 1 se califica con la regla v
 2. **Revisor v4, como corrida aparte, sobre los mismos 100 documentos y calificada con las mismas etiquetas:**
    - quitar los fragmentos recuperados por parecido. Para un documento, la regla que respalda la decisión es siempre el embudo o la rúbrica. Además lee menos y tarda menos;
    - que el código detecte E3: un motivo que dice que «no menciona versiones» cuando la URL trae la versión, o que pide hardware o medidas para P6. Esa decisión iría a una persona.
-3. **Una prueba con documentos malos sembrados.** Mezclar páginas que no deberían entrar, por ejemplo páginas a medio escribir, plantillas o páginas truncadas, para medir si la IA las detecta. Es lo mismo que se hizo con el criterio de mediciones.
+3. **Una prueba aparte, con documentos que no vienen del lago.** Se describe al cerrarla.
 4. **Por decidir en los criterios: las páginas de referencia delgadas** (Rip, Clamp, Split Edges). ¿Entran como referencia o van a revisión? Es la misma pregunta que ya está abierta para las páginas introductorias.

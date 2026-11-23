@@ -39,6 +39,7 @@ Todas las corridas usan la misma muestra: 20 páginas del manual de Blender de `
 | v3 | Primero el motivo, al final la decisión; lo incoherente va a una persona | Coherencia 0.90; pero 1 aceptado, 11 a revisión y 8 rechazados | La coherencia subió quitando la pregunta del plan (16 → 5), no aceptando |
 | v3 con criterios y errores conocidos (canon v4) | C1–C7 y E1–E6 en las instrucciones fijas | Coherencia 0.90; 9 aceptados, 11 a revisión, 0 rechazos; pregunta asignada en 16 de 20; 155 s por documento | Es la versión que usa la consola. Los criterios quitan los rechazos y devuelven la pregunta del plan, a costa de 41 s más |
 | Lote 1 de la consola (23 nov) | La misma, sobre 100 documentos reales | En la muestra, los 14 aceptados están bien según la segunda opinión; 4 de las 6 revisiones debían aceptarse | Falla del lado seguro. Repite E3 y E4 aunque ya se le dijeron. Ver [`revisor/SEGUNDA_OPINION_LOTE_001.md`](../revisor/SEGUNDA_OPINION_LOTE_001.md) |
+| v4 (23 nov) | Citas fijas (embudo y regla de utilidad), sin recuperar por parecido; el código busca E3 y E1 en el motivo y el modelo vuelve a decidir una vez | Sin correr: [`TAREA_V4.md`](../TAREA_V4.md) | La consola sigue en la v3 hasta que una persona decida |
 
 **Lo que sigue abierto:**
 - el lote 1 espera las etiquetas de la persona: son las primeras;
