@@ -90,3 +90,15 @@ corridas:
       json: [20, 20]
       cita: [20, 20]
       coherente: [18, 20]
+  - id: lote-001
+    revisor: 3
+    criterios: true
+    modelo: "qwen3:8b"
+    fecha: 2026-11-23
+    muestra: 20 muestras del primer cierre de la consola (14 aceptados + 6 no aceptados, estratificada; todas blender-manual). Ver revisor/SEGUNDA_OPINION_LOTE_001.md
+    senales:
+      json: [20, 20]
+      cita: [20, 20]
+      coherente: [20, 20]      # por código; el código no ve 2 motivos positivos con decisión «revisión»
+      cita_regla: [7, 20]      # la cita es el embudo (g7b/ingesta) o la rúbrica de selección; 9 son de telemetría, fichas o conexión
+      motivo_breve: [0, 20]    # motivo de 40 palabras o menos, como piden las instrucciones (43–79; mediana 54)

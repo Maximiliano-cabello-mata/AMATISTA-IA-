@@ -29,3 +29,9 @@ predicciones:
   - {id: H24, corrida: criterios, p: 0.60, texto: "v3 con --criterios asigna pregunta del plan en 12 o más de 20 (v3 sin criterios: 5)", resultado: true}
   - {id: H25, corrida: criterios, p: 0.55, texto: "v3 con --criterios acepta 5 o más de 20 (v3 sin criterios: 1)", resultado: true}
   - {id: H26, corrida: criterios, p: 0.65, texto: "v3 con --criterios tiene coherente >= 0.85", resultado: true}
+  # Lote 1 y lote 2 de la consola (23 nov). Escritas antes de las etiquetas de la persona (lote 1) y antes de ver el lote 2.
+  - {id: H27, corrida: lote-001, p: 0.70, texto: "la persona coincide con la IA en 16 o menos de las 20 muestras (veredicto «no aprobado»)", resultado: null}
+  - {id: H28, corrida: lote-001, p: 0.85, texto: "la persona no marca «rechazar» ninguno de los 14 aceptados de la muestra", resultado: null}
+  - {id: H29, corrida: lote-002, p: 0.80, texto: "la IA no rechaza ninguno de los 100 documentos", resultado: null}
+  - {id: H30, corrida: lote-002, p: 0.75, texto: "la cita es el embudo o la rúbrica de selección en 8 o menos de las 20 muestras", resultado: null}
+  - {id: H31, corrida: lote-002, p: 0.80, texto: "confianza «alta» en 16 o más de las 20 muestras", resultado: null}

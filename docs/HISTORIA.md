@@ -37,9 +37,12 @@ Todas las corridas usan la misma muestra: 20 páginas del manual de Blender de `
 | v2 | Cita de lista cerrada; datos extraídos por código; coherencia revisada | Citas 20/20; coherencia 0.55 | Las fallas mecánicas se eliminan por construcción |
 | v2 con criterios C1–C7 | Criterios en las instrucciones fijas | Coherencia 0.70; «valor» reemplaza a «relevancia»; +29 s por documento | Los criterios ayudan, pero no bastan |
 | v3 | Primero el motivo, al final la decisión; lo incoherente va a una persona | Coherencia 0.90; pero 1 aceptado, 11 a revisión y 8 rechazados | La coherencia subió quitando la pregunta del plan (16 → 5), no aceptando |
+| v3 con criterios y errores conocidos (canon v4) | C1–C7 y E1–E6 en las instrucciones fijas | Coherencia 0.90; 9 aceptados, 11 a revisión, 0 rechazos; pregunta asignada en 16 de 20; 155 s por documento | Es la versión que usa la consola. Los criterios quitan los rechazos y devuelven la pregunta del plan, a costa de 41 s más |
+| Lote 1 de la consola (23 nov) | La misma, sobre 100 documentos reales | En la muestra, los 14 aceptados están bien según la segunda opinión; 4 de las 6 revisiones debían aceptarse | Falla del lado seguro. Repite E3 y E4 aunque ya se le dijeron. Ver [`revisor/SEGUNDA_OPINION_LOTE_001.md`](../revisor/SEGUNDA_OPINION_LOTE_001.md) |
 
 **Lo que sigue abierto:**
-- la v3 con criterios y errores conocidos nunca se ha corrido;
+- el lote 1 espera las etiquetas de la persona: son las primeras;
+- la muestra no puede decir si la IA detecta documentos malos, porque el lote solo trae páginas del manual ya aceptadas;
 - en las páginas limítrofes, la decisión cambia mucho entre versiones;
 - hay 0 etiquetas humanas, así que no se sabe si acierta.
 
@@ -49,9 +52,9 @@ Todas las corridas usan la misma muestra: 20 páginas del manual de Blender de `
 |---|---|---|
 | `evaluacion/` | Prueba de recuperación del canon (53 preguntas con su documento esperado) | En uso |
 | `laboratorio/verificar.py` | Comprueba Ollama, GitHub y Supabase sin mostrar claves | En uso |
-| `revisor/confianza.py` | Pesos de confianza: Beta teórica actualizada con lo observado; combina votos; Brier de las predicciones | En uso: 18 predicciones resueltas, Brier 0.213 |
+| `revisor/confianza.py` | Pesos de confianza: Beta teórica actualizada con lo observado; combina votos; Brier de las predicciones | En uso: 25 predicciones resueltas, 18 acertadas, Brier 0.197 |
 | `revisor/segunda_revision.py` | Segunda opinión a ciegas sobre los 70 bloques de Site 4.1, reconstruidos con `id` idéntico | Listo, sin correr |
-| `consola/` | El auditor 24/7: lotes de 100, cuarentena, cierre con 20 muestras al escritorio, veredicto y freno | Construido; primer lote pendiente en el laboratorio |
+| `consola/` | El auditor 24/7: lotes de 100, cuarentena, cierre con 20 muestras al escritorio, veredicto y freno | En marcha: lote 1 cerrado el 23 de noviembre, esperando veredicto |
 
 ## 5. Decisiones propias de este repositorio
 

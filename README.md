@@ -9,9 +9,9 @@ La IA que revisa los datos del lago de G7B «a la manera de G7B». Conoce el pro
 | Pieza | Estado |
 |---|---|
 | Canon | **v5**: 17 documentos, 135 fragmentos. En Supabase está indexada la v3; la v5 se indexa al arrancar la consola. Recall@3 híbrido de 0.96 medido con la v3 |
-| Revisor | **v3**: primero el motivo, cita de lista cerrada, datos por código, coherencia revisada. Su criterio todavía no está validado: no hay etiquetas humanas |
-| Consola 24/7 | Construida, con 53 pruebas. Primer lote de 100 pendiente en el laboratorio ([`TAREA_CONSOLA.md`](TAREA_CONSOLA.md)) |
-| Pesos de confianza | En uso: 18 predicciones resueltas, Brier 0.213 |
+| Revisor | **v3 con criterios** (C1–C7, E1–E6): primero el motivo, cita de lista cerrada, datos por código, coherencia revisada. Su criterio todavía no está validado: no hay etiquetas humanas |
+| Consola 24/7 | En marcha en el laboratorio. Lote 1 cerrado el 23 de noviembre, esperando el veredicto de la persona ([segunda opinión](revisor/SEGUNDA_OPINION_LOTE_001.md)) |
+| Pesos de confianza | En uso: 25 predicciones resueltas, Brier 0.197 |
 | Segunda revisión de Site 4.1 | Lista, sin correr |
 
 ## Qué sabe y qué no
