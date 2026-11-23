@@ -102,3 +102,23 @@ corridas:
       coherente: [20, 20]      # por código; el código no ve 2 motivos positivos con decisión «revisión»
       cita_regla: [7, 20]      # la cita es el embudo (g7b/ingesta) o la rúbrica de selección; 9 son de telemetría, fichas o conexión
       motivo_breve: [0, 20]    # motivo de 40 palabras o menos, como piden las instrucciones (43–79; mediana 54)
+  - id: v3-control-c1
+    revisor: 3
+    criterios: true
+    modelo: "qwen3:8b"
+    fecha: 2026-11-22
+    muestra: conjunto de control C1 (35 documentos públicos, canon v5, 135 fragmentos)
+    senales:
+      json: [35, 35]
+      cita: [35, 35]
+      coherente: [35, 35]
+  - id: v4-control-c1
+    revisor: 4
+    criterios: true
+    modelo: "qwen3:8b"
+    fecha: 2026-11-23
+    muestra: conjunto de control C1 (35 documentos públicos, canon v5, 135 fragmentos)
+    senales:
+      json: [35, 35]
+      cita: [35, 35]
+      coherente: [33, 35]

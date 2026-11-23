@@ -767,3 +767,212 @@ supabase bge-m3@790764642607 texto=1.0 vector=1.0: recall@1 0.84 · recall@3 0.9
 | 18 | `Motion Blur` | 4.5 | P6 | aceptar · ninguna · P6 · 137.6s · ✓ | aceptar · ninguna · P6 · 156.8s (4331/141) · ✓ |
 | 19 | `Ocean Modifier` | 5.2 | P6 P5 P1 | rechazar · relevancia · ninguna · 145.7s · ✓ | revision · relevancia · ninguna · 209.5s (4637/198) · ✓ |
 | 20 | `Mesh to Curve Node` | 5.2 | P6 | aceptar · ninguna · P6 · 95.0s · ✓ | aceptar · ninguna · P6 · 124.6s (4069/149) · ✓ |
+
+---
+
+## Corridas 10–12 · Revisor v4 y conjunto de control C1
+
+### Paso 2 · Estado de la consola al detenerla
+
+```text
+==============================================================================
+AMATISTA IA · CONSOLA DEL AUDITOR              actualizado 2026-11-22 20:31:37
+==============================================================================
+Actividad: revisando «Wave Modifier» (lote 2)
+Freno: no · Lotes esperando tu veredicto: 1
+Velocidad: 133 s por documento · faltan 99 para el cierre (~3.7 h)
+
+Lote 2 · 1/100  [..............................]
+  aceptar 1 · revisión 0 · rechazar 0 · a una persona 0
+
+Lotes cerrados:
+    1  esperando_veredicto  2026-11-22 20:29:23
+       muestras en: C:\Users\KANEDA\OneDrive - UNIVERSIDAD TECNOLÓGICA DE NEZAHUALCÓYOTL\Escritorio\Amatista IA · cierres\lote_001
+
+Ctrl+C detiene la consola. Lo revisado se conserva y se retoma al volver a iniciar.
+==============================================================================
+```
+
+### Paso 4 · Resumen exacto de `v3_control` (Corrida 10: conjunto de control C1, revisor v3, `--criterios`)
+
+```json
+{
+  "revisor": 3,
+  "criterios": true,
+  "modelo": "qwen3:8b",
+  "palabras_por_documento": 450,
+  "cuantos": 3,
+  "umbral": null,
+  "canon_fragmentos": 135,
+  "fecha": "2026-11-22 22:54",
+  "documentos": 35,
+  "json_valido": 1.0,
+  "pregunta_valida": 1.0,
+  "cita_valida": 1.0,
+  "cita_embudo": 0.22857142857142856,
+  "coherente": 1.0,
+  "motivo_primero": 1.0,
+  "coincide_pregunta_embudo": 0.6857142857142857,
+  "decisiones": {
+    "aceptar": 17,
+    "revision": 16,
+    "rechazar": 2
+  },
+  "decisiones_efectivas": {
+    "aceptar": 17,
+    "revision": 16,
+    "rechazar": 2,
+    "persona": 0
+  },
+  "etapas": {
+    "relevancia": 8,
+    "valor": 10,
+    "ninguna": 17
+  },
+  "no_se": 0,
+  "segundos_por_documento": {
+    "mediana": 185.14523120000376,
+    "maximo": 355.8447559999913
+  },
+  "tokens_por_segundo": {
+    "genera": 1.7771730545532038,
+    "lee": 47.961240883933066
+  },
+  "tokens_por_documento": {
+    "lee": 4452,
+    "genera": 166
+  },
+  "horas_estimadas_para_1033": 53.126395508223304,
+  "reintentos": 0,
+  "reintento_por_error": {
+    "E3": 0,
+    "E1": 0
+  },
+  "reintento_cambia_decision": 0,
+  "reintento_sigue_con_error": 0
+}
+```
+
+### Paso 5 · Resumen exacto de `v4_control` (Corrida 11: conjunto de control C1, revisor v4, `--criterios`)
+
+```json
+{
+  "revisor": 4,
+  "criterios": true,
+  "modelo": "qwen3:8b",
+  "palabras_por_documento": 450,
+  "cuantos": 3,
+  "umbral": null,
+  "canon_fragmentos": 135,
+  "fecha": "2026-11-23 00:36",
+  "documentos": 35,
+  "json_valido": 1.0,
+  "pregunta_valida": 1.0,
+  "cita_valida": 1.0,
+  "cita_embudo": 0.5428571428571428,
+  "coherente": 0.9428571428571428,
+  "motivo_primero": 1.0,
+  "coincide_pregunta_embudo": 0.8285714285714286,
+  "decisiones": {
+    "aceptar": 22,
+    "revision": 12,
+    "rechazar": 1
+  },
+  "decisiones_efectivas": {
+    "aceptar": 21,
+    "revision": 2,
+    "rechazar": 0,
+    "persona": 12
+  },
+  "etapas": {
+    "entrada": 1,
+    "relevancia": 3,
+    "valor": 10,
+    "ninguna": 21
+  },
+  "no_se": 0,
+  "segundos_por_documento": {
+    "mediana": 170.9308779999992,
+    "maximo": 281.5084074999904
+  },
+  "tokens_por_segundo": {
+    "genera": 1.9626896351866616,
+    "lee": 149.67839080944776
+  },
+  "tokens_por_documento": {
+    "lee": 7172,
+    "genera": 281
+  },
+  "horas_estimadas_para_1033": 49.04766582611088,
+  "reintentos": 21,
+  "reintento_por_error": {
+    "E3": 21,
+    "E1": 0
+  },
+  "reintento_cambia_decision": 10,
+  "reintento_sigue_con_error": 10
+}
+```
+
+### Conjunto de control C1 · Documento por documento (`v3_control` vs `v4_control`)
+
+| # | Título | Fuente | v3 (decisión → efectiva) | v4 (decisión → efectiva) | `reintento.errores` | Cambió decisión |
+|---:|---|---|---|---|---|---|
+| 1 | `Remesh Modifier` | `blender-manual` | revision → revision | aceptar → aceptar | — | sí |
+| 2 | `Bendy Bones` | `blender-manual` | revision → revision | revision → persona | E3 (persiste) | sí (efectiva) |
+| 3 | `Volumes` | `blender-manual` | revision → revision | aceptar → aceptar | E3 | sí |
+| 4 | `Wireframe Modifier` | `blender-manual` | revision → revision | aceptar → aceptar | E3 | sí |
+| 5 | `Vector Rotate Node` | `blender-manual` | revision → revision | revision → revision | E3 | no |
+| 6 | `Apply` | `blender-manual` | aceptar → aceptar | revision → persona | E3 (persiste) | sí |
+| 7 | `Array Modifier` | `blender-manual` | aceptar → aceptar | aceptar → aceptar | — | no |
+| 8 | `Dyntopo` | `blender-manual` | aceptar → aceptar | aceptar → aceptar | — | no |
+| 9 | `Cycles render very slow with GTX 1050` | `blender-stackexchange` | aceptar → aceptar | aceptar → aceptar | — | no |
+| 10 | `Decimate Modifier` | `blender-manual` | aceptar → aceptar | aceptar → aceptar | — | no |
+| 11 | `Laplacian Smooth Modifier` | `blender-manual` | revision → revision | revision → persona | E3 (persiste) | sí (efectiva) |
+| 12 | `Weld Modifier` | `blender-manual` | revision → revision | aceptar → persona | E3 | sí |
+| 13 | `Depth of Field` | `blender-manual` | aceptar → aceptar | aceptar → aceptar | — | no |
+| 14 | `Format` | `blender-manual` | aceptar → aceptar | revision → persona | E3 (persiste) | sí |
+| 15 | `Shrinkwrap Modifier` | `blender-manual` | revision → revision | aceptar → aceptar | — | sí |
+| 16 | `EEVEE` | `blender-manual` | revision → revision | revision → revision | — | no |
+| 17 | `Distribute Points on Faces` | `blender-manual` | aceptar → aceptar | aceptar → aceptar | — | no |
+| 18 | `Performance` | `blender-manual` | aceptar → aceptar | aceptar → aceptar | — | no |
+| 19 | `Solidify Modifier` | `blender-manual` | aceptar → aceptar | revision → persona | E3 (persiste) | sí |
+| 20 | `Clean Up` | `blender-manual` | aceptar → aceptar | aceptar → aceptar | — | no |
+| 21 | `Principled BSDF` | `blender-manual` | revision → revision | revision → persona | E3 (persiste) | sí (efectiva) |
+| 22 | `Subdivision Surface Modifier` | `blender-manual` | aceptar → aceptar | aceptar → aceptar | E3 | no |
+| 23 | `Simplify` | `blender-manual` | aceptar → aceptar | aceptar → aceptar | E3 | no |
+| 24 | `Sampling` | `blender-manual` | revision → revision | aceptar → aceptar | E3 | sí |
+| 25 | `Sampling` | `blender-manual` | aceptar → aceptar | aceptar → aceptar | — | no |
+| 26 | `GPU Rendering` | `blender-manual` | rechazar → rechazar | rechazar → persona | E3 (persiste) | sí (efectiva) |
+| 27 | `Film` | `blender-manual` | aceptar → aceptar | revision → persona | E3 (persiste) | sí |
+| 28 | `Is Blender 4.2 good for low-end PCs?` | `blender-stackexchange` | revision → revision | revision → persona | E3 (persiste) | sí (efectiva) |
+| 29 | `Noise Texture Node` | `blender-manual` | revision → revision | revision → persona | — | sí (efectiva) |
+| 30 | `How to make Eevee render faster?` | `blender-stackexchange` | aceptar → aceptar | aceptar → aceptar | E3 | no |
+| 31 | `Render Baking` | `blender-manual` | revision → revision | aceptar → aceptar | — | sí |
+| 32 | `Bevel Modifier` | `blender-manual` | revision → revision | aceptar → aceptar | E3 | sí |
+| 33 | `Extrude Mesh Node` | `blender-manual` | aceptar → aceptar | revision → persona | E3 (persiste) | sí |
+| 34 | `Instance on Points Node` | `blender-manual` | revision → revision | aceptar → aceptar | E3 | sí |
+| 35 | `Cast Modifier` | `blender-manual` | rechazar → rechazar | aceptar → aceptar | E3 | sí |
+
+*(En C1: cambió la decisión del modelo en 15/35 documentos y la decisión efectiva en 21/35 documentos.)*
+
+### Paso 6 · Resumen exacto de `v4_lote001` (Corrida 12: lote 1, 100 documentos, revisor v4, `--criterios`)
+
+*En ejecución en segundo plano; se completará junto con el paso 7 al terminar la corrida.*
+
+### Errores y avisos observados
+
+- Paso 1 (`python -m laboratorio.verificar`):
+  ```text
+  ✘ github_amatista            HTTP 404: el token no tiene acceso de lectura a ese repositorio, o venció
+  FALTA: github_amatista
+  ```
+- Paso 3 (`python -m revisor.muestra --de-lote 1 --salida salidas/lote001.jsonl`):
+  ```text
+  C:\Users\KANEDA\.gemini\antigravity\scratch\amatista-ia\.venv\Lib\site-packages\pymongo\pyopenssl_context.py:338: CryptographyDeprecationWarning: Parsed a serial number which wasn't positive (i.e., it was negative or zero), which is disallowed by RFC 5280. Loading this certificate will cause an exception in a future release of cryptography.
+    _crypto.X509.from_cryptography(x509.load_der_x509_certificate(cert))
+  100 de 1033 documentos → salidas\lote001.jsonl
+     98  blender-manual
+      2  arxiv-cs-gr
+  ```
+- Pasos 4 y 5 (`v3_control` y `v4_control`): sin errores ni avisos de ejecución.

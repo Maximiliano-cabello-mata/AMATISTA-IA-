@@ -1,0 +1,2038 @@
+{
+  "resumen": {
+    "revisor": 3,
+    "criterios": true,
+    "modelo": "qwen3:8b",
+    "palabras_por_documento": 450,
+    "cuantos": 3,
+    "umbral": null,
+    "canon_fragmentos": 135,
+    "fecha": "2026-11-22 22:54",
+    "documentos": 35,
+    "json_valido": 1.0,
+    "pregunta_valida": 1.0,
+    "cita_valida": 1.0,
+    "cita_embudo": 0.22857142857142856,
+    "coherente": 1.0,
+    "motivo_primero": 1.0,
+    "coincide_pregunta_embudo": 0.6857142857142857,
+    "decisiones": {
+      "aceptar": 17,
+      "revision": 16,
+      "rechazar": 2
+    },
+    "decisiones_efectivas": {
+      "aceptar": 17,
+      "revision": 16,
+      "rechazar": 2,
+      "persona": 0
+    },
+    "etapas": {
+      "relevancia": 8,
+      "valor": 10,
+      "ninguna": 17
+    },
+    "no_se": 0,
+    "segundos_por_documento": {
+      "mediana": 185.14523120000376,
+      "maximo": 355.8447559999913
+    },
+    "tokens_por_segundo": {
+      "genera": 1.7771730545532038,
+      "lee": 47.961240883933066
+    },
+    "tokens_por_documento": {
+      "lee": 4452,
+      "genera": 166
+    },
+    "horas_estimadas_para_1033": 53.126395508223304,
+    "reintentos": 0,
+    "reintento_por_error": {
+      "E3": 0,
+      "E1": 0
+    },
+    "reintento_cambia_decision": 0,
+    "reintento_sigue_con_error": 0
+  },
+  "resultados": [
+    {
+      "doc_id": "be8c36d05c3e6630d54ca40b7de8edf5edb2fd01d7572b3e439fb7dd82cbcde6",
+      "url": "https://docs.blender.org/manual/en/5.2/modeling/modifiers/generate/remesh.html",
+      "fuente": "blender-manual",
+      "titulo": "Remesh Modifier",
+      "preguntas_embudo": [
+        "P6",
+        "P1",
+        "P5"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 2. Hardware records (`g7b.hardware/1`)",
+        "g7b/fichas-tecnicas · Fichas técnicas de G7B y Amatista > 3. Equipos y ajustes > 3.5 Calidad visual ⬜",
+        "g7b/site · Evaluating the 80% target"
+      ],
+      "similitudes": [
+        0.4469,
+        0.5009,
+        0.4236
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica las opciones del Remesh Modifier en Blender, incluyendo modos como Blocks, Smooth, Sharp, Voxel, Adaptivity y Smooth Shading. Describe cómo cada opción afecta la topología del modelo y qué resultados produce. Contiene ajustes concretos como 'Sharpness', 'Octree Depth' y 'Scale', que son parámetros específicos del software.",
+        "pregunta": "P6",
+        "cita": "g7b/fichas-tecnicas · Fichas técnicas de G7B y Amatista > 3. Equipos y ajustes > 3.5 Calidad visual ⬜",
+        "etapa": "valor",
+        "decision": "revision",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "revision",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4454,
+        "lee_s": 224.682896,
+        "genera_tokens": 181,
+        "genera_s": 101.847144,
+        "carga_s": 29.2723708,
+        "total_s": 355.8447559999913
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "f5769e60129575267d9a90038d3517b8ef213a071a7a82cb6d636083c7fce827",
+      "url": "https://docs.blender.org/manual/en/4.5/animation/armatures/bones/properties/bendy_bones.html",
+      "fuente": "blender-manual",
+      "titulo": "Bendy Bones",
+      "preguntas_embudo": [
+        "P6",
+        "P1"
+      ],
+      "contexto": [
+        "g7b/site · Evaluating the 80% target",
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "g7b/fichas-tecnicas · Fichas técnicas de G7B y Amatista > 4. Telemetría > 4.2 Sondas"
+      ],
+      "similitudes": [
+        0.4649,
+        0.4585,
+        0.4829
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica cómo funcionan los B-Bones en Blender, describiendo su comportamiento técnico, visualización y opciones de configuración. Sin embargo, no responde directamente a ninguna pregunta específica del plan, ya que se centra en la explicación general de la herramienta sin mencionar versiones, hardware, medidas concretas o ajustes específicos.",
+        "pregunta": "ninguna",
+        "cita": "g7b/site · Evaluating the 80% target",
+        "etapa": "relevancia",
+        "decision": "revision",
+        "confianza": "media",
+        "no_se": false
+      },
+      "decision_efectiva": "revision",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4290,
+        "lee_s": 87.142484,
+        "genera_tokens": 149,
+        "genera_s": 80.981911,
+        "carga_s": 0.0063925,
+        "total_s": 168.17193789999874
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "331ddcbdab7f03e892b5032ffaead84d615b3c848645305390ccaefcc7aac3f8",
+      "url": "https://docs.blender.org/manual/en/5.2/render/cycles/render_settings/volumes.html",
+      "fuente": "blender-manual",
+      "titulo": "Volumes",
+      "preguntas_embudo": [
+        "P1",
+        "P6"
+      ],
+      "contexto": [
+        "g7b/site · Evaluating the 80% target",
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports"
+      ],
+      "similitudes": [
+        0.5238,
+        0.5276,
+        0.5351
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica ajustes concretos relacionados con el renderizado de volúmenes en Blender, como 'Volume Step size', 'Step Rate Render Biased', 'Viewport Biased' y 'Max Steps Biased', describiendo su efecto y cómo afectan al tiempo de renderizado y al detalle. Sin embargo, no responde directamente a ninguna pregunta del plan (P1–P6) ni proporciona información sobre versiones de Blender, hardware o comparaciones con otras herramientas.",
+        "pregunta": "ninguna",
+        "cita": "g7b/site · Evaluating the 80% target",
+        "etapa": "relevancia",
+        "decision": "revision",
+        "confianza": "media",
+        "no_se": false
+      },
+      "decision_efectiva": "revision",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4014,
+        "lee_s": 39.567921,
+        "genera_tokens": 177,
+        "genera_s": 92.514852,
+        "carga_s": 0.0065678,
+        "total_s": 132.1250127999956
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "4d34e857b3cd385ef0856ac79ec839d57dd71e10e9e11f6af7355b4a1cd43a3c",
+      "url": "https://docs.blender.org/manual/en/4.5/modeling/modifiers/generate/wireframe.html",
+      "fuente": "blender-manual",
+      "titulo": "Wireframe Modifier",
+      "preguntas_embudo": [
+        "P1",
+        "P6",
+        "P5"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 2. Hardware records (`g7b.hardware/1`)",
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "g7b/estandar-telemetria · G7B telemetry standard > 3. Measurements (`g7b.telemetria/1`)"
+      ],
+      "similitudes": [
+        0.5095,
+        0.5046,
+        0.4925
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe el modificador Wireframe en Blender, explicando opciones como Thickness, Offset y Boundary. Sin embargo, no proporciona ajustes concretos, medidas ni versiones específicas de Blender, lo que limita su valor.",
+        "pregunta": "ninguna",
+        "cita": "g7b/estandar-telemetria · G7B telemetry standard > 2. Hardware records (`g7b.hardware/1`)",
+        "etapa": "valor",
+        "decision": "revision",
+        "confianza": "media",
+        "no_se": false
+      },
+      "decision_efectiva": "revision",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4289,
+        "lee_s": 84.609756,
+        "genera_tokens": 136,
+        "genera_s": 74.071814,
+        "carga_s": 0.0069833,
+        "total_s": 158.7246998000046
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "13064441a8000cdadd5abaf024ff9e612081c37c5f4d64f5012f1e94ab440acf",
+      "url": "https://docs.blender.org/manual/en/5.2/render/shader_nodes/vector/vector_rotate.html",
+      "fuente": "blender-manual",
+      "titulo": "Vector Rotate Node",
+      "preguntas_embudo": [
+        "P1",
+        "P5",
+        "P6"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "g7b/site · Evaluating the 80% target",
+        "g7b/estandar-telemetria · G7B telemetry standard > 1. Telemetry collection"
+      ],
+      "similitudes": [
+        0.4921,
+        0.4754,
+        0.4983
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe el nodo Vector Rotate en Blender, explicando su función y propiedades. Sin embargo, no proporciona ajustes concretos, medidas, versiones o hardware, lo que lo hace genérico y sin valor suficiente según las reglas del embudo.",
+        "pregunta": "ninguna",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "valor",
+        "decision": "revision",
+        "confianza": "media",
+        "no_se": false
+      },
+      "decision_efectiva": "revision",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 3924,
+        "lee_s": 62.701305,
+        "genera_tokens": 129,
+        "genera_s": 65.784568,
+        "carga_s": 0.0069341,
+        "total_s": 128.52580360000138
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "181dc9000c3dad28daaaf4c8a0ab2c6182f69f014356c97041f67b4a5e47a5b4",
+      "url": "https://docs.blender.org/manual/en/5.2/scene_layout/object/editing/apply.html",
+      "fuente": "blender-manual",
+      "titulo": "Apply",
+      "preguntas_embudo": [
+        "P6",
+        "P4",
+        "P1",
+        "P5"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 3. Measurements (`g7b.telemetria/1`)",
+        "g7b/estandar-telemetria · G7B telemetry standard > 2. Hardware records (`g7b.hardware/1`)",
+        "amatista/base · Base de Amatista > 6. Regla de cambio (contra la expansión)"
+      ],
+      "similitudes": [
+        0.4905,
+        0.4434,
+        0.5141
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica cómo aplicar transformaciones a objetos en Blender, detallando los efectos de cada opción (ubicación, rotación, escala) y cómo afectan a la geometría y a los modificadores. Responde a la pregunta P6 sobre cómo se hace algo en una versión concreta de un programa libre (Blender 5.2).",
+        "pregunta": "P6",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4607,
+        "lee_s": 103.19939,
+        "genera_tokens": 150,
+        "genera_s": 85.794236,
+        "carga_s": 0.0070569,
+        "total_s": 189.03955400000268
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "f6e073d0edca91570e25c3e36f408abcac3de3097b2f9c69ad1ca712f34811d7",
+      "url": "https://docs.blender.org/manual/en/4.5/modeling/modifiers/generate/array.html",
+      "fuente": "blender-manual",
+      "titulo": "Array Modifier",
+      "preguntas_embudo": [
+        "P6",
+        "P1"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 1. Telemetry collection",
+        "g7b/site · Changes after the first pilot",
+        "g7b/site · Evaluating the 80% target"
+      ],
+      "similitudes": [
+        0.4662,
+        0.4094,
+        0.4182
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe el modificador Array en Blender, explicando cómo funciona, sus opciones (Fit Type, Relative Offset, Constant Offset, Object Offset) y la opción de Merge. Ofrece información específica sobre cómo se generan copias de objetos, cómo se ajustan según diferentes criterios y cómo se pueden crear estructuras complejas. Cumple con la pregunta P6: Cómo se hace algo en una versión concreta de un programa libre.",
+        "pregunta": "P6",
+        "cita": "g7b/site · Evaluating the 80% target",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4452,
+        "lee_s": 93.323764,
+        "genera_tokens": 164,
+        "genera_s": 91.775944,
+        "carga_s": 0.0057963,
+        "total_s": 185.14523120000376
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "b57ac70599895561e8981fb0f405c992c2848f3cb5bba82e4ffd2874b0261748",
+      "url": "https://docs.blender.org/manual/en/4.5/sculpt_paint/sculpting/tool_settings/dyntopo.html",
+      "fuente": "blender-manual",
+      "titulo": "Dyntopo",
+      "preguntas_embudo": [
+        "P6"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 4. Processing the full Blender Open Data archive in batches",
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "g7b/estandar-telemetria · G7B telemetry standard > 3. Measurements (`g7b.telemetria/1`)"
+      ],
+      "similitudes": [
+        0.4917,
+        0.4919,
+        0.4835
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica cómo funciona Dyntopo en Blender, detallando los métodos de detalle (Relative Detail, Constant Detail, Brush Detail) y cómo se ajusta la topología durante el escultado. Ofrece información específica sobre cómo se maneja la densidad de la malla y los ajustes relacionados con el tamaño del detalle. No falla ninguna etapa del embudo.",
+        "pregunta": "P6",
+        "cita": "g7b/estandar-telemetria · G7B telemetry standard > 4. Processing the full Blender Open Data archive in batches",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4717,
+        "lee_s": 109.00451,
+        "genera_tokens": 171,
+        "genera_s": 99.956767,
+        "carga_s": 0.0057679,
+        "total_s": 209.00233219999063
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "504ce71d5ff3d23899279b75ea2b42c94b8e5cfe57bf66c44c6185b8e755b53f",
+      "url": "https://blender.stackexchange.com/questions/999999101/cycles-render-very-slow-with-gtx-1050",
+      "fuente": "blender-stackexchange",
+      "titulo": "Cycles render very slow with GTX 1050",
+      "preguntas_embudo": [
+        "P1"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "g7b/fichas-tecnicas · Fichas técnicas de G7B y Amatista > 3. Equipos y ajustes > 3.1 Niveles de equipo ✅ (definición) · 🟡 (clasificación automática)",
+        "g7b/estandar-telemetria · G7B telemetry standard > 2. Hardware records (`g7b.hardware/1`)"
+      ],
+      "similitudes": [
+        0.5023,
+        0.5567,
+        0.4631
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.1"
+        ],
+        "hardware": [
+          "GTX 1050"
+        ],
+        "medidas": [
+          "128 samples",
+          "8 GB"
+        ]
+      },
+      "ia": {
+        "motivo": "El documento describe un problema de rendimiento con la tarjeta gráfica GTX 1050 en Blender 4.1, mencionando que el renderizado con Cycles es muy lento incluso con ajustes como 128 samples y denoising activado. El usuario pregunta si este comportamiento es normal o si está haciendo algo mal, lo que responde directamente a la pregunta P1 sobre ajustes para trabajar con fluidez según el equipo.",
+        "pregunta": "P1",
+        "cita": "g7b/fichas-tecnicas · Fichas técnicas de G7B y Amatista > 3. Equipos y ajustes > 3.1 Niveles de equipo ✅ (definición) · 🟡 (clasificación automática)",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4278,
+        "lee_s": 82.705657,
+        "genera_tokens": 216,
+        "genera_s": 118.370952,
+        "carga_s": 0.0074725,
+        "total_s": 201.11653930001194
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "879d8331cd300654c1d3fae2679b5a545cda4f68d2f57101650528200ac52657",
+      "url": "https://docs.blender.org/manual/en/4.5/modeling/modifiers/generate/decimate.html",
+      "fuente": "blender-manual",
+      "titulo": "Decimate Modifier",
+      "preguntas_embudo": [
+        "P6",
+        "P1"
+      ],
+      "contexto": [
+        "g7b/site · Evaluating the 80% target",
+        "g7b/consentimiento · Consentimiento de telemetría de Amatista para Blender · BORRADOR > Qué se envía, campo por campo",
+        "g7b/estandar-telemetria · G7B telemetry standard > 4. Processing the full Blender Open Data archive in batches"
+      ],
+      "similitudes": [
+        0.4495,
+        0.4764,
+        0.3847
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica el uso del modificador Decimate en Blender, detallando sus opciones como Collapse, Un-Subdivide y Planar. Describe cómo cada modo reduce la cantidad de vértices y caras, incluyendo parámetros como Ratio, Symmetry, Triangulate, Vertex Group y Factor. Ofrece información específica sobre ajustes concretos que permiten optimizar el rendimiento de un modelo.",
+        "pregunta": "P6",
+        "cita": "g7b/site · Evaluating the 80% target",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4620,
+        "lee_s": 104.470217,
+        "genera_tokens": 160,
+        "genera_s": 91.911142,
+        "carga_s": 0.0057899,
+        "total_s": 196.425596400004
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "ba5d46e106ac938b6ccc7d336bb5995eaf6b5b78eec2d16e5a0186abbc3dc53b",
+      "url": "https://docs.blender.org/manual/en/4.5/modeling/modifiers/deform/laplacian_smooth.html",
+      "fuente": "blender-manual",
+      "titulo": "Laplacian Smooth Modifier",
+      "preguntas_embudo": [
+        "P6"
+      ],
+      "contexto": [
+        "g7b/site · Changes after the first pilot",
+        "amatista/base · Base de Amatista > 2. El ciclo",
+        "g7b/estandar-telemetria · G7B telemetry standard > 4. Processing the full Blender Open Data archive in batches"
+      ],
+      "similitudes": [
+        0.4811,
+        0.5324,
+        0.4082
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe las opciones del modificador Laplacian Smooth en Blender, respondiendo a la pregunta P6 sobre cómo se hace algo en una versión concreta de un programa libre. Sin embargo, la información es muy general y no incluye medidas, versiones específicas, hardware, código ni ajustes concretos.",
+        "pregunta": "P6",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "valor",
+        "decision": "revision",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "revision",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4421,
+        "lee_s": 92.725134,
+        "genera_tokens": 136,
+        "genera_s": 76.0306,
+        "carga_s": 0.0079718,
+        "total_s": 168.8020314000023
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "b0b89b39722252050baa2f9a6141144711d62c2c2e3725f9cf5c7c058f8af704",
+      "url": "https://docs.blender.org/manual/en/4.5/modeling/modifiers/generate/weld.html",
+      "fuente": "blender-manual",
+      "titulo": "Weld Modifier",
+      "preguntas_embudo": [
+        "P6"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "g7b/estandar-telemetria · G7B telemetry standard > 3. Measurements (`g7b.telemetria/1`)",
+        "g7b/estandar-telemetria · G7B telemetry standard > 2. Hardware records (`g7b.hardware/1`)"
+      ],
+      "similitudes": [
+        0.5171,
+        0.5305,
+        0.5104
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe el nodo Wave Texture en Blender, explicando sus entradas, propiedades y salidas. Ofrece información sobre cómo funciona el nodo, qué hace cada parámetro y cómo se puede usar para crear texturas con distorsión. Sin embargo, no responde directamente a ninguna pregunta del plan (P1-P6) ni proporciona ajustes concretos, versiones o medidas que permitan evaluar su valor.",
+        "pregunta": "ninguna",
+        "cita": "g7b/estandar-telemetria · G7B telemetry standard > 2. Hardware records (`g7b.hardware/1`)",
+        "etapa": "relevancia",
+        "decision": "revision",
+        "confianza": "media",
+        "no_se": false
+      },
+      "decision_efectiva": "revision",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4523,
+        "lee_s": 98.253796,
+        "genera_tokens": 183,
+        "genera_s": 103.929099,
+        "carga_s": 0.0069401,
+        "total_s": 202.2263432000036
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "edec2f2c345da9a10ba769d5ddd9b70005f37dab85471130f38dcc691c421b4b",
+      "url": "https://docs.blender.org/manual/en/4.5/render/eevee/render_settings/depth_of_field.html",
+      "fuente": "blender-manual",
+      "titulo": "Depth of Field",
+      "preguntas_embudo": [
+        "P6"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "g7b/estandar-telemetria · G7B telemetry standard > 4. Processing the full Blender Open Data archive in batches"
+      ],
+      "similitudes": [
+        0.5309,
+        0.5299,
+        0.5172
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica los ajustes de emisión de partículas en Blender, incluyendo parámetros como 'Number', 'Seed', 'Frame Start', 'End', 'Lifetime' y 'Lifetime Randomness', así como las opciones de emisión ('Vertices', 'Faces', 'Volume'). Estos ajustes son concretos y responden a la pregunta P6 sobre cómo se hace algo en una versión concreta de un programa libre.",
+        "pregunta": "P6",
+        "cita": "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4660,
+        "lee_s": 91.230299,
+        "genera_tokens": 180,
+        "genera_s": 105.741607,
+        "carga_s": 0.0063154,
+        "total_s": 197.0206055000017
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "77b09b8ce27978a53669e133942b6c1aef281eb69ecf52fcbe3582349daba04d",
+      "url": "https://docs.blender.org/manual/en/4.5/render/output/properties/format.html",
+      "fuente": "blender-manual",
+      "titulo": "Format",
+      "preguntas_embudo": [
+        "P1",
+        "P6"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 2. Hardware records (`g7b.hardware/1`)",
+        "g7b/estandar-telemetria · G7B telemetry standard > 4. Processing the full Blender Open Data archive in batches",
+        "g7b/fichas-tecnicas · Fichas técnicas de G7B y Amatista > 3. Equipos y ajustes > 3.5 Calidad visual ⬜"
+      ],
+      "similitudes": [
+        0.529,
+        0.4276,
+        0.5693
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe ajustes de formato en Blender, incluyendo resolución (X, Y), relación de aspecto (X, Y), tamaño porcentual, región de renderizado y tasa de cuadros (FPS, Base). Estos ajustes son concretos y responden a la pregunta P6: 'Cómo se hace algo en una versión concreta de un programa libre'.",
+        "pregunta": "P6",
+        "cita": "g7b/estandar-telemetria · G7B telemetry standard > 2. Hardware records (`g7b.hardware/1`)",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4557,
+        "lee_s": 99.324676,
+        "genera_tokens": 174,
+        "genera_s": 99.576022,
+        "carga_s": 0.0074231,
+        "total_s": 198.94622450000315
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "a488904d8bc1ce9ece984a2ad1bdcae4c58fa6f79396ac9ce94c88663abebfa9",
+      "url": "https://docs.blender.org/manual/en/5.2/modeling/modifiers/deform/shrinkwrap.html",
+      "fuente": "blender-manual",
+      "titulo": "Shrinkwrap Modifier",
+      "preguntas_embudo": [
+        "P6",
+        "P1"
+      ],
+      "contexto": [
+        "g7b/site · Evaluating the 80% target",
+        "g7b/geoda · Geoda: cómo está estructurado y qué ya existe > 4. Lo que se cambió en la captura para que Geoda funcione",
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports"
+      ],
+      "similitudes": [
+        0.4326,
+        0.4502,
+        0.4133
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe el modificador Shrinkwrap en Blender, explicando cómo funciona, sus opciones y cómo se aplica. Ofrece información sobre los métodos de envoltura, el modo de sujeción y cómo se ajusta el desplazamiento de los vértices. Sin embargo, no responde directamente a ninguna pregunta específica del plan, ya que se centra en la explicación general del modificador sin mencionar versiones concretas, hardware, comparaciones ni ajustes concretos.",
+        "pregunta": "ninguna",
+        "cita": "g7b/site · Evaluating the 80% target",
+        "etapa": "relevancia",
+        "decision": "revision",
+        "confianza": "media",
+        "no_se": false
+      },
+      "decision_efectiva": "revision",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4226,
+        "lee_s": 82.021239,
+        "genera_tokens": 179,
+        "genera_s": 96.774735,
+        "carga_s": 0.0082311,
+        "total_s": 178.84457109999494
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "523f61fb8dee12b38429915b1cd42ced78ddf80fd535686943d53ac3fe8a5328",
+      "url": "https://docs.blender.org/manual/en/4.5/render/eevee/index.html",
+      "fuente": "blender-manual",
+      "titulo": "EEVEE",
+      "preguntas_embudo": [
+        "P1",
+        "P6"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "g7b/site · Changes after the first pilot",
+        "g7b/site · Evaluating the 80% target"
+      ],
+      "similitudes": [
+        0.5417,
+        0.4297,
+        0.4803
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe la renderización en tiempo real con EEVEE en Blender, incluyendo configuraciones, materiales, iluminación y características como sombras, ray tracing y desenfoque. Sin embargo, no proporciona ajustes concretos, versiones de Blender ni datos técnicos específicos que permitan responder preguntas del plan.",
+        "pregunta": "ninguna",
+        "cita": "g7b/site · Evaluating the 80% target",
+        "etapa": "valor",
+        "decision": "revision",
+        "confianza": "media",
+        "no_se": false
+      },
+      "decision_efectiva": "revision",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4007,
+        "lee_s": 67.397221999,
+        "genera_tokens": 142,
+        "genera_s": 74.157526,
+        "carga_s": 0.0065617,
+        "total_s": 141.5960374999995
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "72453b0f4e21e587da2b47eb8b5458cb8fad6c47bf5c426b418e95ee5e2e3ef3",
+      "url": "https://docs.blender.org/manual/en/5.2/modeling/geometry_nodes/point/distribute_points_on_faces.html",
+      "fuente": "blender-manual",
+      "titulo": "Distribute Points on Faces",
+      "preguntas_embudo": [
+        "P6"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 3. Measurements (`g7b.telemetria/1`)",
+        "g7b/estandar-telemetria · G7B telemetry standard > 2. Hardware records (`g7b.hardware/1`)",
+        "g7b/estandar-telemetria · G7B telemetry standard > 6. Adding a telemetry source"
+      ],
+      "similitudes": [
+        0.4846,
+        0.4764,
+        0.4713
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica cómo funciona el nodo Distribute Points on Faces en Blender, describiendo sus entradas, propiedades y salidas. Ofrece información sobre los métodos de distribución de puntos (aleatorio y Poisson Disk), las configuraciones de densidad y distancia mínima, y cómo se manejan las normales. Cumple con la pregunta P6 al explicar cómo se hace algo en una versión concreta de un programa libre (Blender 5.2).",
+        "pregunta": "P6",
+        "cita": "g7b/estandar-telemetria · G7B telemetry standard > 6. Adding a telemetry source",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4612,
+        "lee_s": 105.788011,
+        "genera_tokens": 186,
+        "genera_s": 107.119877,
+        "carga_s": 0.0069052,
+        "total_s": 212.97791349999898
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "44860bacb78d576f246758f4ec769ad5444cded699a33c180a492036de1b4fb4",
+      "url": "https://docs.blender.org/manual/en/4.5/render/cycles/render_settings/performance.html",
+      "fuente": "blender-manual",
+      "titulo": "Performance",
+      "preguntas_embudo": [
+        "P1",
+        "P6"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 2. Hardware records (`g7b.hardware/1`)",
+        "g7b/estandar-telemetria · G7B telemetry standard > 2. Hardware records (`g7b.hardware/1`)",
+        "g7b/site · Changes after the first pilot"
+      ],
+      "similitudes": [
+        0.5376,
+        0.5356,
+        0.4607
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe ajustes concretos para optimizar el rendimiento en Blender, como la configuración de hilos, el uso de mosaicos, estructuras de aceleración y la gestión de memoria. Ofrece información útil sobre cómo ajustar parámetros para mejorar la eficiencia del renderizado, lo que cumple con la relevancia y el valor.",
+        "pregunta": "P6",
+        "cita": "g7b/estandar-telemetria · G7B telemetry standard > 2. Hardware records (`g7b.hardware/1`)",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4534,
+        "lee_s": 97.655795,
+        "genera_tokens": 167,
+        "genera_s": 95.697927,
+        "carga_s": 0.0070263,
+        "total_s": 193.40537189999304
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "c6c6c7573048d9d00823bd94d121d76a9c8718a8bf39ded267b72b457d89a9b0",
+      "url": "https://docs.blender.org/manual/en/5.2/modeling/modifiers/generate/solidify.html",
+      "fuente": "blender-manual",
+      "titulo": "Solidify Modifier",
+      "preguntas_embudo": [
+        "P6",
+        "P1"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 2. Hardware records (`g7b.hardware/1`)",
+        "g7b/site · Changes after the first pilot",
+        "g7b/fichas-tecnicas · Fichas técnicas de G7B y Amatista > 3. Equipos y ajustes > 3.4 Perfil (`g7b.perfil/1`) 🟡"
+      ],
+      "similitudes": [
+        0.474,
+        0.4505,
+        0.5213
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe el modificador Solidify en Blender, explicando sus dos modos (Simple y Complex) y cómo funcionan. Responde a la pregunta P6 sobre cómo se hace algo en una versión concreta de un programa libre. El contenido es técnico y detalla ajustes concretos relacionados con el modificador.",
+        "pregunta": "P6",
+        "cita": "g7b/site · Changes after the first pilot",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4646,
+        "lee_s": 104.926541,
+        "genera_tokens": 138,
+        "genera_s": 79.654552,
+        "carga_s": 0.0060269,
+        "total_s": 184.62905769998906
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "3f61c5f7f2bbff634125a2bc4b8f8053a98db4bd2a3bd30c445161cb8648d2be",
+      "url": "https://docs.blender.org/manual/en/4.5/modeling/meshes/editing/mesh/cleanup.html",
+      "fuente": "blender-manual",
+      "titulo": "Clean Up",
+      "preguntas_embudo": [
+        "P6"
+      ],
+      "contexto": [
+        "g7b/site · Evaluating the 80% target",
+        "g7b/site · Changes after the first pilot",
+        "g7b/geoda · Geoda: cómo está estructurado y qué ya existe > 2. Los cinco verbos"
+      ],
+      "similitudes": [
+        0.4768,
+        0.4344,
+        0.5383
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": [
+          "40%"
+        ]
+      },
+      "ia": {
+        "motivo": "El documento describe operadores de limpieza en Blender 4.5, como 'Delete Loose', 'Decimate Geometry', 'Degenerate Dissolve', 'Limited Dissolve', 'Make Planar Faces', 'Split Non-Planar Faces' y 'Split Concave Faces'. Explica cada operador, sus parámetros y efectos, lo que corresponde a ajustes concretos. La relevancia se cumple porque responde a P6: 'Cómo se hace algo en una versión concreta de un programa libre'.",
+        "pregunta": "P6",
+        "cita": "g7b/site · Evaluating the 80% target",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4687,
+        "lee_s": 110.853647,
+        "genera_tokens": 185,
+        "genera_s": 107.481339,
+        "carga_s": 0.0206732,
+        "total_s": 218.39567059998808
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "58ad86b0dade6f3b4c291b873252bfbef11bfb9a234f223607e1eadd2d7993f6",
+      "url": "https://docs.blender.org/manual/en/4.5/render/shader_nodes/shader/principled.html",
+      "fuente": "blender-manual",
+      "titulo": "Principled BSDF",
+      "preguntas_embudo": [
+        "P6",
+        "P1",
+        "P5"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "g7b/estandar-telemetria · G7B telemetry standard",
+        "g7b/site · Evaluating the 80% target"
+      ],
+      "similitudes": [
+        0.4823,
+        0.4756,
+        0.4685
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe el nodo Principled BSDF en Blender, explicando sus capas, parámetros y cómo modelar materiales. Ofrece información sobre ajustes concretos como Roughness, Metallic, IOR y Alpha, que son parámetros específicos del nodo. Responde a la pregunta P6 sobre cómo se hace algo en una versión concreta de un programa libre.",
+        "pregunta": "P6",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "valor",
+        "decision": "revision",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "revision",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4234,
+        "lee_s": 81.625909,
+        "genera_tokens": 150,
+        "genera_s": 81.156039,
+        "carga_s": 0.0064935,
+        "total_s": 162.82531139999628
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "c2d09e57afaa68958bdb4fa4ab58f4cc908df61427d515d3c11c80ff11a8353a",
+      "url": "https://docs.blender.org/manual/en/5.2/modeling/modifiers/generate/subdivision_surface.html",
+      "fuente": "blender-manual",
+      "titulo": "Subdivision Surface Modifier",
+      "preguntas_embudo": [
+        "P6",
+        "P1",
+        "P5"
+      ],
+      "contexto": [
+        "g7b/site · Evaluating the 80% target",
+        "g7b/estandar-telemetria · G7B telemetry standard > 2. Hardware records (`g7b.hardware/1`)",
+        "g7b/estandar-telemetria · G7B telemetry standard > 4. Processing the full Blender Open Data archive in batches"
+      ],
+      "similitudes": [
+        0.4481,
+        0.4493,
+        0.3975
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica el uso del Subdivision Surface modifier en Blender, incluyendo sus opciones como Catmull-Clark, Simple, y ajustes de niveles de subdivisión. Menciona el impacto en el rendimiento y la memoria, lo cual responde a P6 (Cómo se hace algo en una versión concreta de un programa libre).",
+        "pregunta": "P6",
+        "cita": "g7b/estandar-telemetria · G7B telemetry standard > 2. Hardware records (`g7b.hardware/1`)",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4806,
+        "lee_s": 115.840652,
+        "genera_tokens": 166,
+        "genera_s": 102.070675,
+        "carga_s": 0.007624,
+        "total_s": 217.9637972999917
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "308b70ea392dbf2c4028792d1c81730707b265d0f1f3308b84e843dbd2d1e8f2",
+      "url": "https://docs.blender.org/manual/en/4.5/render/cycles/render_settings/simplify.html",
+      "fuente": "blender-manual",
+      "titulo": "Simplify",
+      "preguntas_embudo": [
+        "P1",
+        "P6"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 2. Hardware records (`g7b.hardware/1`)",
+        "g7b/site · Evaluating the 80% target",
+        "g7b/site · Changes after the first pilot"
+      ],
+      "similitudes": [
+        0.5095,
+        0.489,
+        0.47
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe ajustes concretos de simplificación en Blender 4.5, como 'Max Subdivision', 'Texture Limit', 'Volume Resolution', 'Camera Cull', 'Distance Cull', 'Playback Only', 'Fill', 'Modifiers', 'Shader Effects', 'Layer Tinting' y 'Anti-Aliasing'. Estos ajustes permiten optimizar el rendimiento según el equipo, respondiendo directamente a P1 y P6.",
+        "pregunta": "P1",
+        "cita": "g7b/site · Evaluating the 80% target",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4413,
+        "lee_s": 92.678422,
+        "genera_tokens": 167,
+        "genera_s": 92.816427,
+        "carga_s": 0.098091,
+        "total_s": 185.63266089999524
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "8bbfebede4d86f9ba442b8bfc7b57ae59ca9d66cdb6ec157019bc2eab968520c",
+      "url": "https://docs.blender.org/manual/en/5.2/render/eevee/render_settings/sampling.html",
+      "fuente": "blender-manual",
+      "titulo": "Sampling",
+      "preguntas_embudo": [
+        "P1",
+        "P6"
+      ],
+      "contexto": [
+        "g7b/site · Changes after the first pilot",
+        "g7b/telemetria · Captura de telemetría G7B — 2026-11-03 > Evidencia local",
+        "g7b/site · Evaluating the 80% target"
+      ],
+      "similitudes": [
+        0.4946,
+        0.5237,
+        0.5004
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica los ajustes de muestreo en EEVEE, incluyendo parámetros como 'Samples', 'Temporal Reprojection', 'Jittered Shadows', 'Shadows Rays', 'Steps' y 'Resolution'. Estos ajustes son concretos y responden a la pregunta P6 sobre cómo se hace algo en una versión concreta de un programa libre. Sin embargo, no menciona medidas con unidades ni versiones específicas de Blender.",
+        "pregunta": "P6",
+        "cita": "g7b/site · Evaluating the 80% target",
+        "etapa": "valor",
+        "decision": "revision",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "revision",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4316,
+        "lee_s": 88.990158,
+        "genera_tokens": 168,
+        "genera_s": 92.282744,
+        "carga_s": 0.0080866,
+        "total_s": 181.31615070000407
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "7f31a6de0b2166b4733f06c36c52e289b42538806eb5cd3b7f4a050800df3b09",
+      "url": "https://docs.blender.org/manual/en/4.5/render/cycles/render_settings/sampling.html",
+      "fuente": "blender-manual",
+      "titulo": "Sampling",
+      "preguntas_embudo": [
+        "P1",
+        "P5",
+        "P6",
+        "P4"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 1. Telemetry collection",
+        "g7b/estandar-telemetria · G7B telemetry standard > 4. Processing the full Blender Open Data archive in batches",
+        "g7b/site · Evaluating the 80% target"
+      ],
+      "similitudes": [
+        0.5669,
+        0.5408,
+        0.5348
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [
+          "NVIDIA"
+        ],
+        "medidas": [
+          "2048 samples"
+        ]
+      },
+      "ia": {
+        "motivo": "El documento explica los ajustes de muestreo en Cycles, incluyendo el número máximo de muestras por píxel en el viewport y en el render final, el umbral de ruido, la denoising y los algoritmos disponibles. Ofrece información específica sobre parámetros y ajustes concretos relacionados con el rendimiento del renderizado, lo que responde a las preguntas P1 y P6 del plan.",
+        "pregunta": "P6",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4642,
+        "lee_s": 105.253837,
+        "genera_tokens": 168,
+        "genera_s": 98.814475,
+        "carga_s": 0.0058386,
+        "total_s": 204.11406809999608
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "49c35e62770a44b2f58480198a2abc15574234db7cae81f08390d74aa2cc50ee",
+      "url": "https://docs.blender.org/manual/en/5.2/render/cycles/gpu_rendering.html",
+      "fuente": "blender-manual",
+      "titulo": "GPU Rendering",
+      "preguntas_embudo": [
+        "P1"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "g7b/estandar-telemetria · G7B telemetry standard > 2. Hardware records (`g7b.hardware/1`)"
+      ],
+      "similitudes": [
+        0.5871,
+        0.5612,
+        0.5415
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento no existe en la versión 5.2 del manual de Blender. La URL devuelve un error 404, lo que indica que la página solicitada no está disponible. No ofrece información útil sobre el tema de GPU Rendering.",
+        "pregunta": "ninguna",
+        "cita": "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "etapa": "relevancia",
+        "decision": "rechazar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "rechazar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 3776,
+        "lee_s": 62.919737,
+        "genera_tokens": 136,
+        "genera_s": 82.864599,
+        "carga_s": 0.0074792,
+        "total_s": 145.82736429999932
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "dafa41983d01315c372e33f0102de14eb826894a1338ad72db15aefe4eff3e49",
+      "url": "https://docs.blender.org/manual/en/4.5/render/cycles/render_settings/film.html",
+      "fuente": "blender-manual",
+      "titulo": "Film",
+      "preguntas_embudo": [
+        "P6"
+      ],
+      "contexto": [
+        "g7b/site · Evaluating the 80% target",
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "g7b/fichas-tecnicas · Fichas técnicas de G7B y Amatista > 3. Equipos y ajustes > 3.5 Calidad visual ⬜"
+      ],
+      "similitudes": [
+        0.5222,
+        0.5165,
+        0.5488
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica ajustes de renderizado en Blender, específicamente el panel de Film, incluyendo opciones de exposición, filtros de píxel y renderizado transparente. Ofrece información sobre parámetros concretos y su efecto en la calidad del render.",
+        "pregunta": "P6",
+        "cita": "g7b/site · Evaluating the 80% target",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 3899,
+        "lee_s": 69.864566,
+        "genera_tokens": 132,
+        "genera_s": 82.624154,
+        "carga_s": 0.0062694,
+        "total_s": 152.5276709000027
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "bfd930ca3b6a43e35486ffbf28fdc3f3bb18919b017acc2843d3499bc8d18e8a",
+      "url": "https://blender.stackexchange.com/questions/999999103/is-blender-4-2-good-for-low-end-pcs",
+      "fuente": "blender-stackexchange",
+      "titulo": "Is Blender 4.2 good for low-end PCs?",
+      "preguntas_embudo": [
+        "P1"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "g7b/site · Evaluating the 80% target",
+        "g7b/estandar-telemetria · G7B telemetry standard"
+      ],
+      "similitudes": [
+        0.5418,
+        0.5233,
+        0.5103
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.2"
+        ],
+        "hardware": [
+          "Intel HD graphics"
+        ],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento responde a la pregunta P1 sobre ajustes que permiten trabajar con fluidez según el equipo. El usuario menciona que Blender 4.2 se siente mejor que versiones anteriores, tiene una interfaz limpia y muestra buenos resultados en muestras, lo que sugiere una experiencia optimizada para equipos con hardware limitado. Sin embargo, no proporciona ajustes concretos ni medidas que respalden esta afirmación.",
+        "pregunta": "P1",
+        "cita": "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "etapa": "valor",
+        "decision": "revision",
+        "confianza": "media",
+        "no_se": false
+      },
+      "decision_efectiva": "revision",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 3735,
+        "lee_s": 60.816732,
+        "genera_tokens": 179,
+        "genera_s": 94.009877,
+        "carga_s": 0.0105661,
+        "total_s": 154.87859429999662
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "70937ceafea5fd54e91e3c0bdf65fb4472040695e733a674237df11802551254",
+      "url": "https://docs.blender.org/manual/en/5.2/render/shader_nodes/textures/noise.html",
+      "fuente": "blender-manual",
+      "titulo": "Noise Texture Node",
+      "preguntas_embudo": [
+        "P6",
+        "P1"
+      ],
+      "contexto": [
+        "g7b/site · Evaluating the 80% target",
+        "g7b/estandar-telemetria · G7B telemetry standard > 2. Hardware records (`g7b.hardware/1`)",
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports"
+      ],
+      "similitudes": [
+        0.5229,
+        0.527,
+        0.5205
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": [
+          "50%"
+        ]
+      },
+      "ia": {
+        "motivo": "El documento describe el nodo Noise Texture en Blender, explicando cómo funciona, sus entradas, propiedades y tipos de ruido. Ofrece información detallada sobre cómo se genera el ruido fractal y cómo se pueden ajustar parámetros como escala, detalle y rugosidad. Sin embargo, no responde directamente a ninguna pregunta específica del plan, ya que no menciona versiones de Blender, comparaciones con otras herramientas, técnicas industriales, ni datos de hardware o medidas concretas.",
+        "pregunta": "ninguna",
+        "cita": "g7b/site · Evaluating the 80% target",
+        "etapa": "relevancia",
+        "decision": "revision",
+        "confianza": "media",
+        "no_se": false
+      },
+      "decision_efectiva": "revision",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4633,
+        "lee_s": 103.842296,
+        "genera_tokens": 179,
+        "genera_s": 101.76014,
+        "carga_s": 0.0066189,
+        "total_s": 205.66007009999885
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "f9c03b5d2795364dddd4a0e686fd226acae358ea2acdedb76f54b7f45f705fc0",
+      "url": "https://blender.stackexchange.com/questions/999999102/how-to-make-eevee-render-faster",
+      "fuente": "blender-stackexchange",
+      "titulo": "How to make Eevee render faster?",
+      "preguntas_embudo": [
+        "P1",
+        "P6"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "g7b/estandar-telemetria · G7B telemetry standard"
+      ],
+      "similitudes": [
+        0.518,
+        0.5196,
+        0.4632
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.2"
+        ],
+        "hardware": [
+          "GTX 1060"
+        ],
+        "medidas": [
+          "400%"
+        ]
+      },
+      "ia": {
+        "motivo": "El documento ofrece ajustes concretos para mejorar el rendimiento de Eevee en una GTX 1060, como aumentar las muestras de renderizado, desactivar Simplify, ajustar la resolución y cambiar la gestión de color. Estos ajustes responden a la pregunta P6 sobre cómo hacer algo en una versión concreta de un programa libre.",
+        "pregunta": "P6",
+        "cita": "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 3804,
+        "lee_s": 55.28606,
+        "genera_tokens": 166,
+        "genera_s": 83.658053,
+        "carga_s": 0.020923,
+        "total_s": 138.9988555000018
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "5a6b563cf7d7d1b5d66a5b5d9a84f41668e73c33c2d8e0c13feadaef726fcb07",
+      "url": "https://docs.blender.org/manual/en/4.5/render/cycles/baking.html",
+      "fuente": "blender-manual",
+      "titulo": "Render Baking",
+      "preguntas_embudo": [
+        "P6",
+        "P5",
+        "P1"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 5. Failure telemetry from Blender bug reports",
+        "g7b/geoda · Geoda: cómo está estructurado y qué ya existe > 3. Cómo se usa",
+        "g7b/site · Evaluating the 80% target"
+      ],
+      "similitudes": [
+        0.5166,
+        0.4921,
+        0.4155
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica cómo funciona el renderizado de texturas en Blender, incluyendo los tipos de pasos de baking y sus configuraciones. Ofrece información sobre cómo se pueden crear mapas de luz, ambientes y normales, lo cual responde a la pregunta P6 sobre cómo se hace algo en una versión concreta de un programa libre. Sin embargo, no menciona ajustes concretos ni parámetros específicos que permitan optimizar el proceso en un equipo en particular.",
+        "pregunta": "P6",
+        "cita": "g7b/geoda · Geoda: cómo está estructurado y qué ya existe > 3. Cómo se usa",
+        "etapa": "valor",
+        "decision": "revision",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "revision",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4516,
+        "lee_s": 83.912696,
+        "genera_tokens": 186,
+        "genera_s": 106.792486,
+        "carga_s": 0.0063183,
+        "total_s": 190.75083859999722
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "5c6f255f71b1498ef018a9665c0f3dda89f292b3dd8ec7064909cb4fcc2d8241",
+      "url": "https://docs.blender.org/manual/en/5.2/modeling/modifiers/generate/bevel.html",
+      "fuente": "blender-manual",
+      "titulo": "Bevel Modifier",
+      "preguntas_embudo": [
+        "P6",
+        "P1",
+        "P5"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 3. Measurements (`g7b.telemetria/1`)",
+        "g7b/site · Evaluating the 80% target",
+        "g7b/fichas-tecnicas · Fichas técnicas de G7B y Amatista > 3. Equipos y ajustes > 3.4 Perfil (`g7b.perfil/1`) 🟡"
+      ],
+      "similitudes": [
+        0.4718,
+        0.4588,
+        0.5034
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica cómo funciona el modificador Bevel en Blender, describiendo sus opciones y cómo afecta a los bordes y vértices de la malla. Sin embargo, no responde directamente a ninguna de las preguntas del plan (P1-P6) ni proporciona ajustes concretos, versiones o medidas que permitan evaluar su valor.",
+        "pregunta": "ninguna",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "relevancia",
+        "decision": "revision",
+        "confianza": "media",
+        "no_se": false
+      },
+      "decision_efectiva": "revision",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4390,
+        "lee_s": 90.063591,
+        "genera_tokens": 153,
+        "genera_s": 84.952135,
+        "carga_s": 0.006916,
+        "total_s": 175.06036759998824
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "918650a8dc758aed884bff3dcc9103fc7a9ea8c6b3a6720516f5175f49af8028",
+      "url": "https://docs.blender.org/manual/en/5.2/modeling/geometry_nodes/mesh/operations/extrude_mesh.html",
+      "fuente": "blender-manual",
+      "titulo": "Extrude Mesh Node",
+      "preguntas_embudo": [
+        "P6",
+        "P1"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 2. Hardware records (`g7b.hardware/1`)",
+        "g7b/site · Evaluating the 80% target",
+        "g7b/geoda · Geoda: cómo está estructurado y qué ya existe > 4. Lo que se cambió en la captura para que Geoda funcione"
+      ],
+      "similitudes": [
+        0.4802,
+        0.4726,
+        0.5242
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe el nodo Extrude Mesh en Blender, explicando cómo funciona, sus entradas, propiedades y efectos. Responde a la pregunta P6 sobre cómo se hace algo en una versión concreta de un programa libre. No hay rechazo en etapas anteriores, pero el contenido es técnico y detallado.",
+        "pregunta": "P6",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4473,
+        "lee_s": 93.262808,
+        "genera_tokens": 143,
+        "genera_s": 80.056579,
+        "carga_s": 0.010061,
+        "total_s": 173.36856829999306
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "0e7705b704222259f6302616597c1f1b6e892ae0f7db3097153df3f718fb6b3a",
+      "url": "https://docs.blender.org/manual/en/4.5/modeling/geometry_nodes/instances/instance_on_points.html",
+      "fuente": "blender-manual",
+      "titulo": "Instance on Points Node",
+      "preguntas_embudo": [
+        "P6"
+      ],
+      "contexto": [
+        "g7b/estandar-telemetria · G7B telemetry standard > 3. Measurements (`g7b.telemetria/1`)",
+        "g7b/estandar-telemetria · G7B telemetry standard > 4. Processing the full Blender Open Data archive in batches",
+        "amatista/base · Base de Amatista > 7. Estacionamiento"
+      ],
+      "similitudes": [
+        0.5089,
+        0.4005,
+        0.5469
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica cómo funciona el nodo 'Instance on Points' en Blender, describiendo su propósito, entradas, propiedades y salidas. Ofrece información específica sobre cómo instanciar geometría en puntos, incluyendo parámetros como rotación, escala y selección. Sin embargo, no menciona versiones concretas de Blender ni proporciona medidas con unidades, lo que podría limitar su valor según la regla del embudo.",
+        "pregunta": "P6",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "valor",
+        "decision": "revision",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "revision",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4583,
+        "lee_s": 100.086972,
+        "genera_tokens": 165,
+        "genera_s": 94.23361,
+        "carga_s": 0.0065895,
+        "total_s": 194.36678189999657
+      },
+      "version": 3,
+      "reintento": null
+    },
+    {
+      "doc_id": "239177998e30451afed2e479b2ab425a9bde238d5fa7bd8eaaad42f2f066b37e",
+      "url": "https://docs.blender.org/manual/en/5.2/modeling/modifiers/deform/cast.html",
+      "fuente": "blender-manual",
+      "titulo": "Cast Modifier",
+      "preguntas_embudo": [
+        "P6",
+        "P1"
+      ],
+      "contexto": [
+        "g7b/site · Changes after the first pilot",
+        "g7b/fichas-tecnicas · Fichas técnicas de G7B y Amatista > 3. Equipos y ajustes > 3.4 Perfil (`g7b.perfil/1`) 🟡",
+        "g7b/estandar-telemetria · G7B telemetry standard > 4. Processing the full Blender Open Data archive in batches"
+      ],
+      "similitudes": [
+        0.3926,
+        0.5273,
+        0.3586
+      ],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe las opciones del modificador Cast en Blender, explicando qué hace cada parámetro y cuándo usarlo. Sin embargo, no responde a ninguna pregunta del plan y carece de información concreta sobre ajustes, versiones o hardware.",
+        "pregunta": "ninguna",
+        "cita": "g7b/site · Changes after the first pilot",
+        "etapa": "relevancia",
+        "decision": "rechazar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "rechazar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 4205,
+        "lee_s": 80.066231,
+        "genera_tokens": 125,
+        "genera_s": 66.721846,
+        "carga_s": 0.0074234,
+        "total_s": 146.83181009998953
+      },
+      "version": 3,
+      "reintento": null
+    }
+  ]
+}
