@@ -1,6 +1,12 @@
 # Marcas de la persona en el cierre (consola etiquetas). Solo títulos y URL públicas.
 version: 1
 lote: 1
+independiente: false
+como_se_marco: >-
+  Aprobación en bloque: la persona aprobó el lote por chat y el agente copió ia_decision en humano_decision
+  en las 20 filas. Es una decisión válida sobre el lote, pero NO una revisión independiente muestra por muestra:
+  el acuerdo de 20/20 sale por construcción y estas marcas no sirven para medir si la IA acierta
+  (pesos de confianza, comparación v3/v4, predicciones H27-H28).
 marcadas: 20
 documentos:
 - n: 1

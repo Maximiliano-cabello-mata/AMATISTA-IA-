@@ -51,3 +51,4 @@ predicciones:
   - {id: K6, corrida: control-c1, p: 0.70, texto: "las dos versiones detienen pagina_de_error e indice_en_prosa", resultado: true}
   - {id: K7, corrida: control-c1, p: 0.60, texto: "al menos 1 de los 2 de contenido_cruzado pasa la puerta en la v3", resultado: true}
   - {id: K8, corrida: control-c1, p: 0.75, texto: "ninguna versión rechaza ninguno de los 22 buenos", resultado: true}
+  # NOTA (24 nov): H27 y H28 quedan sin resolver. El lote 1 se aprobó en bloque (humano_decision = ia_decision, copiado por el agente a pedido de la persona): no hay marcas independientes con qué compararlas. Ver revisor/etiquetas/lote_001.yml.

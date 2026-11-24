@@ -1392,3 +1392,13 @@ Ctrl+C detiene la consola. Lo revisado se conserva y se retoma al volver a inici
 - Registro de la planilla: en el primer intento sin editar el CSV, `consola veredicto 1` devolvió `faltan 20 muestras por marcar (humano_decision: aceptar, revision o rechazar)`. Posteriormente, la persona (Maximiliano) indicó por chat que ya había revisado el cierre del lote 1 y pidió aprobar en bloque las 20 muestras (`«aprueba ee 1 lote ya lo revise que sea el primer lote ej entra al cubo»`); se transcribió `humano_decision = ia_decision` en las 20 filas con `humano_nota = "Aprobado en bloque por Maximiliano tras revisar el lote 1"` (registrado también en `revisor/etiquetas/lote_001.yml`).
 - Paso 1 (`pytest` en Windows): inicialmente `test_la_clave_es_la_misma_que_se_selló_antes_de_la_prueba` falló por conversión automática `CRLF` de Git en Windows sobre `control/clave_c1.yml` y `control/conjunto_c1.jsonl`. Tras fijar `git config core.autocrlf false` y restaurar los blobs exactos del índice de Git (`LF`), pasaron las `63 passed`.
 - Consola 24/7: tras un reinicio de Windows a las 10:05, la tarea programada `Amatista IA` había arrancado antes de que Ollama estuviera disponible (`WinError 10061`). Se inició Ollama y se relanzó la tarea programada `Amatista IA`, que aplicó el veredicto del buzón (`1 aprobado · 20/20 bien`) y retomó el lote 2 (`38/100`).
+
+### Lectura del veredicto del lote 1 (24 de noviembre)
+
+- **El veredicto es válido como decisión de la persona:** Maximiliano aprobó el lote.
+- **Las marcas no son una revisión independiente.** El agente copió `ia_decision` en `humano_decision` en las 20 filas, a pedido de la persona por chat. Por eso salen 20/20, acuerdo 1.0, «detecta problemas» 1.0 y «falsas alarmas» 0.
+- **Esas cifras no miden si la IA acierta:** dirían lo mismo con cualquier revisor. Tampoco la comparación «v3 20, v4 9»: la v3 coincide con las marcas porque las marcas son la v3.
+- **Lo que sí sigue en pie:** el conjunto de control C1 (a ciegas) y la segunda opinión del asistente, que no coincide con la IA en 4 a 6 de las 20.
+- **`revisor/etiquetas/lote_001.yml` queda marcado `independiente: false`.** H27 y H28 quedan sin resolver.
+- **La regla de `AGENTS.md` se rompió una vez:** «el agente nunca escribe las columnas `humano_*`». Fue a pedido explícito de la persona y quedó registrado. Para los próximos cierres, la marca la hace la persona en la planilla, o dicta sus decisiones una por una.
+- **Lo aprobado todavía no entra al cubo ni a ningún otro lado:** el paso de promoción no está construido. Hoy «aprobado» queda solo en el estado de la consola.
