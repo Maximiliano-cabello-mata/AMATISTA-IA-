@@ -176,3 +176,28 @@ def test_marcas_con_acento_mayusculas_y_planilla_de_excel_con_punto_y_coma(tmp_p
     e = etiquetas_de_planilla(1, leidas)
     assert e['marcadas'] == 20 and e['documentos'][19] == {'n': 20, 'titulo': 'T20', 'url': 'https://docs.blender.org/x20.html',
                                                           'fuente': 'blender-manual', 'ia': 'aceptar', 'humano': 'rechazar', 'nota': 'falta texto'}
+
+
+def test_registro_un_estado_por_documento(tmp_path):
+    import json
+    from consola.nucleo import estado_documento
+    assert estado_documento('aceptar', ESPERANDO) == 'en_cuarentena'
+    assert estado_documento('aceptar', APROBADO) == 'aprobado' and estado_documento('aceptar', AVISO) == 'aprobado'
+    assert estado_documento('rechazar', APROBADO) == 'descartado' and estado_documento('persona', APROBADO) == 'por_revisar'
+    assert estado_documento('aceptar', NO_APROBADO) == 'por_revisar' and estado_documento('rechazar', NO_APROBADO) == 'por_revisar'
+
+    c = Consola(tmp_path, CONFIG)
+    c.estado['documentos_en_fuente'] = 25
+    llenar(c, ['aceptar'] * 6 + ['revision', 'revision', 'rechazar', 'persona'])      # lote 1, lleno
+    c.cerrar(1, tmp_path / 'cierres')
+    c.registrar(resultado(10, 'aceptar'))                                             # lote 2, abierto
+    assert c.estado['registro']['estados'] == {'pendiente': 14, 'en_cuarentena': 11, 'aprobado': 0, 'descartado': 0, 'por_revisar': 0}
+    c._aplicar_veredicto('1', APROBADO, 19, 20, '2026-11-24')
+    assert c.estado['registro']['estados'] == {'pendiente': 14, 'en_cuarentena': 1, 'aprobado': 6, 'descartado': 1, 'por_revisar': 3}
+    carpeta, resumen = c.escribir_registro(tmp_path / 'registro')
+    aprobados = [json.loads(l) for l in (carpeta / 'aprobado.jsonl').read_text(encoding='utf-8').splitlines()]
+    assert len(aprobados) == 6 and aprobados[0]['lote'] == 1 and aprobados[0]['decision_ia'] == 'aceptar'
+    assert 'texto' not in aprobados[0]                                                # el registro no copia los documentos
+    assert json.loads((carpeta / 'resumen.json').read_text(encoding='utf-8'))['estados']['por_revisar'] == 3
+    texto = dibujar(c.estado, CONFIG)
+    assert 'aprobados 6 · descartados 1 · por revisar 3' in texto and 'Telemetría: todavía no se audita' in texto

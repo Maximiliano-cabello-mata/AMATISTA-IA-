@@ -29,12 +29,31 @@ ESTADO_INICIAL = {
     'actividad': 'detenida',
     'ultimo_error': None,
     'lotes': {},            # número → {estado, abierto, cerrado, documentos, decisiones, ...}
-    'mediciones': None,     # resumen del criterio de mediciones
+    'mediciones': None,     # resumen del criterio de mediciones (telemetría: todavía no se audita)
+    'registro': None,       # cuántos documentos de conocimiento hay en cada estado (se deriva de los lotes)
+    'documentos_en_fuente': None,
     'buzon_aplicado': [],   # mensajes del buzón ya aplicados (veredictos, freno quitado)
     'actualizado': None,
 }
 ESPERANDO, APROBADO, AVISO, NO_APROBADO, ABIERTO = 'esperando_veredicto', 'aprobado', 'aprobado_con_aviso', 'no_aprobado', 'abierto'
 DECISIONES = ('aceptar', 'revision', 'rechazar', 'persona')
+
+# El estado de cada documento de conocimiento, en un solo lugar. Se DERIVA de los lotes y sus veredictos: no hay una
+# segunda copia que pueda contradecirlos.
+#   pendiente      está en la fuente (MongoDB) y la IA todavía no lo revisa
+#   en_cuarentena  la IA ya lo revisó, pero su lote no tiene veredicto
+#   aprobado       la IA lo aceptó y el lote se aprobó: pasa la puerta (lo que se promoverá al cubo o a MongoDB)
+#   descartado     la IA lo rechazó y el lote se aprobó
+#   por_revisar    la IA dudó (revisión o persona) o el lote no se aprobó: espera a una persona o una segunda pasada
+ESTADOS_DOCUMENTO = ('pendiente', 'en_cuarentena', 'aprobado', 'descartado', 'por_revisar')
+
+
+def estado_documento(decision, estado_lote):
+    if estado_lote in (ABIERTO, ESPERANDO):
+        return 'en_cuarentena'
+    if estado_lote == NO_APROBADO:
+        return 'por_revisar'            # el juicio de un lote no aprobado no se usa: ni lo aceptado ni lo rechazado
+    return {'aceptar': 'aprobado', 'rechazar': 'descartado'}.get(decision, 'por_revisar')
 
 
 def decision_normal(texto):
@@ -86,6 +105,47 @@ class Consola:
             vistos.update(r.get('doc_id') for r in self.resultados(n))
         return vistos
 
+    # --- registro: un estado por documento ----------------------------------------------------------------------------
+    def registro(self):
+        """Cada documento revisado con su estado. Si un documento aparece en dos lotes, manda el más reciente."""
+        docs = {}
+        for n, lote in sorted(self.estado['lotes'].items(), key=lambda x: int(x[0])):
+            for r in self.resultados(n):
+                decision = r.get('decision_efectiva') or 'persona'
+                docs[r.get('doc_id')] = {'doc_id': r.get('doc_id'), 'url': r.get('url'), 'titulo': r.get('titulo'),
+                                         'fuente': r.get('fuente'), 'lote': int(n), 'decision_ia': decision,
+                                         'estado': estado_documento(decision, lote['estado'])}
+        return list(docs.values())
+
+    def resumen_registro(self, docs=None):
+        docs = self.registro() if docs is None else docs
+        cuenta = {e: 0 for e in ESTADOS_DOCUMENTO}
+        for d in docs:
+            cuenta[d['estado']] += 1
+        fuente = self.estado.get('documentos_en_fuente')
+        cuenta['pendiente'] = max(fuente - len(docs), 0) if fuente is not None else None
+        return {'tipo': 'conocimiento', 'en_fuente': fuente, 'revisados': len(docs), 'estados': cuenta, 'actualizado': ahora()}
+
+    def actualizar_registro(self):
+        self.estado['registro'] = self.resumen_registro()
+
+    def escribir_registro(self, carpeta=None):
+        """Una lista por estado en salidas/consola/registro/conocimiento/<estado>.jsonl, y el resumen. Se queda en esta
+        computadora (salidas/ no se sube). La lista de aprobados es la que consumirá la promoción al cubo o a MongoDB."""
+        carpeta = Path(carpeta or self.dir / 'registro') / 'conocimiento'
+        carpeta.mkdir(parents=True, exist_ok=True)
+        docs = self.registro()
+        for e in ESTADOS_DOCUMENTO[1:]:
+            with open(carpeta / f'{e}.jsonl', 'w', encoding='utf-8') as f:
+                for d in docs:
+                    if d['estado'] == e:
+                        f.write(json.dumps(d, ensure_ascii=False) + '\n')
+        resumen = self.resumen_registro(docs)
+        (carpeta / 'resumen.json').write_text(json.dumps(resumen, ensure_ascii=False, indent=2), encoding='utf-8')
+        self.estado['registro'] = resumen
+        self.guardar()
+        return carpeta, resumen
+
     # --- trabajo -----------------------------------------------------------------------------------------------------
     def esperando(self):
         return [n for n, l in self.estado['lotes'].items() if l['estado'] == ESPERANDO]
@@ -106,6 +166,7 @@ class Consola:
         lote['documentos'] += 1
         decision = resultado.get('decision_efectiva') or 'persona'
         lote['decisiones'][decision] = lote['decisiones'].get(decision, 0) + 1
+        self.actualizar_registro()
         segundos = (resultado.get('tiempos') or {}).get('total_s')
         if segundos is not None:
             lote['segundos'] = (lote['segundos'] + [round(segundos, 1)])[-500:]
@@ -175,6 +236,7 @@ class Consola:
         if self.estado['fallos_seguidos'] >= 2:
             self.estado.update(freno=True, motivo_freno=f'dos lotes seguidos no aprobados (el último, el {n})')
         lote.update(estado=resultado, veredicto=fecha, bien=bien, marcadas=marcadas)
+        self.actualizar_registro()
 
     # --- veredicto ---------------------------------------------------------------------------------------------------
     @staticmethod

@@ -4,6 +4,7 @@
     python -m consola estado                # una foto del estado, sin trabajar
     python -m consola veredicto 1           # lee la planilla marcada del lote 1 y deja el veredicto
     python -m consola etiquetas 1           # guarda las marcas del lote 1 en revisor/etiquetas/lote_001.yml
+    python -m consola registro              # una lista por estado: aprobados, descartados, por revisar…
     python -m consola cierre 1              # cierra un lote a mano (normalmente es automático al llegar a 100)
     python -m consola quitar-freno "motivo" # quita el freno después de corregir lo que falló
     python -m consola instalar-acceso       # crea el botón «Iniciar Amatista IA» en el escritorio
@@ -40,6 +41,23 @@ def carpeta_cierres(config):
 
 
 # --- la vista ---------------------------------------------------------------------------------------------------------
+ETIQUETAS_ESTADO = {'pendiente': 'pendientes', 'en_cuarentena': 'en cuarentena', 'aprobado': 'aprobados',
+                    'descartado': 'descartados', 'por_revisar': 'por revisar'}
+
+
+def lineas_registro(estado):
+    """Dónde está cada cosa: el conocimiento por estado, y la telemetría aparte."""
+    reg = estado.get('registro')
+    if not reg:
+        lineas = ['Conocimiento: sin documentos revisados todavía']
+    else:
+        fuente = reg.get('en_fuente')
+        lineas = [f"Conocimiento ({fuente if fuente is not None else '¿?'} documentos en la fuente, {reg['revisados']} revisados):",
+                  '  ' + ' · '.join(f"{ETIQUETAS_ESTADO[e]} {'—' if v is None else v}" for e, v in reg['estados'].items())]
+    lineas.append('Telemetría: todavía no se audita (el criterio de mediciones está diferido).')
+    return lineas
+
+
 def dibujar(estado, config, ancho=78):
     """La consola en texto: qué hace la IA, cómo va el lote, a qué velocidad y qué espera de la persona."""
     lineas = ['=' * ancho, f"AMATISTA IA · CONSOLA DEL AUDITOR{('actualizado ' + (estado.get('actualizado') or '—')).rjust(ancho - 33)}",
@@ -68,6 +86,7 @@ def dibujar(estado, config, ancho=78):
             lineas.append(f"  {k:>3}  {l['estado']:<20} {l.get('cerrado', '')}{extra}")
             if l['estado'] == ESPERANDO:
                 lineas.append(f"       muestras en: {l.get('carpeta')}")
+    lineas += [''] + lineas_registro(estado)
     if estado.get('ultimo_error'):
         lineas += ['', f"Último error: {estado['ultimo_error']}"]
     lineas += ['', 'Ctrl+C detiene la consola. Lo revisado se conserva y se retoma al volver a iniciar.', '=' * ancho]
@@ -115,6 +134,8 @@ class Trabajo:
         self.R = R
         from pymongo import MongoClient
         self.coleccion = MongoClient(uri, serverSelectionTimeoutMS=20000)[os.environ.get('MONGO_DATABASE', 'conocimiento_3d')]['documentos']
+        self.c.estado['documentos_en_fuente'] = self.coleccion.estimated_document_count()   # para contar los pendientes
+        self.c.actualizar_registro()
 
     def pendientes(self):
         vistos = self.c.revisados()
@@ -222,6 +243,7 @@ def main(argv=None):
     f = sub.add_parser('quitar-freno')
     f.add_argument('motivo')
     sub.add_parser('instalar-acceso')
+    sub.add_parser('registro')
     e = sub.add_parser('etiquetas')
     e.add_argument('lote', type=int)
     a = p.parse_args(argv)
@@ -232,6 +254,7 @@ def main(argv=None):
         return cmd_instalar_acceso()
     consola = Consola(CARPETA, config)
     if a.cmd == 'estado':
+        consola.actualizar_registro()
         print(dibujar(consola.estado, config))
     elif a.cmd == 'veredicto':
         lote = consola.estado['lotes'].get(str(a.lote))
@@ -242,6 +265,10 @@ def main(argv=None):
         except ValueError as e:
             sys.exit(str(e))
         print(f'Lote {a.lote}: {bien} de {n} bien → {resultado}. La consola lo aplica en su siguiente vuelta.')
+    elif a.cmd == 'registro':
+        carpeta, resumen = consola.escribir_registro()
+        print('\n'.join(lineas_registro(consola.estado)))
+        print(f'Listas por estado en {carpeta}')
     elif a.cmd == 'etiquetas':
         # Las marcas de la persona del cierre N → revisor/etiquetas/lote_NNN.yml (se sube; la planilla no).
         lote = consola.estado['lotes'].get(str(a.lote))

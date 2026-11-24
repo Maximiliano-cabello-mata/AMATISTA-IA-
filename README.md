@@ -15,6 +15,28 @@ La IA que revisa los datos del lago de G7B «a la manera de G7B». Conoce el pro
 | Pesos de confianza | En uso: 38 predicciones resueltas, Brier 0.197 |
 | Segunda revisión de Site 4.1 | Lista, sin correr |
 
+## Dónde está cada cosa: un estado por documento
+
+La consola le da a cada documento de conocimiento un solo estado. Se calcula a partir de los lotes y sus veredictos, así que no hay una segunda copia que pueda contradecirlos.
+
+| Estado | Qué significa |
+|---|---|
+| **pendiente** | Está en la fuente (MongoDB, `conocimiento_3d`) y la IA todavía no lo revisa |
+| **en cuarentena** | La IA ya lo revisó, pero su lote no tiene veredicto |
+| **aprobado** | La IA lo aceptó y el lote se aprobó: pasa la puerta. Es lo que se promoverá al cubo o a MongoDB |
+| **descartado** | La IA lo rechazó y el lote se aprobó |
+| **por revisar** | La IA dudó (revisión o persona), o el lote no se aprobó: espera a una persona o una segunda pasada |
+
+```bash
+python -m consola registro
+```
+
+El comando escribe una lista por estado en `salidas/consola/registro/conocimiento/` (no se sube) y la consola muestra el resumen.
+
+**La telemetría va aparte.** Todavía no se audita: el criterio de mediciones está diferido. Cuando se encienda, tendrá sus propios estados.
+
+**La promoción todavía no existe:** hoy «aprobado» solo vive en la consola; todavía no se copia al cubo ni a MongoDB.
+
 ## Qué sabe y qué no
 
 - **Sabe los estándares, no los datos.** El canon tiene 17 documentos de G7B, Amatista y este repositorio, fijados a un commit ([`canon/canon.yml`](canon/canon.yml)). No incluye telemetría, foros ni documentos de conocimiento: eso es lo que va a revisar. Juzgarlo con sus propios datos sería circular.
