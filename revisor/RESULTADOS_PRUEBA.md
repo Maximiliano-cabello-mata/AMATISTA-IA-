@@ -1402,3 +1402,49 @@ Ctrl+C detiene la consola. Lo revisado se conserva y se retoma al volver a inici
 - **`revisor/etiquetas/lote_001.yml` queda marcado `independiente: false`.** H27 y H28 quedan sin resolver.
 - **La regla de `AGENTS.md` se rompió una vez:** «el agente nunca escribe las columnas `humano_*`». Fue a pedido explícito de la persona y quedó registrado. Para los próximos cierres, la marca la hace la persona en la planilla, o dicta sus decisiones una por una.
 - **Lo aprobado todavía no entra al cubo ni a ningún otro lado:** el paso de promoción no está construido. Hoy «aprobado» queda solo en el estado de la consola.
+
+---
+
+## Registro de estados (24 de noviembre)
+
+### `python -m consola registro`
+
+```text
+Conocimiento (1035 documentos en la fuente, 300 revisados):
+  pendientes 735 · en cuarentena 200 · aprobados 39 · descartados 4 · por revisar 57
+  los aprobados todavía no se promueven: python -m consola promover
+Telemetría: todavía no se audita (el criterio de mediciones está diferido).
+Listas por estado en C:\Users\KANEDA\.gemini\antigravity\scratch\amatista-ia\salidas\consola\registro\conocimiento
+```
+
+### `python -m consola estado`
+
+```text
+==============================================================================
+AMATISTA IA · CONSOLA DEL AUDITOR              actualizado 2026-11-24 17:37:03
+==============================================================================
+Actividad: en pausa: 2 lotes esperan tu veredicto
+Freno: no · Lotes esperando tu veredicto: 2, 3
+
+Lote 4 · 0/100  [..............................]
+  aceptar 0 · revisión 0 · rechazar 0 · a una persona 0
+
+Lotes cerrados:
+    1  aprobado             2026-11-22 20:29:23 · 20/20 bien
+    2  esperando_veredicto  2026-11-24 13:03:33
+       muestras en: C:\Users\KANEDA\OneDrive - UNIVERSIDAD TECNOLÓGICA DE NEZAHUALCÓYOTL\Escritorio\Amatista IA · cierres\lote_002
+    3  esperando_veredicto  2026-11-24 17:32:32
+       muestras en: C:\Users\KANEDA\OneDrive - UNIVERSIDAD TECNOLÓGICA DE NEZAHUALCÓYOTL\Escritorio\Amatista IA · cierres\lote_003
+
+Conocimiento (1035 documentos en la fuente, 300 revisados):
+  pendientes 735 · en cuarentena 200 · aprobados 39 · descartados 4 · por revisar 57
+  los aprobados todavía no se promueven: python -m consola promover
+Telemetría: todavía no se audita (el criterio de mediciones está diferido).
+
+Ctrl+C detiene la consola. Lo revisado se conserva y se retoma al volver a iniciar.
+==============================================================================
+```
+
+### Errores y avisos observados
+
+- Sin errores al reiniciar la tarea programada `Amatista IA` (`State: Running`) con el código nuevo: al arrancar contó los `1035` documentos en la fuente, limpió `ultimo_error` y entró en `en pausa: 2 lotes esperan tu veredicto` porque los lotes 2 y 3 ya cerraron (300 documentos revisados en total).
