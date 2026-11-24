@@ -36,8 +36,18 @@ predicciones:
   - {id: H30, corrida: lote-002, p: 0.75, texto: "la cita es el embudo o la rúbrica de selección en 8 o menos de las 20 muestras", resultado: null}
   - {id: H31, corrida: lote-002, p: 0.80, texto: "confianza «alta» en 16 o más de las 20 muestras", resultado: null}
   # Revisor v4 en el lote 1 (23 nov), escritas antes de correrla. Las del conjunto de control están en su clave (control/clave_c1.sha256).
-  - {id: H32, corrida: v4-lote001, p: 0.97, texto: "cita del embudo o de la regla de utilidad en 100 de 100 (por construcción)", resultado: null}
-  - {id: H33, corrida: v4-lote001, p: 0.70, texto: "la mediana de segundos por documento es al menos 15 s menor que la de la v3 en el mismo lote", resultado: null}
-  - {id: H34, corrida: v4-lote001, p: 0.60, texto: "el código encuentra E3 o E1 en 15 o más de los 100", resultado: null}
-  - {id: H35, corrida: v4-lote001, p: 0.55, texto: "tras el reintento, cambia la decisión en la mitad o más de los reintentos", resultado: null}
-  - {id: H36, corrida: v4-lote001, p: 0.80, texto: "la v4 acepta más documentos que la v3 en el lote 1 (decisión efectiva)", resultado: null}
+  - {id: H32, corrida: v4-lote001, p: 0.97, texto: "cita del embudo o de la regla de utilidad en 100 de 100 (por construcción)", resultado: true}
+  - {id: H33, corrida: v4-lote001, p: 0.70, texto: "la mediana de segundos por documento es al menos 15 s menor que la de la v3 en el mismo lote", resultado: false}
+  - {id: H34, corrida: v4-lote001, p: 0.60, texto: "el código encuentra E3 o E1 en 15 o más de los 100", resultado: true}
+  - {id: H35, corrida: v4-lote001, p: 0.55, texto: "tras el reintento, cambia la decisión en la mitad o más de los reintentos", resultado: false}
+  - {id: H36, corrida: v4-lote001, p: 0.80, texto: "la v4 acepta más documentos que la v3 en el lote 1 (decisión efectiva)", resultado: true}
+  # NOTA (24 nov): H32–H36 con el resumen de v4_lote001 y la consola. H32: cita de lista fija 100/100. H33: v4 160.8 s contra 133 s de la v3 en la consola (más lenta, no más rápida). H34: E3 en 67 de 100. H35: 33 de 67 cambian (49 %). H36: 52 aceptados contra 39.
+  # Conjunto de control C1: escritas el 23 nov dentro de la clave, antes de correr nada (huella en control/clave_c1.sha256). Resueltas con revisor/calificar_control.py.
+  - {id: K1, corrida: control-c1, p: 0.60, texto: "la v3 deja pasar (acepta) 5 o más de los 13 malos", resultado: false}
+  - {id: K2, corrida: control-c1, p: 0.55, texto: "la v4 deja pasar más malos que la v3 (el reintento empuja hacia aceptar)", resultado: true}
+  - {id: K3, corrida: control-c1, p: 0.60, texto: "la v4 acepta 18 o más de los 22 buenos", resultado: false}
+  - {id: K4, corrida: control-c1, p: 0.55, texto: "la v3 acepta 16 o menos de los 22 buenos", resultado: true}
+  - {id: K5, corrida: control-c1, p: 0.65, texto: "ninguna versión detiene los 2 de dato_invertido", resultado: true}
+  - {id: K6, corrida: control-c1, p: 0.70, texto: "las dos versiones detienen pagina_de_error e indice_en_prosa", resultado: true}
+  - {id: K7, corrida: control-c1, p: 0.60, texto: "al menos 1 de los 2 de contenido_cruzado pasa la puerta en la v3", resultado: true}
+  - {id: K8, corrida: control-c1, p: 0.75, texto: "ninguna versión rechaza ninguno de los 22 buenos", resultado: true}

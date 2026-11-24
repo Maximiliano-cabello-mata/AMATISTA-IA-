@@ -1,0 +1,205 @@
+conjunto: control/conjunto_c1.jsonl
+sha256_conjunto: 641617ddd837e8fb26ef76ba1b0ab8bb25a3455c8464456e9798091e2a03344b
+semilla: 20261123
+documentos:
+  be8c36d05c3e6630d54ca40b7de8edf5edb2fd01d7572b3e439fb7dd82cbcde6:
+    esperado: aceptar
+    tipo: buena
+    titulo: Remesh Modifier
+    nota: ''
+  f5769e60129575267d9a90038d3517b8ef213a071a7a82cb6d636083c7fce827:
+    esperado: aceptar
+    tipo: buena
+    titulo: Bendy Bones
+    nota: ''
+  331ddcbdab7f03e892b5032ffaead84d615b3c848645305390ccaefcc7aac3f8:
+    esperado: no_aceptar
+    tipo: dato_invertido
+    titulo: Volumes
+    nota: 'El tamaño de paso: el original dice que aumentarlo reduce el tiempo y pierde detalle'
+  4d34e857b3cd385ef0856ac79ec839d57dd71e10e9e11f6af7355b4a1cd43a3c:
+    esperado: no_aceptar
+    tipo: sin_sentido
+    titulo: Wireframe Modifier
+    nota: Frases con términos reales sin sentido
+  13064441a8000cdadd5abaf024ff9e612081c37c5f4d64f5012f1e94ab440acf:
+    esperado: no_aceptar
+    tipo: sin_sentido
+    titulo: Vector Rotate Node
+    nota: Frases con términos reales sin sentido
+  181dc9000c3dad28daaaf4c8a0ab2c6182f69f014356c97041f67b4a5e47a5b4:
+    esperado: aceptar
+    tipo: buena
+    titulo: Apply
+    nota: ''
+  f6e073d0edca91570e25c3e36f408abcac3de3097b2f9c69ad1ca712f34811d7:
+    esperado: aceptar
+    tipo: buena
+    titulo: Array Modifier
+    nota: ''
+  b57ac70599895561e8981fb0f405c992c2848f3cb5bba82e4ffd2874b0261748:
+    esperado: aceptar
+    tipo: buena
+    titulo: Dyntopo
+    nota: ''
+  504ce71d5ff3d23899279b75ea2b42c94b8e5cfe57bf66c44c6185b8e755b53f:
+    esperado: no_aceptar
+    tipo: pregunta_sin_respuesta
+    titulo: Cycles render very slow with GTX 1050
+    nota: Solo la pregunta, sin respuesta
+  879d8331cd300654c1d3fae2679b5a545cda4f68d2f57101650528200ac52657:
+    esperado: aceptar
+    tipo: buena
+    titulo: Decimate Modifier
+    nota: ''
+  ba5d46e106ac938b6ccc7d336bb5995eaf6b5b78eec2d16e5a0186abbc3dc53b:
+    esperado: no_aceptar
+    tipo: plantilla
+    titulo: Laplacian Smooth Modifier
+    nota: Cada opción repite su nombre (C5)
+  b0b89b39722252050baa2f9a6141144711d62c2c2e3725f9cf5c7c058f8af704:
+    esperado: no_aceptar
+    tipo: contenido_cruzado
+    titulo: Weld Modifier
+    nota: Título y URL de Weld con el texto del nodo Wave
+  edec2f2c345da9a10ba769d5ddd9b70005f37dab85471130f38dcc691c421b4b:
+    esperado: no_aceptar
+    tipo: contenido_cruzado
+    titulo: Depth of Field
+    nota: Título y URL de profundidad de campo de EEVEE con el texto de emisión de partículas
+  77b09b8ce27978a53669e133942b6c1aef281eb69ecf52fcbe3582349daba04d:
+    esperado: aceptar
+    tipo: buena
+    titulo: Format
+    nota: ''
+  a488904d8bc1ce9ece984a2ad1bdcae4c58fa6f79396ac9ce94c88663abebfa9:
+    esperado: aceptar
+    tipo: buena
+    titulo: Shrinkwrap Modifier
+    nota: ''
+  523f61fb8dee12b38429915b1cd42ced78ddf80fd535686943d53ac3fe8a5328:
+    esperado: no_aceptar
+    tipo: indice_en_prosa
+    titulo: EEVEE
+    nota: Solo anuncia lo que hay en otras páginas
+  72453b0f4e21e587da2b47eb8b5458cb8fad6c47bf5c426b418e95ee5e2e3ef3:
+    esperado: aceptar
+    tipo: buena
+    titulo: Distribute Points on Faces
+    nota: ''
+  44860bacb78d576f246758f4ec769ad5444cded699a33c180a492036de1b4fb4:
+    esperado: aceptar
+    tipo: buena
+    titulo: Performance
+    nota: ''
+  c6c6c7573048d9d00823bd94d121d76a9c8718a8bf39ded267b72b457d89a9b0:
+    esperado: aceptar
+    tipo: buena
+    titulo: Solidify Modifier
+    nota: ''
+  3f61c5f7f2bbff634125a2bc4b8f8053a98db4bd2a3bd30c445161cb8648d2be:
+    esperado: aceptar
+    tipo: buena
+    titulo: Clean Up
+    nota: ''
+  58ad86b0dade6f3b4c291b873252bfbef11bfb9a234f223607e1eadd2d7993f6:
+    esperado: aceptar
+    tipo: buena
+    titulo: Principled BSDF
+    nota: ''
+  c2d09e57afaa68958bdb4fa4ab58f4cc908df61427d515d3c11c80ff11a8353a:
+    esperado: aceptar
+    tipo: buena
+    titulo: Subdivision Surface Modifier
+    nota: ''
+  308b70ea392dbf2c4028792d1c81730707b265d0f1f3308b84e843dbd2d1e8f2:
+    esperado: aceptar
+    tipo: buena
+    titulo: Simplify
+    nota: ''
+  8bbfebede4d86f9ba442b8bfc7b57ae59ca9d66cdb6ec157019bc2eab968520c:
+    esperado: aceptar
+    tipo: buena
+    titulo: Sampling
+    nota: ''
+  7f31a6de0b2166b4733f06c36c52e289b42538806eb5cd3b7f4a050800df3b09:
+    esperado: aceptar
+    tipo: buena
+    titulo: Sampling
+    nota: ''
+  49c35e62770a44b2f58480198a2abc15574234db7cae81f08390d74aa2cc50ee:
+    esperado: no_aceptar
+    tipo: pagina_de_error
+    titulo: GPU Rendering
+    nota: Página de error con enlaces
+  dafa41983d01315c372e33f0102de14eb826894a1338ad72db15aefe4eff3e49:
+    esperado: no_aceptar
+    tipo: dato_invertido
+    titulo: Film
+    nota: 'Filtro de píxel: el original suaviza; el ancho bajo da nitidez'
+  bfd930ca3b6a43e35486ffbf28fdc3f3bb18919b017acc2843d3499bc8d18e8a:
+    esperado: no_aceptar
+    tipo: opinion_sin_dato
+    titulo: Is Blender 4.2 good for low-end PCs?
+    nota: Opinión sin ningún ajuste ni dato
+  70937ceafea5fd54e91e3c0bdf65fb4472040695e733a674237df11802551254:
+    esperado: aceptar
+    tipo: buena
+    titulo: Noise Texture Node
+    nota: ''
+  f9c03b5d2795364dddd4a0e686fd226acae358ea2acdedb76f54b7f45f705fc0:
+    esperado: no_aceptar
+    tipo: consejo_erroneo
+    titulo: How to make Eevee render faster?
+    nota: 'Más muestras y 400 % de resolución no aceleran: lo contrario'
+  5a6b563cf7d7d1b5d66a5b5d9a84f41668e73c33c2d8e0c13feadaef726fcb07:
+    esperado: aceptar
+    tipo: buena
+    titulo: Render Baking
+    nota: ''
+  5c6f255f71b1498ef018a9665c0f3dda89f292b3dd8ec7064909cb4fcc2d8241:
+    esperado: aceptar
+    tipo: buena
+    titulo: Bevel Modifier
+    nota: ''
+  918650a8dc758aed884bff3dcc9103fc7a9ea8c6b3a6720516f5175f49af8028:
+    esperado: aceptar
+    tipo: buena
+    titulo: Extrude Mesh Node
+    nota: ''
+  0e7705b704222259f6302616597c1f1b6e892ae0f7db3097153df3f718fb6b3a:
+    esperado: aceptar
+    tipo: buena
+    titulo: Instance on Points Node
+    nota: ''
+  239177998e30451afed2e479b2ab425a9bde238d5fa7bd8eaaad42f2f066b37e:
+    esperado: no_aceptar
+    tipo: plantilla
+    titulo: Cast Modifier
+    nota: Cada opción repite su nombre (C5)
+escrita: 2026-11-23, antes de cualquier corrida sobre el conjunto
+predicciones:
+- id: K1
+  p: 0.6
+  texto: la v3 deja pasar (acepta) 5 o más de los 13 malos
+- id: K2
+  p: 0.55
+  texto: la v4 deja pasar más malos que la v3 (el reintento empuja hacia aceptar)
+- id: K3
+  p: 0.6
+  texto: la v4 acepta 18 o más de los 22 buenos
+- id: K4
+  p: 0.55
+  texto: la v3 acepta 16 o menos de los 22 buenos
+- id: K5
+  p: 0.65
+  texto: ninguna versión detiene los 2 de dato_invertido
+- id: K6
+  p: 0.7
+  texto: las dos versiones detienen pagina_de_error e indice_en_prosa
+- id: K7
+  p: 0.6
+  texto: al menos 1 de los 2 de contenido_cruzado pasa la puerta en la v3
+- id: K8
+  p: 0.75
+  texto: ninguna versión rechaza ninguno de los 22 buenos

@@ -39,7 +39,7 @@ Todas las corridas usan la misma muestra: 20 páginas del manual de Blender de `
 | v3 | Primero el motivo, al final la decisión; lo incoherente va a una persona | Coherencia 0.90; pero 1 aceptado, 11 a revisión y 8 rechazados | La coherencia subió quitando la pregunta del plan (16 → 5), no aceptando |
 | v3 con criterios y errores conocidos (canon v4) | C1–C7 y E1–E6 en las instrucciones fijas | Coherencia 0.90; 9 aceptados, 11 a revisión, 0 rechazos; pregunta asignada en 16 de 20; 155 s por documento | Es la versión que usa la consola. Los criterios quitan los rechazos y devuelven la pregunta del plan, a costa de 41 s más |
 | Lote 1 de la consola (23 nov) | La misma, sobre 100 documentos reales | En la muestra, los 14 aceptados están bien según la segunda opinión; 4 de las 6 revisiones debían aceptarse | Falla del lado seguro. Repite E3 y E4 aunque ya se le dijeron. Ver [`revisor/SEGUNDA_OPINION_LOTE_001.md`](../revisor/SEGUNDA_OPINION_LOTE_001.md) |
-| v4 (23 nov) | Citas fijas (embudo y regla de utilidad), sin recuperar por parecido; el código busca E3 y E1 en el motivo y el modelo vuelve a decidir una vez | Sin correr: [`TAREA_V4.md`](../TAREA_V4.md) | La consola sigue en la v3 hasta que una persona decida |
+| v4 (23 nov) | Citas fijas (embudo y regla de utilidad), sin recuperar por parecido; el código busca E3 y E1 en el motivo y el modelo vuelve a decidir una vez | Control C1 a ciegas: detiene 7 de 13 malos, contra 9 de la v3. Lote 1: 52 aceptados y 37 a una persona, contra 39 y 6 | El reintento acepta lo bueno y lo malo por igual: no se adopta. Las citas fijas sí sirven |
 
 **Lo que sigue abierto:**
 - el lote 1 espera las etiquetas de la persona: son las primeras;
@@ -53,8 +53,9 @@ Todas las corridas usan la misma muestra: 20 páginas del manual de Blender de `
 |---|---|---|
 | `evaluacion/` | Prueba de recuperación del canon (53 preguntas con su documento esperado) | En uso |
 | `laboratorio/verificar.py` | Comprueba Ollama, GitHub y Supabase sin mostrar claves | En uso |
-| `revisor/confianza.py` | Pesos de confianza: Beta teórica actualizada con lo observado; combina votos; Brier de las predicciones | En uso: 25 predicciones resueltas, 18 acertadas, Brier 0.197 |
+| `revisor/confianza.py` | Pesos de confianza: Beta teórica actualizada con lo observado; combina votos; Brier de las predicciones | En uso: 38 predicciones resueltas, 27 acertadas, Brier 0.197 |
 | `revisor/segunda_revision.py` | Segunda opinión a ciegas sobre los 70 bloques de Site 4.1, reconstruidos con `id` idéntico | Listo, sin correr |
+| `control/` y `revisor/calificar_control.py` | Conjunto de control con documentos sembrados y clave a ciegas | C1 corrido con la v3 y la v4; clave publicada |
 | `consola/` | El auditor 24/7: lotes de 100, cuarentena, cierre con 20 muestras al escritorio, veredicto y freno | En marcha: lote 1 cerrado el 23 de noviembre, esperando veredicto |
 
 ## 5. Decisiones propias de este repositorio

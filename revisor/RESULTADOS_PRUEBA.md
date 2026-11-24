@@ -1075,3 +1075,83 @@ Salida completa:
 - Paso 6 (`v4_lote001`): el primer intento se detuvo en el documento `2/100` por un reinicio del servidor de tareas; se relanzó desde `1/100` y completó los 100 documentos sin errores ni avisos de ejecución.
 - Paso 7 (`revisor.comparar_versiones`): sin errores ni avisos de ejecución.
 - Paso 8 (reanudación de la consola `Amatista IA`): la tarea programada quedó en estado `Running` revisando el lote 2 (`Actividad: revisando «Smooth Vertices» (lote 2)`).
+
+## Análisis de las corridas 10–12, con la clave del conjunto de control (24 de noviembre)
+
+**La prueba fue a ciegas.**
+- La clave del conjunto C1, es decir, qué documentos se sembraron como malos y de qué tipo, se guardó fuera del repositorio mientras corría la prueba.
+- Su huella SHA-256 se subió antes de las corridas (`control/clave_c1.sha256`). La clave publicada ahora en `control/clave_c1.yml` tiene la misma huella.
+- La tarea del agente solo decía «conjunto de control».
+
+Para reproducir la calificación:
+
+```bash
+python -m revisor.calificar_control control/clave_c1.yml control/conjunto_c1.jsonl control/resultados/prueba_revisor_v3_control.json control/resultados/prueba_revisor_v4_control.json
+```
+
+**Cómo se armó el conjunto:**
+- 22 páginas reales del manual de Blender 4.5 y 5.2, extraídas con la araña de G7B.
+- 13 documentos malos de 9 tipos. Cada uno pasó el embudo real de G7B (`g7b_ingesta.embudo`): solo se probó lo que de verdad podría llegarle al auditor. De 14 sembrados, el embudo detuvo 1.
+
+### Conjunto de control C1
+
+| | v3 (la de la consola) | v4 |
+|---|---|---|
+| Malos detenidos (no aceptados) | **9 de 13** | 7 de 13 |
+| Malos que pasan la puerta | 4 | **6** |
+| Buenos aceptados | 13 de 22 | 15 de 22 |
+| Buenos rechazados | 0 | 0 |
+| Rechazos correctos (los dos eran malos) | 2 | 0 |
+| A una persona | 0 | 12 |
+
+| Tipo de documento malo | v3 detiene | v4 detiene |
+|---|---|---|
+| Página de error, índice en prosa, opinión sin dato | 3 de 3 | 3 de 3 |
+| Plantilla (las opciones repiten su nombre) | 2 de 2 | 1 de 2 |
+| Sin sentido, con términos reales | 2 de 2 | 1 de 2 |
+| Dato invertido | 1 de 2 | 1 de 2 |
+| Título de una página con el texto de otra | 1 de 2 | 1 de 2 |
+| Pregunta de foro sin respuesta | 0 de 1 | 0 de 1 |
+| Consejo erróneo | 0 de 1 | 0 de 1 |
+
+**Lo que dice:**
+- **Lo evidente se detecta:** basura, plantillas, índices, opiniones.
+- **Lo que exige saber si algo es cierto, no:** un modelo de 8B no verifica hechos.
+- **La v3 nunca rechazó un documento bueno.**
+
+**El reintento de la v4 no distingue:**
+- El código encontró E3 en 21 de 35 documentos, cuando se esperaban pocos.
+- De las 10 decisiones que cambió, las 10 pasaron a «aceptar»: 6 eran buenos y **4 malos** (un dato invertido, un texto sin sentido, el consejo erróneo y una plantilla).
+- La v4 también perdió los dos rechazos correctos, porque el chequeo se aplica aunque el modelo rechace.
+
+### Lote 1 completo (100 documentos)
+
+| | v3 (consola) | v4 |
+|---|---|---|
+| Aceptar / revisión / rechazar / persona | 39 / 51 / 4 / 6 | 52 / 11 / 0 / 37 |
+| Reintentos (todos por E3) | — | 67 de 100: cambian 33; siguen con el error 32 |
+| Segundos por documento | 133 (consola) | 160.8 |
+| Tokens leídos por documento (mediana) | — | 7 216 (dos llamadas cuando hay reintento) |
+
+- **Las dos versiones coinciden en 32 de 100 documentos.**
+- **La v4 acepta 13 más, pero no se puede saber si son buenos:** la planilla del lote 1 todavía no tiene marcas humanas (0 de 20). El conjunto de control dice que el reintento acepta lo bueno y lo malo por igual.
+- **Le manda a una persona 37 documentos,** contra 6 de la v3.
+- **Un dato del lote que no teníamos:** la v3 solo aceptó 39 de 100. Con la segunda opinión (4 de las 6 revisiones de la muestra debían aceptarse), la puerta parece retener muchos buenos. Lo confirmará la planilla marcada.
+
+### Predicciones
+
+| Grupo | Resultado |
+|---|---|
+| K1–K8 (control, escritas dentro de la clave) | 6 de 8: fallaron K1, la v3 dejó pasar menos malos de lo previsto, y K3, la v4 aceptó menos buenos |
+| H32–H36 (v4 en el lote 1) | 3 de 5: fallaron H33, la v4 es más lenta y no más rápida, y H35, el reintento cambió el 49 % y no la mitad |
+| Todas las del revisor (`python -m revisor.confianza`) | 38 resueltas, 27 acertadas, Brier 0.197 |
+
+### Decisión que se propone (la toma una persona)
+
+1. **La consola sigue con la v3.** La v4, tal como está, no se adopta.
+2. **De la v4 sirven las citas fijas:** citan la regla en 54 % frente a 23 %, y la lista es la misma en cada documento. Si se prueba algo más, que sea **una v4b sin reintento**, como corrida aparte, sobre el mismo conjunto C1 y el mismo lote 1.
+3. **Para lo que el modelo no detecta, chequeos por código dentro del auditor:**
+   - parecido entre el título y el texto, que atraparía el contenido cruzado;
+   - que un hilo de foro tenga respuesta.
+
+   El dato invertido y el consejo erróneo quedan para la revisión humana de las 20 muestras.
