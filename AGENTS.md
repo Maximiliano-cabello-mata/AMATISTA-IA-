@@ -1,6 +1,6 @@
 # Reglas para agentes de IA en este repositorio
 
-Este repositorio construye la IA que revisa los datos del lago de G7B. Para instalarla en la computadora del laboratorio, sigue [`LABORATORIO.md`](LABORATORIO.md) paso por paso. La tarea vigente es [`TAREA_REGISTRO.md`](TAREA_REGISTRO.md): reiniciar la consola con el registro de estados y reportarlo. El veredicto del lote 1 ([`TAREA_VEREDICTO_LOTE_1.md`](TAREA_VEREDICTO_LOTE_1.md)) ya se hizo. **El agente nunca escribe las columnas `humano_*` de una planilla.** La consola ([`TAREA_CONSOLA.md`](TAREA_CONSOLA.md)) sigue trabajando 24/7 con la v3. La medición de la v4 ([`TAREA_V4.md`](TAREA_V4.md)) ya terminó. Las pruebas anteriores del revisor están en [`TAREA_PRUEBA_REVISOR.md`](TAREA_PRUEBA_REVISOR.md) y [`TAREA_SEGUNDA_REVISION.md`](TAREA_SEGUNDA_REVISION.md). Responde en español.
+Este repositorio construye la IA que revisa los datos del lago de G7B. Para instalarla en la computadora del laboratorio, sigue [`LABORATORIO.md`](LABORATORIO.md) paso por paso. Las tareas vigentes, en orden: [`TAREA_REGISTRO.md`](TAREA_REGISTRO.md) (reiniciar la consola con el registro de estados y el reintento) y después [`TAREA_PROMOCION.md`](TAREA_PROMOCION.md) (la puerta: lo aprobado entra a MongoDB). El veredicto del lote 1 ([`TAREA_VEREDICTO_LOTE_1.md`](TAREA_VEREDICTO_LOTE_1.md)) ya se hizo. **El agente nunca escribe las columnas `humano_*` de una planilla.** La consola ([`TAREA_CONSOLA.md`](TAREA_CONSOLA.md)) sigue trabajando 24/7 con la v3. La medición de la v4 ([`TAREA_V4.md`](TAREA_V4.md)) ya terminó. Las pruebas anteriores del revisor están en [`TAREA_PRUEBA_REVISOR.md`](TAREA_PRUEBA_REVISOR.md) y [`TAREA_SEGUNDA_REVISION.md`](TAREA_SEGUNDA_REVISION.md). Responde en español.
 
 ## Lugar de este repositorio en la base
 
@@ -26,6 +26,11 @@ Este repositorio construye la IA que revisa los datos del lago de G7B. Para inst
 - El canon solo tiene estándares del proyecto. No agregues datos del lago al canon: es lo que la IA va a revisar.
 - Ollama escucha solo en `127.0.0.1`. No lo expongas a la red.
 - **El revisor solo propone.** Lee de MongoDB con un usuario de solo lectura y escribe en `salidas/`, que no se sube. Nunca cambia el lago, MongoDB ni Supabase.
+- **La única escritura es la puerta:** `python -m consola promover`.
+  - Copia a la colección `conocimiento_auditado` solo los documentos en estado «aprobado»: la IA los aceptó y una persona aprobó su lote.
+  - Usa su propio usuario (`MONGO_URI_PROMOCION`), con `readWrite` solo en esa colección.
+  - Nunca escribe en `documentos`, que es de G7B, ni borra: lo que deja de estar aprobado se marca `vigente: false`.
+  - Ese usuario lo crea una persona en Atlas y lo escribe en `.env`.
 - No cambies las instrucciones del revisor, el número de palabras ni el modelo a mitad de una prueba para que salga mejor. Si quieres probar otra cosa, es otra corrida y se reporta aparte.
 
 ## Qué no se toca para que algo «salga bien»

@@ -6,7 +6,7 @@ La consola ahora le da a cada documento de conocimiento un solo estado: **pendie
 
 ## Pasos
 
-**1. Actualizar y comprobar.** Deben pasar 64 pruebas o más:
+**1. Actualizar y comprobar.** Deben pasar 72 pruebas o más:
 
 ```bash
 git pull
@@ -20,7 +20,7 @@ python -m pytest -q pruebas
 - detén la tarea programada «Amatista IA» y vuelve a iniciarla;
 - antes de iniciarla, comprueba que Ollama esté corriendo.
 
-Lo revisado se conserva. Al arrancar, la consola cuenta los documentos de la fuente para saber cuántos quedan pendientes.
+Lo revisado se conserva. Al arrancar, la consola cuenta los documentos de la fuente para saber cuántos quedan pendientes. Si Ollama todavía no responde, ahora no se detiene: dice «esperando servicios», reintenta cada 2 minutos y anota el error en «Último error».
 
 **3. Esperar a que la consola revise al menos un documento** (unos 3 minutos) y generar el registro:
 

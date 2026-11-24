@@ -5,6 +5,7 @@
     python -m consola veredicto 1           # lee la planilla marcada del lote 1 y deja el veredicto
     python -m consola etiquetas 1           # guarda las marcas del lote 1 en revisor/etiquetas/lote_001.yml
     python -m consola registro              # una lista por estado: aprobados, descartados, por revisar…
+    python -m consola promover [--simular]  # la puerta: copia lo aprobado a conocimiento_auditado (lo único que escribe)
     python -m consola cierre 1              # cierra un lote a mano (normalmente es automático al llegar a 100)
     python -m consola quitar-freno "motivo" # quita el freno después de corregir lo que falló
     python -m consola instalar-acceso       # crea el botón «Iniciar Amatista IA» en el escritorio
@@ -54,6 +55,11 @@ def lineas_registro(estado):
         fuente = reg.get('en_fuente')
         lineas = [f"Conocimiento ({fuente if fuente is not None else '¿?'} documentos en la fuente, {reg['revisados']} revisados):",
                   '  ' + ' · '.join(f"{ETIQUETAS_ESTADO[e]} {'—' if v is None else v}" for e, v in reg['estados'].items())]
+    pro = estado.get('promocion')
+    if pro:
+        lineas.append(f"  en MongoDB («{pro.get('destino')}»): {pro['nuevos'] + pro['actualizados']} vigentes · última promoción {pro['fecha']}")
+    elif reg and reg['estados'].get('aprobado'):
+        lineas.append('  los aprobados todavía no se promueven: python -m consola promover')
     lineas.append('Telemetría: todavía no se audita (el criterio de mediciones está diferido).')
     return lineas
 
@@ -155,12 +161,30 @@ class Trabajo:
         r['fecha'] = time.strftime('%Y-%m-%d %H:%M:%S')
         return r
 
+    def preparar_con_reintento(self):
+        """Si al arrancar falta Ollama, MongoDB o la red (por ejemplo, después de reiniciar la computadora), no se detiene:
+        espera y vuelve a intentar hasta que esté listo o hasta que la persona detenga la consola. Devuelve True si quedó
+        preparada."""
+        espera = self.config.get('reintento_preparar_s', 120)
+        intento = 0
+        while not self.detener.is_set():
+            intento += 1
+            try:
+                self.preparar()
+                if intento > 1:
+                    self.c.estado.setdefault('bitacora', []).append({'fecha': time.strftime('%Y-%m-%d %H:%M:%S'),
+                                                                     'preparada_tras_intentos': intento})
+                self.c.estado['ultimo_error'] = None
+                return True
+            except Exception as e:
+                self.c.estado['ultimo_error'] = f'al preparar (intento {intento}): {e}'
+                self.actividad(f'esperando servicios (Ollama, MongoDB o la red): reintento en {espera} s, intento {intento}')
+                self.detener.wait(espera)
+        return False
+
     def correr(self):
-        try:
-            self.preparar()
-        except Exception as e:
-            self.c.estado['ultimo_error'] = f'al preparar: {e}'
-            self.actividad('detenida: no se pudo preparar (ver último error)')
+        if not self.preparar_con_reintento():
+            self.actividad('detenida')
             return
         while not self.detener.is_set():
             hubo = False
@@ -213,6 +237,35 @@ def cmd_iniciar(config):
     return 0
 
 
+def cmd_promover(consola, config, simular):
+    """La puerta: copia lo aprobado a la colección auditada (consola/promocion.py)."""
+    from indexador.entorno import cargar_env
+    from consola.promocion import DESTINO_POR_OMISION, comprobar_destino, promover, texto_resumen
+    cargar_env()
+    lectura, escritura = os.environ.get('MONGO_URI_LECTURA'), os.environ.get('MONGO_URI_PROMOCION')
+    if not lectura:
+        sys.exit('Falta MONGO_URI_LECTURA en .env.')
+    if not escritura and not simular:
+        sys.exit('Falta MONGO_URI_PROMOCION en .env: un usuario de MongoDB con readWrite SOLO en la colección de destino '
+                 '(ver TAREA_PROMOCION.md). Para ver qué se escribiría sin escribir: python -m consola promover --simular')
+    nombre = config.get('coleccion_promocion') or DESTINO_POR_OMISION
+    try:
+        comprobar_destino(nombre)
+    except ValueError as e:
+        sys.exit(str(e))
+    from pymongo import MongoClient
+    base = os.environ.get('MONGO_DATABASE', 'conocimiento_3d')
+    fuente = MongoClient(lectura, serverSelectionTimeoutMS=20000)[base]['documentos']
+    destino = MongoClient(escritura or lectura, serverSelectionTimeoutMS=20000)[base][nombre]
+    if not simular:
+        destino.create_index('doc_id', unique=True)
+    consola.aplicar_buzon()
+    r = promover(consola, fuente, destino, config, RAIZ, simular=simular)
+    print(texto_resumen(r))
+    print('\n'.join(lineas_registro(consola.estado)))
+    return 0
+
+
 def cmd_instalar_acceso():
     """El botón: un acceso en el escritorio que abre la consola y arranca el trabajo."""
     escritorio = carpeta_escritorio('x').parent
@@ -244,6 +297,8 @@ def main(argv=None):
     f.add_argument('motivo')
     sub.add_parser('instalar-acceso')
     sub.add_parser('registro')
+    pr = sub.add_parser('promover')
+    pr.add_argument('--simular', action='store_true', help='mostrar qué se escribiría, sin escribir nada')
     e = sub.add_parser('etiquetas')
     e.add_argument('lote', type=int)
     a = p.parse_args(argv)
@@ -265,6 +320,8 @@ def main(argv=None):
         except ValueError as e:
             sys.exit(str(e))
         print(f'Lote {a.lote}: {bien} de {n} bien → {resultado}. La consola lo aplica en su siguiente vuelta.')
+    elif a.cmd == 'promover':
+        return cmd_promover(consola, config, a.simular)
     elif a.cmd == 'registro':
         carpeta, resumen = consola.escribir_registro()
         print('\n'.join(lineas_registro(consola.estado)))

@@ -201,3 +201,40 @@ def test_registro_un_estado_por_documento(tmp_path):
     assert json.loads((carpeta / 'resumen.json').read_text(encoding='utf-8'))['estados']['por_revisar'] == 3
     texto = dibujar(c.estado, CONFIG)
     assert 'aprobados 6 · descartados 1 · por revisar 3' in texto and 'Telemetría: todavía no se audita' in texto
+
+
+def test_si_ollama_no_esta_listo_reintenta_en_vez_de_detenerse(tmp_path):
+    c = Consola(tmp_path / 'estado', CONFIG)
+    config = {**CONFIG, 'reintento_preparar_s': 0}
+
+    class TrabajoDePrueba(Trabajo):
+        intentos = 0
+
+        def preparar(self):
+            TrabajoDePrueba.intentos += 1
+            if TrabajoDePrueba.intentos < 3:                    # los dos primeros arranques: Ollama todavía no responde
+                raise ConnectionRefusedError('[WinError 10061] el equipo de destino denegó la conexión')
+            self.R, self.canon, self.taxonomia, self.embebedor, self.generador, self.patrones = FalsoR, {}, {}, None, None, []
+            self.coleccion = FalsaColeccion([])
+
+        def esperar(self, motivo):
+            self.detener.set()
+
+    t = TrabajoDePrueba(c, config)
+    t.correr()
+    assert TrabajoDePrueba.intentos == 3
+    assert c.estado['ultimo_error'] is None
+    assert c.estado['bitacora'][-1]['preparada_tras_intentos'] == 3
+
+
+def test_el_reintento_respeta_la_orden_de_detener(tmp_path):
+    c = Consola(tmp_path / 'estado', CONFIG)
+
+    class TrabajoDePrueba(Trabajo):
+        def preparar(self):
+            self.detener.set()                                   # la persona presiona Ctrl+C mientras espera
+            raise ConnectionRefusedError('sin Ollama')
+
+    t = TrabajoDePrueba(c, {**CONFIG, 'reintento_preparar_s': 0})
+    t.correr()
+    assert 'intento 1' in c.estado['ultimo_error'] and c.estado['actividad'] == 'detenida'

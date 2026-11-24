@@ -35,7 +35,11 @@ El comando escribe una lista por estado en `salidas/consola/registro/conocimient
 
 **La telemetría va aparte.** Todavía no se audita: el criterio de mediciones está diferido. Cuando se encienda, tendrá sus propios estados.
 
-**La promoción todavía no existe:** hoy «aprobado» solo vive en la consola; todavía no se copia al cubo ni a MongoDB.
+**La puerta: `python -m consola promover`.** Es lo único de Amatista IA que escribe.
+- **Qué copia:** los aprobados a la colección `conocimiento_auditado` de MongoDB. Cada uno es el documento original completo más un bloque `auditoria` con el rastro: lote, veredicto, decisión y motivo de la IA, regla citada, versión del revisor y fechas.
+- **Con qué permiso:** su propio usuario, con escritura solo en esa colección.
+- **Qué nunca hace:** tocar `documentos`, ni duplicar lo que ya copió, ni borrar. Lo que deja de estar aprobado queda con `vigente: false`.
+- **Para ver qué escribiría** sin escribir nada: `--simular`.
 
 ## Qué sabe y qué no
 

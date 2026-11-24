@@ -6,6 +6,7 @@ muestras_descartadas: 6     # de esas, cuántas salen de lo que la IA NO aceptó
 max_lotes_esperando: 2      # con esta cantidad de lotes esperando veredicto, la IA se pausa
 espera_s: 600               # cada cuánto vuelve a mirar cuando está en pausa o sin documentos nuevos
 refresco_s: 5               # cada cuánto se redibuja la consola
+reintento_preparar_s: 120   # si al arrancar falta Ollama o MongoDB, cada cuánto vuelve a intentar (no se detiene)
 
 # Revisor (el mismo de revisor/revisar.py)
 modelo: "qwen3:8b"
@@ -17,3 +18,6 @@ refrescar_canon_al_iniciar: true
 
 # Carpeta donde aparecen los cierres. Vacía = el escritorio de esta computadora («Amatista IA · cierres»).
 carpeta_cierres: ""
+
+# La puerta (python -m consola promover): colección de MongoDB donde se copia lo aprobado. Nunca «documentos».
+coleccion_promocion: "conocimiento_auditado"
