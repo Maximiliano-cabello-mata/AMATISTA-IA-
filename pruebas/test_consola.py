@@ -160,3 +160,19 @@ def test_carpeta_escritorio_encuentra_onedrive_empresarial(tmp_path, monkeypatch
     monkeypatch.setenv('OneDriveCommercial', str(onedrive))
     monkeypatch.delenv('OneDrive', raising=False)
     assert carpeta_escritorio() == onedrive / 'Escritorio' / 'Amatista IA · cierres'
+
+
+def test_marcas_con_acento_mayusculas_y_planilla_de_excel_con_punto_y_coma(tmp_path):
+    from consola.nucleo import Consola, decision_normal, etiquetas_de_planilla, leer_planilla
+    assert decision_normal(' Revisión ') == 'revision' and decision_normal('ACEPTAR') == 'aceptar'
+    ruta = tmp_path / 'planilla.csv'
+    filas = ['n;doc_id;url;titulo;fuente;ia_decision;humano_decision;humano_nota']
+    filas += [f'{i};d{i};https://docs.blender.org/x{i}.html;T{i};blender-manual;revision;Revisión;' for i in range(1, 20)]
+    filas += ['20;d20;https://docs.blender.org/x20.html;T20;blender-manual;aceptar;rechazar;falta texto']
+    ruta.write_text('﻿' + '\n'.join(filas) + '\n', encoding='utf-8')
+    leidas = leer_planilla(ruta)
+    assert len(leidas) == 20 and leidas[0]['humano_decision'] == 'Revisión'
+    assert Consola.calificar(leidas) == ('aprobado', 19, 20)
+    e = etiquetas_de_planilla(1, leidas)
+    assert e['marcadas'] == 20 and e['documentos'][19] == {'n': 20, 'titulo': 'T20', 'url': 'https://docs.blender.org/x20.html',
+                                                          'fuente': 'blender-manual', 'ia': 'aceptar', 'humano': 'rechazar', 'nota': 'falta texto'}

@@ -17,6 +17,7 @@ import json
 import os
 import random
 import time
+import unicodedata
 from pathlib import Path
 
 ESTADO_INICIAL = {
@@ -34,6 +35,12 @@ ESTADO_INICIAL = {
 }
 ESPERANDO, APROBADO, AVISO, NO_APROBADO, ABIERTO = 'esperando_veredicto', 'aprobado', 'aprobado_con_aviso', 'no_aprobado', 'abierto'
 DECISIONES = ('aceptar', 'revision', 'rechazar', 'persona')
+
+
+def decision_normal(texto):
+    """«Revisión», «REVISION » y «revision» son la misma marca: sin acentos, sin espacios y en minúsculas."""
+    t = unicodedata.normalize('NFKD', (texto or '').strip().lower())
+    return ''.join(c for c in t if not unicodedata.combining(c))
 
 
 def ahora():
@@ -173,10 +180,10 @@ class Consola:
     @staticmethod
     def calificar(filas):
         """filas: la planilla marcada. Bien = la persona coincide con la decisión de la IA («persona» no cuenta como bien)."""
-        marcadas = [f for f in filas if (f.get('humano_decision') or '').strip().lower() in DECISIONES[:3]]
+        marcadas = [f for f in filas if decision_normal(f.get('humano_decision')) in DECISIONES[:3]]
         if len(marcadas) < len(filas):
             raise ValueError(f'faltan {len(filas) - len(marcadas)} muestras por marcar (humano_decision: aceptar, revision o rechazar)')
-        bien = sum(f['humano_decision'].strip().lower() == (f.get('ia_decision') or '').strip().lower() for f in marcadas)
+        bien = sum(decision_normal(f['humano_decision']) == decision_normal(f.get('ia_decision')) for f in marcadas)
         n_m = len(marcadas)
         # Las reglas de BASE.md están escritas para 20 muestras; con menos se escalan en proporción.
         if bien >= round(19 / 20 * n_m):
@@ -291,5 +298,21 @@ def carpeta_escritorio(nombre='Amatista IA · cierres'):
 
 
 def leer_planilla(ruta):
+    """La planilla marcada. Excel en español puede guardarla con «;» en vez de «,»: se detecta."""
     with open(ruta, encoding='utf-8-sig', newline='') as f:
-        return list(csv.DictReader(f))
+        texto = f.read()
+    primera = texto.splitlines()[0] if texto else ''
+    separador = ';' if primera.count(';') > primera.count(',') else ','
+    return list(csv.DictReader(texto.splitlines(), delimiter=separador))
+
+
+def etiquetas_de_planilla(n, filas):
+    """Las marcas de la persona en un cierre, para guardarlas en el repositorio: solo título, URL pública, fuente y las
+    dos decisiones (la de la IA y la de la persona). Ni el texto del documento ni el motivo de la IA."""
+    docs = []
+    for f in filas:
+        docs.append({'n': int(f.get('n') or 0), 'titulo': (f.get('titulo') or '').strip(), 'url': f.get('url'),
+                     'fuente': f.get('fuente'), 'ia': decision_normal(f.get('ia_decision')),
+                     'humano': decision_normal(f.get('humano_decision')) or None,
+                     'nota': (f.get('humano_nota') or '').strip() or None})
+    return {'version': 1, 'lote': int(n), 'marcadas': sum(1 for d in docs if d['humano'] in DECISIONES[:3]), 'documentos': docs}

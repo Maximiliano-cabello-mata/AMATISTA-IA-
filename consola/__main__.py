@@ -3,6 +3,7 @@
     python -m consola                       # el botón: arranca el trabajo 24/7 y muestra la consola en vivo
     python -m consola estado                # una foto del estado, sin trabajar
     python -m consola veredicto 1           # lee la planilla marcada del lote 1 y deja el veredicto
+    python -m consola etiquetas 1           # guarda las marcas del lote 1 en revisor/etiquetas/lote_001.yml
     python -m consola cierre 1              # cierra un lote a mano (normalmente es automático al llegar a 100)
     python -m consola quitar-freno "motivo" # quita el freno después de corregir lo que falló
     python -m consola instalar-acceso       # crea el botón «Iniciar Amatista IA» en el escritorio
@@ -23,7 +24,7 @@ from pathlib import Path
 
 import yaml
 
-from consola.nucleo import ABIERTO, ESPERANDO, Consola, carpeta_escritorio, leer_planilla
+from consola.nucleo import ABIERTO, ESPERANDO, Consola, carpeta_escritorio, etiquetas_de_planilla, leer_planilla
 
 RAIZ = Path(__file__).resolve().parents[1]
 CARPETA = RAIZ / 'salidas' / 'consola'
@@ -221,6 +222,8 @@ def main(argv=None):
     f = sub.add_parser('quitar-freno')
     f.add_argument('motivo')
     sub.add_parser('instalar-acceso')
+    e = sub.add_parser('etiquetas')
+    e.add_argument('lote', type=int)
     a = p.parse_args(argv)
 
     if a.cmd is None:
@@ -239,6 +242,17 @@ def main(argv=None):
         except ValueError as e:
             sys.exit(str(e))
         print(f'Lote {a.lote}: {bien} de {n} bien → {resultado}. La consola lo aplica en su siguiente vuelta.')
+    elif a.cmd == 'etiquetas':
+        # Las marcas de la persona del cierre N → revisor/etiquetas/lote_NNN.yml (se sube; la planilla no).
+        lote = consola.estado['lotes'].get(str(a.lote))
+        if not lote or not lote.get('carpeta'):
+            sys.exit(f'El lote {a.lote} no tiene cierre todavía.')
+        datos = etiquetas_de_planilla(a.lote, leer_planilla(Path(lote['carpeta']) / 'planilla.csv'))
+        destino = RAIZ / 'revisor' / 'etiquetas' / f'lote_{a.lote:03d}.yml'
+        destino.parent.mkdir(parents=True, exist_ok=True)
+        destino.write_text('# Marcas de la persona en el cierre (consola etiquetas). Solo títulos y URL públicas.\n'
+                           + yaml.safe_dump(datos, allow_unicode=True, sort_keys=False), encoding='utf-8')
+        print(f'{datos["marcadas"]} de {len(datos["documentos"])} marcadas → {destino}')
     elif a.cmd == 'cierre':
         # Solo con la consola detenida: el cierre escribe el estado directamente.
         print(f'Cierre: {consola.cerrar(a.lote, carpeta_cierres(config))}')
