@@ -1155,3 +1155,240 @@ python -m revisor.calificar_control control/clave_c1.yml control/conjunto_c1.jso
    - que un hilo de foro tenga respuesta.
 
    El dato invertido y el consejo erróneo quedan para la revisión humana de las 20 muestras.
+
+---
+
+## Veredicto del lote 1
+
+### Paso 2 · `python -m consola veredicto 1`
+
+```text
+Lote 1: 20 de 20 bien → aprobado. La consola lo aplica en su siguiente vuelta.
+```
+
+### Paso 3 · `python -m consola estado`
+
+```text
+==============================================================================
+AMATISTA IA · CONSOLA DEL AUDITOR              actualizado 2026-11-24 10:12:25
+==============================================================================
+Actividad: revisando «Edges to Face Groups Node» (lote 2)
+Freno: no · Lotes esperando tu veredicto: ninguno
+Velocidad: 166 s por documento · faltan 62 para el cierre (~2.9 h)
+
+Lote 2 · 38/100  [###########...................]
+  aceptar 18 · revisión 19 · rechazar 1 · a una persona 0
+
+Lotes cerrados:
+    1  aprobado             2026-11-22 20:29:23 · 20/20 bien
+
+Último error: al preparar: <urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>
+
+Ctrl+C detiene la consola. Lo revisado se conserva y se retoma al volver a iniciar.
+==============================================================================
+```
+
+### Paso 4 · `python -m revisor.comparar`
+
+```json
+{
+  "marcadas": 20,
+  "acuerdo_decision": 1.0,
+  "detecta_problemas": 1.0,
+  "falsas_alarmas": 0.0,
+  "acuerdo_pregunta": null,
+  "matriz_ia_vs_humano": {
+    "aceptar → aceptar": 14,
+    "revision → revision": 6
+  }
+}
+```
+
+### Paso 5 · `python -m revisor.comparar_versiones 1 salidas/prueba_revisor_v4_lote001.json --planilla ...`
+
+```json
+{
+  "documentos": 100,
+  "solo_en_el_lote": 0,
+  "decisiones_v3": {
+    "aceptar": 39,
+    "revision": 51,
+    "rechazar": 4,
+    "persona": 6
+  },
+  "decisiones_nueva": {
+    "aceptar": 52,
+    "revision": 11,
+    "rechazar": 0,
+    "persona": 37
+  },
+  "iguales": 32,
+  "cambios": {
+    "aceptar → persona": 10,
+    "aceptar → revision": 4,
+    "persona → aceptar": 4,
+    "persona → revision": 1,
+    "rechazar → aceptar": 1,
+    "rechazar → persona": 3,
+    "revision → aceptar": 22,
+    "revision → persona": 23
+  },
+  "muestras_marcadas": 20,
+  "coincide_con_la_persona": {
+    "v3": 20,
+    "nueva": 9
+  },
+  "aceptados_que_la_persona_no_acepta": {
+    "v3": 0,
+    "nueva": 4
+  },
+  "muestras": [
+    {
+      "n": "1",
+      "titulo": "Smooth Vertices",
+      "v3": "revision",
+      "nueva": "aceptar",
+      "persona": "revision"
+    },
+    {
+      "n": "2",
+      "titulo": "Simulation Zone ",
+      "v3": "aceptar",
+      "nueva": "revision",
+      "persona": "aceptar"
+    },
+    {
+      "n": "3",
+      "titulo": "Volumes",
+      "v3": "aceptar",
+      "nueva": "aceptar",
+      "persona": "aceptar"
+    },
+    {
+      "n": "4",
+      "titulo": "Endpoint Selection Node",
+      "v3": "aceptar",
+      "nueva": "aceptar",
+      "persona": "aceptar"
+    },
+    {
+      "n": "5",
+      "titulo": "Sample Grid Node",
+      "v3": "revision",
+      "nueva": "aceptar",
+      "persona": "revision"
+    },
+    {
+      "n": "6",
+      "titulo": "Attribute Node",
+      "v3": "aceptar",
+      "nueva": "revision",
+      "persona": "aceptar"
+    },
+    {
+      "n": "7",
+      "titulo": "Get Geometry Bundle Node",
+      "v3": "aceptar",
+      "nueva": "persona",
+      "persona": "aceptar"
+    },
+    {
+      "n": "8",
+      "titulo": "Volume Scatter ",
+      "v3": "revision",
+      "nueva": "persona",
+      "persona": "revision"
+    },
+    {
+      "n": "9",
+      "titulo": "Rip ",
+      "v3": "aceptar",
+      "nueva": "persona",
+      "persona": "aceptar"
+    },
+    {
+      "n": "10",
+      "titulo": "Snap to Symmetry",
+      "v3": "aceptar",
+      "nueva": "aceptar",
+      "persona": "aceptar"
+    },
+    {
+      "n": "11",
+      "titulo": "Select Loops",
+      "v3": "aceptar",
+      "nueva": "aceptar",
+      "persona": "aceptar"
+    },
+    {
+      "n": "12",
+      "titulo": "Motion Blur",
+      "v3": "revision",
+      "nueva": "aceptar",
+      "persona": "revision"
+    },
+    {
+      "n": "13",
+      "titulo": "Retopology ",
+      "v3": "aceptar",
+      "nueva": "aceptar",
+      "persona": "aceptar"
+    },
+    {
+      "n": "14",
+      "titulo": "Mesh Circle Node",
+      "v3": "aceptar",
+      "nueva": "aceptar",
+      "persona": "aceptar"
+    },
+    {
+      "n": "15",
+      "titulo": "Merge",
+      "v3": "aceptar",
+      "nueva": "aceptar",
+      "persona": "aceptar"
+    },
+    {
+      "n": "16",
+      "titulo": "Mapping Node",
+      "v3": "aceptar",
+      "nueva": "aceptar",
+      "persona": "aceptar"
+    },
+    {
+      "n": "17",
+      "titulo": "Point Density Node ",
+      "v3": "aceptar",
+      "nueva": "persona",
+      "persona": "aceptar"
+    },
+    {
+      "n": "18",
+      "titulo": "Clamp Node ",
+      "v3": "revision",
+      "nueva": "aceptar",
+      "persona": "revision"
+    },
+    {
+      "n": "19",
+      "titulo": "Triangulate Node",
+      "v3": "aceptar",
+      "nueva": "aceptar",
+      "persona": "aceptar"
+    },
+    {
+      "n": "20",
+      "titulo": "Split Edges Node",
+      "v3": "revision",
+      "nueva": "persona",
+      "persona": "revision"
+    }
+  ]
+}
+```
+
+### Errores y avisos observados
+
+- Registro de la planilla: en el primer intento sin editar el CSV, `consola veredicto 1` devolvió `faltan 20 muestras por marcar (humano_decision: aceptar, revision o rechazar)`. Posteriormente, la persona (Maximiliano) indicó por chat que ya había revisado el cierre del lote 1 y pidió aprobar en bloque las 20 muestras (`«aprueba ee 1 lote ya lo revise que sea el primer lote ej entra al cubo»`); se transcribió `humano_decision = ia_decision` en las 20 filas con `humano_nota = "Aprobado en bloque por Maximiliano tras revisar el lote 1"` (registrado también en `revisor/etiquetas/lote_001.yml`).
+- Paso 1 (`pytest` en Windows): inicialmente `test_la_clave_es_la_misma_que_se_selló_antes_de_la_prueba` falló por conversión automática `CRLF` de Git en Windows sobre `control/clave_c1.yml` y `control/conjunto_c1.jsonl`. Tras fijar `git config core.autocrlf false` y restaurar los blobs exactos del índice de Git (`LF`), pasaron las `63 passed`.
+- Consola 24/7: tras un reinicio de Windows a las 10:05, la tarea programada `Amatista IA` había arrancado antes de que Ollama estuviera disponible (`WinError 10061`). Se inició Ollama y se relanzó la tarea programada `Amatista IA`, que aplicó el veredicto del buzón (`1 aprobado · 20/20 bien`) y retomó el lote 2 (`38/100`).
