@@ -122,3 +122,13 @@ corridas:
       json: [35, 35]
       cita: [35, 35]
       coherente: [33, 35]
+  - id: v4-lote001
+    revisor: 4
+    criterios: true
+    modelo: "qwen3:8b"
+    fecha: 2026-11-23
+    muestra: lote 1 completo de la consola (100 documentos, canon v5, 135 fragmentos)
+    senales:
+      json: [100, 100]
+      cita: [100, 100]
+      coherente: [93, 100]

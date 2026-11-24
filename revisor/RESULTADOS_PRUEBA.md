@@ -958,7 +958,103 @@ Ctrl+C detiene la consola. Lo revisado se conserva y se retoma al volver a inici
 
 ### Paso 6 · Resumen exacto de `v4_lote001` (Corrida 12: lote 1, 100 documentos, revisor v4, `--criterios`)
 
-*En ejecución en segundo plano; se completará junto con el paso 7 al terminar la corrida.*
+```json
+{
+  "revisor": 4,
+  "criterios": true,
+  "modelo": "qwen3:8b",
+  "palabras_por_documento": 450,
+  "cuantos": 3,
+  "umbral": null,
+  "canon_fragmentos": 135,
+  "fecha": "2026-11-23 22:08",
+  "documentos": 100,
+  "json_valido": 1.0,
+  "pregunta_valida": 1.0,
+  "cita_valida": 1.0,
+  "cita_embudo": 0.45,
+  "coherente": 0.93,
+  "motivo_primero": 1.0,
+  "coincide_pregunta_embudo": 0.84,
+  "decisiones": {
+    "aceptar": 56,
+    "revision": 44,
+    "rechazar": 0
+  },
+  "decisiones_efectivas": {
+    "aceptar": 52,
+    "revision": 11,
+    "rechazar": 0,
+    "persona": 37
+  },
+  "etapas": {
+    "relevancia": 10,
+    "valor": 38,
+    "ninguna": 52
+  },
+  "no_se": 0,
+  "segundos_por_documento": {
+    "mediana": 160.83921960000043,
+    "maximo": 348.91463980000003
+  },
+  "tokens_por_segundo": {
+    "genera": 2.1980786992625507,
+    "lee": 194.1728019943912
+  },
+  "tokens_por_documento": {
+    "lee": 7215.5,
+    "genera": 290.0
+  },
+  "horas_estimadas_para_1033": 46.15192051300013,
+  "reintentos": 67,
+  "reintento_por_error": {
+    "E3": 67,
+    "E1": 0
+  },
+  "reintento_cambia_decision": 33,
+  "reintento_sigue_con_error": 32
+}
+```
+
+### Paso 7 · Comparación v4 vs v3 en el lote 1
+
+Comando ejecutado (`planilla.csv` del lote 1 sin marcas humanas todavía: 0 de 20 filas con `humano_decision`):
+
+```bash
+python -m revisor.comparar_versiones 1 salidas/prueba_revisor_v4_lote001.json
+```
+
+Salida completa:
+
+```json
+{
+  "documentos": 100,
+  "solo_en_el_lote": 0,
+  "decisiones_v3": {
+    "aceptar": 39,
+    "revision": 51,
+    "rechazar": 4,
+    "persona": 6
+  },
+  "decisiones_nueva": {
+    "aceptar": 52,
+    "revision": 11,
+    "rechazar": 0,
+    "persona": 37
+  },
+  "iguales": 32,
+  "cambios": {
+    "aceptar → persona": 10,
+    "aceptar → revision": 4,
+    "persona → aceptar": 4,
+    "persona → revision": 1,
+    "rechazar → aceptar": 1,
+    "rechazar → persona": 3,
+    "revision → aceptar": 22,
+    "revision → persona": 23
+  }
+}
+```
 
 ### Errores y avisos observados
 
@@ -976,3 +1072,6 @@ Ctrl+C detiene la consola. Lo revisado se conserva y se retoma al volver a inici
       2  arxiv-cs-gr
   ```
 - Pasos 4 y 5 (`v3_control` y `v4_control`): sin errores ni avisos de ejecución.
+- Paso 6 (`v4_lote001`): el primer intento se detuvo en el documento `2/100` por un reinicio del servidor de tareas; se relanzó desde `1/100` y completó los 100 documentos sin errores ni avisos de ejecución.
+- Paso 7 (`revisor.comparar_versiones`): sin errores ni avisos de ejecución.
+- Paso 8 (reanudación de la consola `Amatista IA`): la tarea programada quedó en estado `Running` revisando el lote 2 (`Actividad: revisando «Smooth Vertices» (lote 2)`).
