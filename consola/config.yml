@@ -21,3 +21,7 @@ carpeta_cierres: ""
 
 # La puerta (python -m consola promover): colección de MongoDB donde se copia lo aprobado. Nunca «documentos».
 coleccion_promocion: "conocimiento_auditado"
+
+# Carpetas externas con JSONL de otros auditores (p. ej. Gemini API) cuyos doc_id se omiten para no duplicar trabajo.
+excluir_carpetas:
+  - "../lab-limites-gemini/resultados/ciclo_24h"

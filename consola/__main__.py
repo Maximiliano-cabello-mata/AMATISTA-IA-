@@ -15,6 +15,7 @@ la decisión queda en cuarentena en salidas/consola/. Al llegar al tamaño del l
 muestras al azar en una carpeta del escritorio. Nada se escribe en MongoDB, el cubo, el lago ni Supabase.
 """
 import argparse
+import json
 import os
 import statistics
 import sys
@@ -148,8 +149,28 @@ class Trabajo:
         self.c.estado['documentos_en_fuente'] = self.coleccion.estimated_document_count()   # para contar los pendientes
         self.c.actualizar_registro()
 
+    def excluidos_externos(self):
+        """doc_id ya revisados por otros auditores locales (config.excluir_carpetas) para no repetir trabajo."""
+        vistos = set()
+        for ruta_cfg in self.config.get('excluir_carpetas') or []:
+            carpeta = Path(ruta_cfg)
+            if not carpeta.is_absolute():
+                carpeta = (RAIZ / carpeta).resolve()
+            if not carpeta.is_dir():
+                continue
+            for archivo in sorted(carpeta.glob('*.jsonl')):
+                for linea in archivo.read_text(encoding='utf-8').splitlines():
+                    if linea.strip():
+                        try:
+                            doc_id = json.loads(linea).get('doc_id')
+                            if doc_id:
+                                vistos.add(doc_id)
+                        except Exception:
+                            pass
+        return vistos
+
     def pendientes(self):
-        vistos = self.c.revisados()
+        vistos = self.c.revisados() | self.excluidos_externos()
         for doc in self.coleccion.find({}, {'_id': 0, **{k: 1 for k in CAMPOS}}).sort('doc_id', 1):
             if doc.get('doc_id') not in vistos:
                 yield doc
