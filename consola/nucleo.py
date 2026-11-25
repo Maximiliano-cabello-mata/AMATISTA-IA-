@@ -220,7 +220,12 @@ class Consola:
                 continue
             m = json.loads(ruta.read_text(encoding='utf-8'))
             if m['tipo'] == 'veredicto':
-                self._aplicar_veredicto(m['lote'], m['resultado'], m['bien'], m['marcadas'], m['fecha'])
+                self._aplicar_veredicto(
+                    m['lote'], m['resultado'], m['bien'], m['marcadas'], m['fecha'],
+                    aceptados_bien=m.get('aceptados_bien'),
+                    aceptados_total=m.get('aceptados_total'),
+                    retenidos_buenos=m.get('retenidos_buenos'),
+                )
             elif m['tipo'] == 'quitar_freno':
                 self.estado.update(freno=False, motivo_freno=None, fallos_seguidos=0)
                 self.estado.setdefault('bitacora', []).append({'fecha': m['fecha'], 'freno_quitado': m['motivo']})
@@ -230,37 +235,79 @@ class Consola:
             self.guardar()
         return cambios
 
-    def _aplicar_veredicto(self, n, resultado, bien, marcadas, fecha):
+    def _aplicar_veredicto(self, n, resultado, bien, marcadas, fecha,
+                           aceptados_bien=None, aceptados_total=None, retenidos_buenos=None):
         lote = self.lote(n)
         self.estado['fallos_seguidos'] = self.estado['fallos_seguidos'] + 1 if resultado == NO_APROBADO else 0
         if self.estado['fallos_seguidos'] >= 2:
             self.estado.update(freno=True, motivo_freno=f'dos lotes seguidos no aprobados (el último, el {n})')
-        lote.update(estado=resultado, veredicto=fecha, bien=bien, marcadas=marcadas)
+        datos = {'estado': resultado, 'veredicto': fecha, 'bien': bien, 'marcadas': marcadas}
+        if aceptados_total is not None:
+            datos['aceptados_bien'] = aceptados_bien
+            datos['aceptados_total'] = aceptados_total
+            datos['retenidos_buenos'] = retenidos_buenos
+        lote.update(datos)
         self.actualizar_registro()
 
     # --- veredicto ---------------------------------------------------------------------------------------------------
     @staticmethod
-    def calificar(filas):
-        """filas: la planilla marcada. Bien = la persona coincide con la decisión de la IA («persona» no cuenta como bien)."""
+    def resumen_calificacion(filas):
+        """Califica separando pureza de entrada (aceptados buenos) de buenos retenidos (Propuesta #1, lote 1).
+
+        Lo que protege a `conocimiento_auditado` es que los documentos aceptados por la IA sean de verdad buenos:
+        - 0 malos admitidos y coincidencia global >= 19/20 -> aprobado;
+        - 0 malos admitidos pero buenos retenidos en revision/persona -> aprobado_con_aviso (los aceptados entran);
+        - hasta 1 malo admitido de 14 (escalado en proporción) -> aprobado_con_aviso (o aprobado si >= 19/20 global);
+        - 2 o más malos admitidos de 14 -> no_aprobado (bloquea el lote; dos seguidos activan el freno).
+        """
         marcadas = [f for f in filas if decision_normal(f.get('humano_decision')) in DECISIONES[:3]]
         if len(marcadas) < len(filas):
             raise ValueError(f'faltan {len(filas) - len(marcadas)} muestras por marcar (humano_decision: aceptar, revision o rechazar)')
-        bien = sum(decision_normal(f['humano_decision']) == decision_normal(f.get('ia_decision')) for f in marcadas)
         n_m = len(marcadas)
-        # Las reglas de BASE.md están escritas para 20 muestras; con menos se escalan en proporción.
-        if bien >= round(19 / 20 * n_m):
-            resultado = APROBADO
-        elif bien >= round(17 / 20 * n_m):
-            resultado = AVISO
+        bien = sum(decision_normal(f['humano_decision']) == decision_normal(f.get('ia_decision')) for f in marcadas)
+        aceptados = [f for f in marcadas if decision_normal(f.get('ia_decision')) == 'aceptar']
+        n_a = len(aceptados)
+        aceptados_bien = sum(decision_normal(f['humano_decision']) == 'aceptar' for f in aceptados)
+        malos_admitidos = n_a - aceptados_bien
+        retenidos_buenos = sum(
+            decision_normal(f.get('ia_decision')) != 'aceptar' and decision_normal(f['humano_decision']) == 'aceptar'
+            for f in marcadas
+        )
+        if n_a > 0:
+            max_malos_aviso = max(1, round(n_a / 14))
+            if malos_admitidos == 0:
+                resultado = APROBADO if bien >= round(19 / 20 * n_m) else AVISO
+            elif malos_admitidos <= max_malos_aviso:
+                resultado = APROBADO if (n_a >= 19 and bien >= round(19 / 20 * n_m)) else AVISO
+            else:
+                resultado = NO_APROBADO
         else:
-            resultado = NO_APROBADO
-        return resultado, bien, n_m
+            if bien >= round(19 / 20 * n_m):
+                resultado = APROBADO
+            elif bien >= round(17 / 20 * n_m):
+                resultado = AVISO
+            else:
+                resultado = NO_APROBADO
+        return {
+            'resultado': resultado,
+            'bien': bien,
+            'marcadas': n_m,
+            'aceptados_bien': aceptados_bien,
+            'aceptados_total': n_a,
+            'retenidos_buenos': retenidos_buenos,
+        }
+
+    @staticmethod
+    def calificar(filas):
+        """filas: la planilla marcada. Devuelve (resultado, bien, marcadas)."""
+        r = Consola.resumen_calificacion(filas)
+        return r['resultado'], r['bien'], r['marcadas']
 
     def veredicto(self, n, filas):
         """Califica la planilla y deja el veredicto en el buzón. Devuelve (resultado, bien, marcadas)."""
-        resultado, bien, n_m = self.calificar(filas)
-        self.escribir_buzon('veredicto', {'lote': str(n), 'resultado': resultado, 'bien': bien, 'marcadas': n_m, 'fecha': ahora()})
-        return resultado, bien, n_m
+        r = self.resumen_calificacion(filas)
+        self.escribir_buzon('veredicto', {'lote': str(n), **r, 'fecha': ahora()})
+        return r['resultado'], r['bien'], r['marcadas']
 
     def quitar_freno(self, motivo):
         self.escribir_buzon('quitar_freno', {'motivo': motivo, 'fecha': ahora()})

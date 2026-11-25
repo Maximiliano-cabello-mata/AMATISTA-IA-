@@ -89,6 +89,11 @@ def dibujar(estado, config, ancho=78):
         lineas += ['', 'Lotes cerrados:']
         for k, l in cerrados[-6:]:
             extra = f" · {l['bien']}/{l['marcadas']} bien" if 'bien' in l else ''
+            if l.get('aceptados_total'):
+                extra += f" ({l['aceptados_bien']}/{l['aceptados_total']} aceptados"
+                if l.get('retenidos_buenos'):
+                    extra += f", {l['retenidos_buenos']} retenidos"
+                extra += ')'
             lineas.append(f"  {k:>3}  {l['estado']:<20} {l.get('cerrado', '')}{extra}")
             if l['estado'] == ESPERANDO:
                 lineas.append(f"       muestras en: {l.get('carpeta')}")
@@ -316,10 +321,14 @@ def main(argv=None):
         if not lote or not lote.get('carpeta'):
             sys.exit(f'El lote {a.lote} no tiene cierre todavía.')
         try:
-            resultado, bien, n = consola.veredicto(a.lote, leer_planilla(Path(lote['carpeta']) / 'planilla.csv'))
+            filas = leer_planilla(Path(lote['carpeta']) / 'planilla.csv')
+            r = consola.resumen_calificacion(filas)
+            resultado, bien, n = consola.veredicto(a.lote, filas)
         except ValueError as e:
             sys.exit(str(e))
-        print(f'Lote {a.lote}: {bien} de {n} bien → {resultado}. La consola lo aplica en su siguiente vuelta.')
+        detalle = (f" · aceptados buenos {r['aceptados_bien']}/{r['aceptados_total']} · buenos retenidos {r['retenidos_buenos']}"
+                   if r['aceptados_total'] else '')
+        print(f'Lote {a.lote}: {bien} de {n} bien{detalle} → {resultado}. La consola lo aplica en su siguiente vuelta.')
     elif a.cmd == 'promover':
         return cmd_promover(consola, config, a.simular)
     elif a.cmd == 'registro':

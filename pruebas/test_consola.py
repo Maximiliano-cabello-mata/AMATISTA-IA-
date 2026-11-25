@@ -66,14 +66,23 @@ def marcar(carpeta, bien):
 
 
 def test_reglas_del_veredicto_con_20_muestras():
-    filas = lambda bien: [{'ia_decision': 'aceptar', 'humano_decision': 'aceptar' if i < bien else 'rechazar'} for i in range(20)]
-    assert Consola.calificar(filas(19))[0] == APROBADO
-    assert Consola.calificar(filas(17))[0] == AVISO
-    assert Consola.calificar(filas(16))[0] == NO_APROBADO
-    persona = [{'ia_decision': 'persona', 'humano_decision': 'aceptar'}] + filas(19)[:19]
-    assert Consola.calificar(persona)[1:] == (19, 20)                        # «persona» no cuenta como acierto
+    # Muestra estratificada real: 14 aceptados por la IA y 6 detenidos (revision/persona)
+    def estratificada(malos_admitidos=0, retenidos_buenos=0):
+        acept = [{'ia_decision': 'aceptar', 'humano_decision': 'rechazar' if i < malos_admitidos else 'aceptar'} for i in range(14)]
+        det = [{'ia_decision': 'revision', 'humano_decision': 'aceptar' if i < retenidos_buenos else 'revision'} for i in range(6)]
+        return acept + det
+
+    assert Consola.calificar(estratificada(0, 0)) == (APROBADO, 20, 20)
+    assert Consola.calificar(estratificada(0, 1)) == (APROBADO, 19, 20)
+    assert Consola.calificar(estratificada(0, 6)) == (AVISO, 14, 20)         # 14/14 aceptados buenos, 6 retenidos → entra con aviso
+    assert Consola.calificar(estratificada(1, 0)) == (AVISO, 19, 20)         # 13/14 aceptados buenos → aviso
+    assert Consola.calificar(estratificada(2, 0)) == (NO_APROBADO, 18, 20)   # 12/14 aceptados buenos → bloquea la puerta
+    persona = [{'ia_decision': 'persona', 'humano_decision': 'aceptar'}] + [
+        {'ia_decision': 'aceptar', 'humano_decision': 'aceptar'} for _ in range(19)
+    ]
+    assert Consola.calificar(persona) == (APROBADO, 19, 20)                  # «persona» no cuenta como acierto global, 19/19 aceptados buenos
     with pytest.raises(ValueError, match='faltan 1'):
-        Consola.calificar(filas(20)[:19] + [{'ia_decision': 'aceptar', 'humano_decision': ''}])
+        Consola.calificar(estratificada(0, 0)[:19] + [{'ia_decision': 'aceptar', 'humano_decision': ''}])
 
 
 def test_el_veredicto_pasa_por_el_buzon_y_dos_fallos_ponen_el_freno(tmp_path):
@@ -172,7 +181,7 @@ def test_marcas_con_acento_mayusculas_y_planilla_de_excel_con_punto_y_coma(tmp_p
     ruta.write_text('﻿' + '\n'.join(filas) + '\n', encoding='utf-8')
     leidas = leer_planilla(ruta)
     assert len(leidas) == 20 and leidas[0]['humano_decision'] == 'Revisión'
-    assert Consola.calificar(leidas) == ('aprobado', 19, 20)
+    assert Consola.calificar(leidas) == ('aprobado_con_aviso', 19, 20)
     e = etiquetas_de_planilla(1, leidas)
     assert e['marcadas'] == 20 and e['documentos'][19] == {'n': 20, 'titulo': 'T20', 'url': 'https://docs.blender.org/x20.html',
                                                           'fuente': 'blender-manual', 'ia': 'aceptar', 'humano': 'rechazar', 'nota': 'falta texto'}
@@ -238,3 +247,19 @@ def test_el_reintento_respeta_la_orden_de_detener(tmp_path):
     t = TrabajoDePrueba(c, {**CONFIG, 'reintento_preparar_s': 0})
     t.correr()
     assert 'intento 1' in c.estado['ultimo_error'] and c.estado['actividad'] == 'detenida'
+
+
+def test_pureza_perfecta_con_retenidos_aprueba_con_aviso_y_habilita_promocion(tmp_path):
+    c = Consola(tmp_path / 'estado', CONFIG)
+    llenar(c, ['aceptar'] * 7 + ['revision', 'revision', 'persona'])
+    carpeta = c.cerrar(1, tmp_path / 'escritorio')
+    filas = leer_planilla(carpeta / 'planilla.csv')
+    for f in filas:
+        f['humano_decision'] = 'aceptar'                          # los 3 aceptados son buenos y el detenido también era bueno
+    assert Consola(tmp_path / 'estado', CONFIG).veredicto(1, filas) == (AVISO, 3, 4)
+    c.aplicar_buzon()
+    lote = c.lote(1)
+    assert lote['estado'] == AVISO and lote['aceptados_bien'] == 3 and lote['aceptados_total'] == 3 and lote['retenidos_buenos'] == 1
+    assert c.estado['registro']['estados']['aprobado'] == 7       # los 7 aceptados pasan a aprobados; los 3 detenidos a por_revisar
+    assert c.estado['registro']['estados']['por_revisar'] == 3
+    assert '3/3 aceptados, 1 retenidos' in dibujar(c.estado, CONFIG)
