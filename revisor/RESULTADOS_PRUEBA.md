@@ -1448,3 +1448,64 @@ Ctrl+C detiene la consola. Lo revisado se conserva y se retoma al volver a inici
 ### Errores y avisos observados
 
 - Sin errores al reiniciar la tarea programada `Amatista IA` (`State: Running`) con el código nuevo: al arrancar contó los `1035` documentos en la fuente, limpió `ultimo_error` y entró en `en pausa: 2 lotes esperan tu veredicto` porque los lotes 2 y 3 ya cerraron (300 documentos revisados en total).
+
+---
+
+## Primera promoción
+
+### Paso 2 · `python -m consola promover --simular`
+
+```text
+Se escribirían en «conocimiento_auditado»: 39 nuevos y 0 actualizados de 39 aprobados; 0 dejan de estar vigentes; 0 ya no están en la fuente. (simulación: no se escribió nada)
+Conocimiento (1038 documentos en la fuente, 300 revisados):
+  pendientes 738 · en cuarentena 200 · aprobados 39 · descartados 4 · por revisar 57
+  los aprobados todavía no se promueven: python -m consola promover
+Telemetría: todavía no se audita (el criterio de mediciones está diferido).
+```
+
+### Paso 3 · `python -m consola promover`
+
+```text
+Escritos en «conocimiento_auditado»: 39 nuevos y 0 actualizados de 39 aprobados; 0 dejan de estar vigentes; 0 ya no están en la fuente.
+Conocimiento (1038 documentos en la fuente, 300 revisados):
+  pendientes 738 · en cuarentena 200 · aprobados 39 · descartados 4 · por revisar 57
+  en MongoDB («conocimiento_auditado»): 39 vigentes · última promoción 2026-11-24 20:21:26
+Telemetría: todavía no se audita (el criterio de mediciones está diferido).
+```
+
+### Paso 4 · `python -m consola estado`
+
+```text
+==============================================================================
+AMATISTA IA · CONSOLA DEL AUDITOR              actualizado 2026-11-24 20:21:31
+==============================================================================
+Actividad: en pausa: 2 lotes esperan tu veredicto
+Freno: no · Lotes esperando tu veredicto: 2, 3
+
+Lote 4 · 0/100  [..............................]
+  aceptar 0 · revisión 0 · rechazar 0 · a una persona 0
+
+Lotes cerrados:
+    1  aprobado             2026-11-22 20:29:23 · 20/20 bien
+    2  esperando_veredicto  2026-11-24 13:03:33
+       muestras en: C:\Users\KANEDA\OneDrive - UNIVERSIDAD TECNOLÓGICA DE NEZAHUALCÓYOTL\Escritorio\Amatista IA · cierres\lote_002
+    3  esperando_veredicto  2026-11-24 17:32:32
+       muestras en: C:\Users\KANEDA\OneDrive - UNIVERSIDAD TECNOLÓGICA DE NEZAHUALCÓYOTL\Escritorio\Amatista IA · cierres\lote_003
+
+Conocimiento (1038 documentos en la fuente, 300 revisados):
+  pendientes 738 · en cuarentena 200 · aprobados 39 · descartados 4 · por revisar 57
+  en MongoDB («conocimiento_auditado»): 39 vigentes · última promoción 2026-11-24 20:21:26
+Telemetría: todavía no se audita (el criterio de mediciones está diferido).
+
+Ctrl+C detiene la consola. Lo revisado se conserva y se retoma al volver a iniciar.
+==============================================================================
+```
+
+### Errores y avisos observados
+
+- Aviso de PyMongo/Cryptography en los pasos 2 y 3 (no impidió la ejecución):
+  ```text
+  C:\Users\KANEDA\.gemini\antigravity\scratch\amatista-ia\.venv\Lib\site-packages\pymongo\pyopenssl_context.py:338: CryptographyDeprecationWarning: Parsed a serial number which wasn't positive (i.e., it was negative or zero), which is disallowed by RFC 5280. Loading this certificate will cause an exception in a future release of cryptography.
+    _crypto.X509.from_cryptography(x509.load_der_x509_certificate(cert))
+  ```
+- Un primer intento previo de promoción devolvió `bad auth : Authentication failed. (code 8000)` antes de quedar configurada la credencial; tras el ajuste de la persona, los pasos 2, 3 y 4 terminaron con código `0`.
