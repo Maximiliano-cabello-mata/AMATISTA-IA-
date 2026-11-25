@@ -3,8 +3,8 @@
 tamano_lote: 100            # documentos por lote; al llegar aquí, la consola hace el cierre sola
 muestras: 20                # muestras al azar por cierre
 muestras_descartadas: 6     # de esas, cuántas salen de lo que la IA NO aceptó (revisión, rechazo o «persona»)
-max_lotes_esperando: 2      # con esta cantidad de lotes esperando veredicto, la IA se pausa
-espera_s: 600               # cada cuánto vuelve a mirar cuando está en pausa o sin documentos nuevos
+max_lotes_esperando: 50     # ciclo continuo 24h: no pausar aunque haya lotes sin veredicto humano
+espera_s: 120               # cada cuánto vuelve a mirar cuando está en pausa o sin documentos nuevos
 refresco_s: 5               # cada cuánto se redibuja la consola
 reintento_preparar_s: 120   # si al arrancar falta Ollama o MongoDB, cada cuánto vuelve a intentar (no se detiene)
 
