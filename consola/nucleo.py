@@ -221,7 +221,7 @@ class Consola:
             if ruta.name in aplicados:
                 continue
             m = json.loads(ruta.read_text(encoding='utf-8'))
-            if m['tipo'] == 'veredicto':
+            if m['tipo'] == 'veredicto' and self.estado['lotes'].get(str(m['lote']), {}).get('estado') == ESPERANDO:
                 self._aplicar_veredicto(
                     m['lote'], m['resultado'], m['bien'], m['marcadas'], m['fecha'],
                     aceptados_bien=m.get('aceptados_bien'),

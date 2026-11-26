@@ -287,3 +287,46 @@ def test_cierre_anterior_se_convierte_sin_sobrescribir_marcas(tmp_path):
     assert [f['doc_id'] for f in leer_planilla(destino / 'planilla.csv')] == [f['doc_id'] for f in filas]
     with pytest.raises(ValueError, match='muestra completa'):
         c.veredicto(1, filas[:1])
+
+
+def test_reenviar_un_veredicto_no_cuenta_como_dos_lotes(tmp_path):
+    c = Consola(tmp_path / 'estado', CONFIG)
+    llenar(c, ['aceptar'] * 10)
+    carpeta = c.cerrar(1, tmp_path / 'escritorio')
+    for _ in range(2):
+        c.veredicto(1, marcar(carpeta, 1))
+    c.aplicar_buzon()
+    assert c.estado['fallos_seguidos'] == 1 and not c.estado['freno']
+    assert c.aplicar_buzon() == []
+
+
+def test_confirmar_etiquetas_necesita_una_muestra_ciega_completa(tmp_path, monkeypatch):
+    import yaml
+    from consola import __main__ as cli
+
+    monkeypatch.setattr(cli, 'RAIZ', tmp_path)
+    monkeypatch.setattr(cli, 'CARPETA', tmp_path / 'estado')
+    monkeypatch.setattr(cli, 'cargar_config', lambda: CONFIG)
+    c = Consola(cli.CARPETA, CONFIG)
+    llenar(c, ['aceptar'] * 10)
+    carpeta = c.cerrar(1, tmp_path / 'escritorio')
+    comando = ['etiquetas', '1', '--independiente']
+    with pytest.raises(SystemExit, match='Completa'):
+        cli.main(comando)
+    planilla = carpeta / 'planilla.csv'
+    with planilla.open(encoding='utf-8-sig', newline='') as archivo:
+        lector = csv.DictReader(archivo)
+        campos, filas = lector.fieldnames, list(lector)
+    with planilla.open('w', encoding='utf-8-sig', newline='') as archivo:
+        escritor = csv.DictWriter(archivo, fieldnames=campos)
+        escritor.writeheader()
+        escritor.writerows(dict(fila, humano_decision='aceptar') for fila in filas)
+    etiquetas = tmp_path / 'revisor' / 'etiquetas' / 'lote_001.yml'
+    assert cli.main(['etiquetas', '1']) == 0
+    assert 'independiente' not in yaml.safe_load(etiquetas.read_text(encoding='utf-8'))
+    assert cli.main(comando) == 0
+    assert yaml.safe_load(etiquetas.read_text(encoding='utf-8'))['independiente'] is True
+    etiquetas.write_text('independiente: false\n', encoding='utf-8')
+    with pytest.raises(SystemExit, match='ya consta'):
+        cli.main(comando)
+    assert yaml.safe_load(etiquetas.read_text(encoding='utf-8'))['independiente'] is False

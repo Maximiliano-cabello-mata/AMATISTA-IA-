@@ -102,10 +102,11 @@ def test_nunca_escribe_en_documentos(tmp_path):
         promover(c, fuente, Destino(name='documentos'), CONFIG, tmp_path)
 
 
-def test_marcas_no_independientes_quedan_en_el_rastro(tmp_path):
+@pytest.mark.parametrize('declaracion, esperada', [('', None), ('independiente: false', False), ('independiente: true', True)])
+def test_solo_la_independencia_declarada_queda_en_el_rastro(tmp_path, declaracion, esperada):
     c, fuente = preparar(tmp_path)
     (tmp_path / 'revisor' / 'etiquetas').mkdir(parents=True)
-    (tmp_path / 'revisor' / 'etiquetas' / 'lote_001.yml').write_text('lote: 1\nindependiente: false\n', encoding='utf-8')
+    (tmp_path / 'revisor' / 'etiquetas' / 'lote_001.yml').write_text(f'lote: 1\n{declaracion}\n', encoding='utf-8')
     destino = Destino()
     promover(c, fuente, destino, CONFIG, tmp_path)
-    assert destino.docs['d0']['auditoria']['veredicto_lote']['marcas_independientes'] is False
+    assert destino.docs['d0']['auditoria']['veredicto_lote']['marcas_independientes'] is esperada

@@ -328,6 +328,7 @@ def main(argv=None):
     pr.add_argument('--simular', action='store_true', help='mostrar qué se escribiría, sin escribir nada')
     e = sub.add_parser('etiquetas')
     e.add_argument('lote', type=int)
+    e.add_argument('--independiente', action='store_true', help='confirmar que se marcó toda la planilla a ciegas')
     a = p.parse_args(argv)
 
     if a.cmd is None:
@@ -364,13 +365,22 @@ def main(argv=None):
         lote = consola.estado['lotes'].get(str(a.lote))
         if not lote or not lote.get('carpeta'):
             sys.exit(f'El lote {a.lote} no tiene cierre todavía.')
-        datos = etiquetas_de_planilla(a.lote, leer_planilla(ruta_planilla(lote)))
+        planilla = ruta_planilla(lote)
+        datos = etiquetas_de_planilla(a.lote, leer_planilla(planilla))
         destino = RAIZ / 'revisor' / 'etiquetas' / f'lote_{a.lote:03d}.yml'
-        if destino.exists():
-            anteriores = yaml.safe_load(destino.read_text(encoding='utf-8')) or {}
+        anteriores = (yaml.safe_load(destino.read_text(encoding='utf-8')) or {}) if destino.exists() else {}
+        if anteriores.get('independiente') is False or anteriores.get('documentos') == datos['documentos']:
             for campo in ('independiente', 'como_se_marco'):
                 if campo in anteriores:
                     datos[campo] = anteriores[campo]
+        if a.independiente:
+            if anteriores.get('independiente') is False:
+                sys.exit('Este lote ya consta como no independiente. Usa un cierre nuevo para la revisión ciega.')
+            if not (planilla.parent / 'referencia_ia.json').is_file():
+                sys.exit('La confirmación requiere una planilla de revisión ciega.')
+            if not datos['marcadas'] or datos['marcadas'] != lote.get('muestras') or datos['marcadas'] != len(datos['documentos']):
+                sys.exit('Completa la muestra antes de confirmar la revisión independiente.')
+            datos.update(independiente=True, como_se_marco='La persona confirmó que marcó toda la planilla a ciegas.')
         destino.parent.mkdir(parents=True, exist_ok=True)
         destino.write_text('# Marcas de la persona en el cierre (consola etiquetas). Solo títulos y URL públicas.\n'
                            + yaml.safe_dump(datos, allow_unicode=True, sort_keys=False), encoding='utf-8')

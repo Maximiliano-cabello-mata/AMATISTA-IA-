@@ -17,7 +17,7 @@ La IA que revisa los datos del lago de G7B «a la manera de G7B». Conoce el pro
 
 ## Cierre ciego y regla del veredicto
 
-Para un cierre nuevo, la persona lee `muestras.html` y marca `planilla.csv`. Los archivos de revisión muestran la fuente y el texto. El comando `python -m consola veredicto N` cruza las marcas con las decisiones originales por identificador. Para un cierre anterior pendiente y sin marcas, `python -m consola ciego N` prepara las mismas muestras en una carpeta aparte. La consola lee esa carpeta al emitir el veredicto y exportar etiquetas. La segunda opinión se consulta después de guardar la calificación independiente.
+Para un cierre nuevo, la persona lee `muestras.html` y marca `planilla.csv`. Los archivos de revisión muestran la fuente y el texto. El comando `python -m consola veredicto N` cruza las marcas con las decisiones originales por identificador. Para un cierre anterior pendiente y sin marcas, `python -m consola ciego N` prepara las mismas muestras en una carpeta aparte. La consola lee esa carpeta al emitir el veredicto y exportar etiquetas. La segunda opinión se consulta después de guardar la calificación independiente. Quien haya marcado toda la planilla a ciegas puede confirmarlo con `python -m consola etiquetas N --independiente`. Una exportación sin esa declaración deja la independencia sin acreditar.
 
 Para 20 muestras, 19–20 coincidencias aprueban, 17–18 dan aviso y hasta 16 bloquean. El informe conserva también aceptados buenos y buenos retenidos. La primera promoción histórica consta en `revisor/RESULTADOS_PRUEBA.md`. Sus etiquetas registran una aprobación en bloque.
 
