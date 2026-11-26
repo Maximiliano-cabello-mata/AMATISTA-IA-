@@ -94,6 +94,10 @@ Qué documentos del proyecto aprende la IA, cuáles no y qué hay que resolver a
 
 **Decisión:** entra completa. Si la búsqueda híbrida del laboratorio baja del umbral de 0.85, se indexan solo «2. El ciclo», «4. Reglas» y «5. Prioridades».
 
+## Aclaración de coordinación (26 de noviembre de 2026)
+
+La tabla de conflictos anterior registra el estado al preparar el canon v5. En G7B, #28 y #35 se integraron y #29 se cerró sin integración. #26 y #27 siguen como propuestas alternativas del cubo. El [informe de coordinación de G7B](https://github.com/Maximiliano-cabello-mata/amatista-g7b-etl/actions/workflows/coordinacion.yml) muestra su estado actual. Para incorporar una corrección documental al canon se debe revisar el diff, aprobar el nuevo commit y volver a evaluar la recuperación.
+
 ## 8. Siguiente paso
 
 1. Resolver C1, C3 y C5. Son decisiones del proyecto, no de la IA.
