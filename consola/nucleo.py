@@ -12,10 +12,12 @@ Ciclo de un lote (BASE.md, sección 3):
   Mientras un lote espera veredicto, el siguiente sigue en cuarentena; con 2 lotes esperando, la consola se pausa.
 """
 import csv
+import io
 import html
 import json
 import os
 import random
+import tempfile
 import time
 import unicodedata
 from pathlib import Path
@@ -252,14 +254,9 @@ class Consola:
     # --- veredicto ---------------------------------------------------------------------------------------------------
     @staticmethod
     def resumen_calificacion(filas):
-        """Califica separando pureza de entrada (aceptados buenos) de buenos retenidos (Propuesta #1, lote 1).
-
-        Lo que protege a `conocimiento_auditado` es que los documentos aceptados por la IA sean de verdad buenos:
-        - 0 malos admitidos y coincidencia global >= 19/20 -> aprobado;
-        - 0 malos admitidos pero buenos retenidos en revision/persona -> aprobado_con_aviso (los aceptados entran);
-        - hasta 1 malo admitido de 14 (escalado en proporción) -> aprobado_con_aviso (o aprobado si >= 19/20 global);
-        - 2 o más malos admitidos de 14 -> no_aprobado (bloquea el lote; dos seguidos activan el freno).
-        """
+        """Aplica los umbrales de BASE.md y cuenta por separado admisiones y retenciones."""
+        if not filas:
+            raise ValueError('la planilla no contiene muestras')
         marcadas = [f for f in filas if decision_normal(f.get('humano_decision')) in DECISIONES[:3]]
         if len(marcadas) < len(filas):
             raise ValueError(f'faltan {len(filas) - len(marcadas)} muestras por marcar (humano_decision: aceptar, revision o rechazar)')
@@ -268,26 +265,16 @@ class Consola:
         aceptados = [f for f in marcadas if decision_normal(f.get('ia_decision')) == 'aceptar']
         n_a = len(aceptados)
         aceptados_bien = sum(decision_normal(f['humano_decision']) == 'aceptar' for f in aceptados)
-        malos_admitidos = n_a - aceptados_bien
         retenidos_buenos = sum(
             decision_normal(f.get('ia_decision')) != 'aceptar' and decision_normal(f['humano_decision']) == 'aceptar'
             for f in marcadas
         )
-        if n_a > 0:
-            max_malos_aviso = max(1, round(n_a / 14))
-            if malos_admitidos == 0:
-                resultado = APROBADO if bien >= round(19 / 20 * n_m) else AVISO
-            elif malos_admitidos <= max_malos_aviso:
-                resultado = APROBADO if (n_a >= 19 and bien >= round(19 / 20 * n_m)) else AVISO
-            else:
-                resultado = NO_APROBADO
+        if bien * 20 >= 19 * n_m:
+            resultado = APROBADO
+        elif bien * 20 >= 17 * n_m:
+            resultado = AVISO
         else:
-            if bien >= round(19 / 20 * n_m):
-                resultado = APROBADO
-            elif bien >= round(17 / 20 * n_m):
-                resultado = AVISO
-            else:
-                resultado = NO_APROBADO
+            resultado = NO_APROBADO
         return {
             'resultado': resultado,
             'bien': bien,
@@ -305,9 +292,34 @@ class Consola:
 
     def veredicto(self, n, filas):
         """Califica la planilla y deja el veredicto en el buzón. Devuelve (resultado, bien, marcadas)."""
+        lote = self.estado['lotes'].get(str(n), {})
+        if lote.get('estado') != ESPERANDO or len(filas) != lote.get('muestras'):
+            raise ValueError('el lote debe estar esperando su muestra completa')
         r = self.resumen_calificacion(filas)
         self.escribir_buzon('veredicto', {'lote': str(n), **r, 'fecha': ahora()})
         return r['resultado'], r['bien'], r['marcadas']
+
+    def preparar_revision_ciega(self, n):
+        """Prepara las mismas muestras de un cierre anterior sin modificar sus planillas."""
+        lote = self.estado['lotes'].get(str(n), {})
+        if lote.get('estado') != ESPERANDO:
+            raise ValueError('el lote debe estar esperando veredicto')
+        carpeta = Path(lote['carpeta'])
+        if ruta_planilla(lote).parent != carpeta or (carpeta / 'referencia_ia.json').exists():
+            return ruta_planilla(lote).parent
+        filas = leer_planilla(carpeta / 'planilla.csv')
+        if any((f.get('humano_decision') or f.get('humano_nota') or '').strip() for f in filas):
+            raise ValueError('la planilla anterior ya tiene marcas; termina ese cierre antes de cambiar el formato')
+        originales = {r['doc_id']: r for r in self.resultados(n)}
+        ids = [f['doc_id'] for f in filas]
+        if len(set(ids)) != len(ids) or len(ids) != lote['muestras'] or not set(ids) <= originales.keys():
+            raise ValueError('la planilla anterior no corresponde a una muestra completa del lote')
+        destino = carpeta / 'revision_ciega'
+        with tempfile.TemporaryDirectory(dir=carpeta) as temporal:
+            borrador = Path(temporal) / 'revision_ciega'
+            escribir_carpeta(borrador, n, [originales[i] for i in ids], lote)
+            borrador.rename(destino)
+        return destino
 
     def quitar_freno(self, motivo):
         self.escribir_buzon('quitar_freno', {'motivo': motivo, 'fecha': ahora()})
@@ -330,24 +342,26 @@ def escribir_carpeta(carpeta, n, muestra, lote):
     carpeta.mkdir(parents=True, exist_ok=True)
     filas = [_fila(i, r) for i, r in enumerate(muestra, 1)]
     with open(carpeta / 'planilla.csv', 'w', encoding='utf-8-sig', newline='') as f:
-        w = csv.DictWriter(f, fieldnames=COLUMNAS)
+        columnas_ciegas = [c for c in COLUMNAS if not c.startswith('ia_')]
+        w = csv.DictWriter(f, fieldnames=columnas_ciegas, extrasaction='ignore')
         w.writeheader()
         w.writerows(filas)
+
+    referencia = {f['doc_id']: {k: v for k, v in f.items() if k.startswith('ia_')} for f in filas}
+    (carpeta / 'referencia_ia.json').write_text(json.dumps(referencia, ensure_ascii=False), encoding='utf-8')
 
     tarjetas = []
     for f, r in zip(filas, muestra):
         extracto = ' '.join((r.get('texto') or '').split()[:300])
         tarjetas.append(f"""<article><h2>{f['n']}. {html.escape(f['titulo'] or '(sin título)')}</h2>
 <p class="meta">{html.escape(str(f['fuente']))} · <a href="{html.escape(str(f['url']))}">{html.escape(str(f['url']))}</a></p>
-<p class="ia"><b>IA: {html.escape(f['ia_decision'])}</b> · etapa {html.escape(f['ia_etapa'] or '—')} · pregunta {html.escape(f['ia_pregunta'] or '—')} · confianza {html.escape(f['ia_confianza'] or '—')}</p>
-<p class="motivo">{html.escape(f['ia_motivo'] or '')}</p><p class="cita">Cita: {html.escape(f['ia_cita'] or '—')}</p>
 <details><summary>Extracto del documento (300 palabras)</summary><p>{html.escape(extracto) or '(sin texto)'}</p></details></article>""")
     (carpeta / 'muestras.html').write_text(f"""<!doctype html><meta charset="utf-8"><title>Lote {n} · muestras</title>
 <style>body{{font:15px/1.5 system-ui,sans-serif;max-width:860px;margin:2rem auto;padding:0 16px;color:#1e1a26}}
 article{{border:1px solid #d6d0e0;border-radius:8px;padding:12px 16px;margin:12px 0}} h2{{font-size:17px;margin:0 0 4px}}
-.meta,.cita{{color:#625c70;font-size:13px}} .ia{{margin:6px 0}} .motivo{{background:#f4f1f8;padding:8px;border-radius:6px}}</style>
+.meta{{color:#625c70;font-size:13px}}</style>
 <h1>Lote {n}: {len(filas)} muestras para revisar</h1>
-<p>El lote tiene {lote['documentos']} documentos. Para cada muestra, decide si la IA acertó y escribe tu decisión en
+<p>El lote tiene {lote['documentos']} documentos. Para cada muestra, lee el extracto o abre la fuente y escribe tu decisión en
 <code>planilla.csv</code> (columna <code>humano_decision</code>: aceptar, revision o rechazar). Después:
 <code>python -m consola veredicto {n}</code></p>
 {''.join(tarjetas)}""", encoding='utf-8')
@@ -367,7 +381,7 @@ article{{border:1px solid #d6d0e0;border-radius:8px;padding:12px 16px;margin:12p
         f"Lote {n}: cierre de Amatista IA\n\n"
         "1. Abre muestras.html y revisa cada muestra.\n"
         "2. En planilla.csv escribe tu decisión en humano_decision (aceptar, revision o rechazar) y, si quieres, una nota.\n"
-        "3. Si quieres una segunda opinión, pasa para_segunda_opinion.md al asistente.\n"
+        "3. Guarda tus marcas antes de consultar para_segunda_opinion.md.\n"
         f"4. En la consola: python -m consola veredicto {n}\n\n"
         "19-20 bien: el lote se aprueba. 17-18: aprobado con aviso. 16 o menos: no se aprueba.\n"
         "Dos lotes no aprobados seguidos ponen el freno: la IA deja de trabajar hasta que lo quites.\n", encoding='utf-8')
@@ -406,13 +420,30 @@ def carpeta_escritorio(nombre='Amatista IA · cierres'):
     return perfil / nombre
 
 
+def ruta_planilla(lote):
+    carpeta = Path(lote['carpeta'])
+    ciega = carpeta / 'revision_ciega' / 'planilla.csv'
+    return ciega if ciega.is_file() else carpeta / 'planilla.csv'
+
+
 def leer_planilla(ruta):
     """La planilla marcada. Excel en español puede guardarla con «;» en vez de «,»: se detecta."""
     with open(ruta, encoding='utf-8-sig', newline='') as f:
         texto = f.read()
     primera = texto.splitlines()[0] if texto else ''
     separador = ';' if primera.count(';') > primera.count(',') else ','
-    return list(csv.DictReader(texto.splitlines(), delimiter=separador))
+    lector = csv.DictReader(io.StringIO(texto, newline=''), delimiter=separador)
+    filas = list(lector)
+    referencia = Path(ruta).parent / 'referencia_ia.json'
+    if not referencia.exists() and 'ia_decision' in (lector.fieldnames or []):
+        return filas  # planillas anteriores al cierre ciego
+    if not referencia.is_file():
+        raise ValueError('falta la referencia del cierre ciego')
+    clave = json.loads(referencia.read_text(encoding='utf-8'))
+    ids = [f.get('doc_id') for f in filas]
+    if len(ids) != len(clave) or set(ids) != set(clave):
+        raise ValueError('las filas no corresponden a la muestra completa de este cierre')
+    return [{**f, **clave[f['doc_id']]} for f in filas]
 
 
 def etiquetas_de_planilla(n, filas):

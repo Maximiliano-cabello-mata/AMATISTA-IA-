@@ -27,7 +27,7 @@ from pathlib import Path
 
 import yaml
 
-from consola.nucleo import ABIERTO, ESPERANDO, Consola, carpeta_escritorio, etiquetas_de_planilla, leer_planilla
+from consola.nucleo import ABIERTO, ESPERANDO, Consola, carpeta_escritorio, etiquetas_de_planilla, leer_planilla, ruta_planilla
 
 RAIZ = Path(__file__).resolve().parents[1]
 CARPETA = RAIZ / 'salidas' / 'consola'
@@ -315,6 +315,7 @@ def main(argv=None):
     p = argparse.ArgumentParser(description='Consola de control de Amatista IA.')
     sub = p.add_subparsers(dest='cmd')
     sub.add_parser('estado')
+    sub.add_parser('ciego', help='preparar la revisión ciega de un cierre pendiente').add_argument('lote', type=int)
     v = sub.add_parser('veredicto')
     v.add_argument('lote', type=int)
     c = sub.add_parser('cierre')
@@ -337,12 +338,14 @@ def main(argv=None):
     if a.cmd == 'estado':
         consola.actualizar_registro()
         print(dibujar(consola.estado, config))
+    elif a.cmd == 'ciego':
+        print(consola.preparar_revision_ciega(a.lote))
     elif a.cmd == 'veredicto':
         lote = consola.estado['lotes'].get(str(a.lote))
         if not lote or not lote.get('carpeta'):
             sys.exit(f'El lote {a.lote} no tiene cierre todavía.')
         try:
-            filas = leer_planilla(Path(lote['carpeta']) / 'planilla.csv')
+            filas = leer_planilla(ruta_planilla(lote))
             r = consola.resumen_calificacion(filas)
             resultado, bien, n = consola.veredicto(a.lote, filas)
         except ValueError as e:
@@ -361,8 +364,13 @@ def main(argv=None):
         lote = consola.estado['lotes'].get(str(a.lote))
         if not lote or not lote.get('carpeta'):
             sys.exit(f'El lote {a.lote} no tiene cierre todavía.')
-        datos = etiquetas_de_planilla(a.lote, leer_planilla(Path(lote['carpeta']) / 'planilla.csv'))
+        datos = etiquetas_de_planilla(a.lote, leer_planilla(ruta_planilla(lote)))
         destino = RAIZ / 'revisor' / 'etiquetas' / f'lote_{a.lote:03d}.yml'
+        if destino.exists():
+            anteriores = yaml.safe_load(destino.read_text(encoding='utf-8')) or {}
+            for campo in ('independiente', 'como_se_marco'):
+                if campo in anteriores:
+                    datos[campo] = anteriores[campo]
         destino.parent.mkdir(parents=True, exist_ok=True)
         destino.write_text('# Marcas de la persona en el cierre (consola etiquetas). Solo títulos y URL públicas.\n'
                            + yaml.safe_dump(datos, allow_unicode=True, sort_keys=False), encoding='utf-8')

@@ -5,7 +5,7 @@
 La persona llena humano_decision (aceptar, revision o rechazar) y, si quiere, humano_pregunta. Las filas sin
 humano_decision no cuentan.
 """
-import csv
+from consola.nucleo import leer_planilla
 import json
 import sys
 from collections import Counter
@@ -37,8 +37,7 @@ def comparar(filas):
 
 def main(argv=None):
     ruta = (argv or sys.argv[1:] or ['salidas/prueba_revisor.csv'])[0]
-    with open(ruta, encoding='utf-8-sig', newline='') as f:
-        print(json.dumps(comparar(list(csv.DictReader(f))), ensure_ascii=False, indent=2))
+    print(json.dumps(comparar(leer_planilla(ruta)), ensure_ascii=False, indent=2))
     return 0
 
 
