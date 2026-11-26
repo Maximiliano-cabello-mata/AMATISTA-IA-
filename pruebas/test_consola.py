@@ -51,9 +51,11 @@ def test_el_cierre_escribe_la_carpeta_y_espera_veredicto(tmp_path):
     c = Consola(tmp_path / 'estado', CONFIG)
     llenar(c, ['aceptar'] * 10)
     carpeta = c.cerrar(1, tmp_path / 'escritorio')
-    assert {p.name for p in carpeta.iterdir()} == {'planilla.csv', 'muestras.html', 'para_segunda_opinion.md', 'LEEME.txt'}
+    assert {p.name for p in carpeta.iterdir()} == {'planilla.csv', 'muestras.html', 'para_segunda_opinion.md', 'LEEME.txt', 'referencia_ia.json'}
     filas = leer_planilla(carpeta / 'planilla.csv')
     assert len(filas) == 4 and all(f['humano_decision'] == '' for f in filas) and filas[0]['ia_decision'] == 'aceptar'
+    assert 'ia_decision' not in (carpeta / 'planilla.csv').read_text(encoding='utf-8-sig')
+    assert 'IA:' not in (carpeta / 'muestras.html').read_text(encoding='utf-8')
     assert 'fuentes públicas' in (carpeta / 'para_segunda_opinion.md').read_text(encoding='utf-8')
     assert c.lote(1)['estado'] == ESPERANDO and c.estado['lote_actual'] == 2
 
@@ -74,9 +76,11 @@ def test_reglas_del_veredicto_con_20_muestras():
 
     assert Consola.calificar(estratificada(0, 0)) == (APROBADO, 20, 20)
     assert Consola.calificar(estratificada(0, 1)) == (APROBADO, 19, 20)
-    assert Consola.calificar(estratificada(0, 6)) == (AVISO, 14, 20)         # 14/14 aceptados buenos, 6 retenidos → entra con aviso
-    assert Consola.calificar(estratificada(1, 0)) == (AVISO, 19, 20)         # 13/14 aceptados buenos → aviso
-    assert Consola.calificar(estratificada(2, 0)) == (NO_APROBADO, 18, 20)   # 12/14 aceptados buenos → bloquea la puerta
+    assert Consola.calificar(estratificada(0, 3)) == (AVISO, 17, 20)
+    assert Consola.calificar(estratificada(0, 4)) == (NO_APROBADO, 16, 20)
+    assert Consola.calificar(estratificada(0, 6)) == (NO_APROBADO, 14, 20)
+    assert Consola.calificar(estratificada(1, 0)) == (APROBADO, 19, 20)
+    assert Consola.calificar(estratificada(2, 0)) == (AVISO, 18, 20)
     persona = [{'ia_decision': 'persona', 'humano_decision': 'aceptar'}] + [
         {'ia_decision': 'aceptar', 'humano_decision': 'aceptar'} for _ in range(19)
     ]
@@ -181,7 +185,7 @@ def test_marcas_con_acento_mayusculas_y_planilla_de_excel_con_punto_y_coma(tmp_p
     ruta.write_text('﻿' + '\n'.join(filas) + '\n', encoding='utf-8')
     leidas = leer_planilla(ruta)
     assert len(leidas) == 20 and leidas[0]['humano_decision'] == 'Revisión'
-    assert Consola.calificar(leidas) == ('aprobado_con_aviso', 19, 20)
+    assert Consola.calificar(leidas) == (APROBADO, 19, 20)
     e = etiquetas_de_planilla(1, leidas)
     assert e['marcadas'] == 20 and e['documentos'][19] == {'n': 20, 'titulo': 'T20', 'url': 'https://docs.blender.org/x20.html',
                                                           'fuente': 'blender-manual', 'ia': 'aceptar', 'humano': 'rechazar', 'nota': 'falta texto'}
@@ -249,17 +253,80 @@ def test_el_reintento_respeta_la_orden_de_detener(tmp_path):
     assert 'intento 1' in c.estado['ultimo_error'] and c.estado['actividad'] == 'detenida'
 
 
-def test_pureza_perfecta_con_retenidos_aprueba_con_aviso_y_habilita_promocion(tmp_path):
+def test_pureza_y_retenidos_se_conservan_cuando_el_lote_no_alcanza_el_minimo(tmp_path):
     c = Consola(tmp_path / 'estado', CONFIG)
     llenar(c, ['aceptar'] * 7 + ['revision', 'revision', 'persona'])
     carpeta = c.cerrar(1, tmp_path / 'escritorio')
     filas = leer_planilla(carpeta / 'planilla.csv')
     for f in filas:
         f['humano_decision'] = 'aceptar'                          # los 3 aceptados son buenos y el detenido también era bueno
-    assert Consola(tmp_path / 'estado', CONFIG).veredicto(1, filas) == (AVISO, 3, 4)
+    assert Consola(tmp_path / 'estado', CONFIG).veredicto(1, filas) == (NO_APROBADO, 3, 4)
     c.aplicar_buzon()
     lote = c.lote(1)
-    assert lote['estado'] == AVISO and lote['aceptados_bien'] == 3 and lote['aceptados_total'] == 3 and lote['retenidos_buenos'] == 1
-    assert c.estado['registro']['estados']['aprobado'] == 7       # los 7 aceptados pasan a aprobados; los 3 detenidos a por_revisar
-    assert c.estado['registro']['estados']['por_revisar'] == 3
+    assert lote['estado'] == NO_APROBADO and lote['aceptados_bien'] == 3 and lote['aceptados_total'] == 3 and lote['retenidos_buenos'] == 1
+    assert c.estado['registro']['estados']['aprobado'] == 0
+    assert c.estado['registro']['estados']['por_revisar'] == 10
     assert '3/3 aceptados, 1 retenidos' in dibujar(c.estado, CONFIG)
+
+
+def test_cierre_anterior_se_convierte_sin_sobrescribir_marcas(tmp_path):
+    c = Consola(tmp_path / 'estado', CONFIG)
+    llenar(c, ['aceptar'] * 10)
+    carpeta = c.cerrar(1, tmp_path / 'escritorio')
+    planilla = carpeta / 'planilla.csv'
+    filas = leer_planilla(planilla)
+    with planilla.open('w', encoding='utf-8-sig', newline='') as archivo:
+        escritor = csv.DictWriter(archivo, fieldnames=list(filas[0]))
+        escritor.writeheader()
+        escritor.writerows(filas)
+    (carpeta / 'referencia_ia.json').unlink()
+    anterior = planilla.read_bytes()
+    destino = c.preparar_revision_ciega(1)
+    assert destino != carpeta and planilla.read_bytes() == anterior
+    assert c.preparar_revision_ciega(1) == destino
+    assert [f['doc_id'] for f in leer_planilla(destino / 'planilla.csv')] == [f['doc_id'] for f in filas]
+    with pytest.raises(ValueError, match='muestra completa'):
+        c.veredicto(1, filas[:1])
+
+
+def test_reenviar_un_veredicto_no_cuenta_como_dos_lotes(tmp_path):
+    c = Consola(tmp_path / 'estado', CONFIG)
+    llenar(c, ['aceptar'] * 10)
+    carpeta = c.cerrar(1, tmp_path / 'escritorio')
+    for _ in range(2):
+        c.veredicto(1, marcar(carpeta, 1))
+    c.aplicar_buzon()
+    assert c.estado['fallos_seguidos'] == 1 and not c.estado['freno']
+    assert c.aplicar_buzon() == []
+
+
+def test_confirmar_etiquetas_necesita_una_muestra_ciega_completa(tmp_path, monkeypatch):
+    import yaml
+    from consola import __main__ as cli
+
+    monkeypatch.setattr(cli, 'RAIZ', tmp_path)
+    monkeypatch.setattr(cli, 'CARPETA', tmp_path / 'estado')
+    monkeypatch.setattr(cli, 'cargar_config', lambda: CONFIG)
+    c = Consola(cli.CARPETA, CONFIG)
+    llenar(c, ['aceptar'] * 10)
+    carpeta = c.cerrar(1, tmp_path / 'escritorio')
+    comando = ['etiquetas', '1', '--independiente']
+    with pytest.raises(SystemExit, match='Completa'):
+        cli.main(comando)
+    planilla = carpeta / 'planilla.csv'
+    with planilla.open(encoding='utf-8-sig', newline='') as archivo:
+        lector = csv.DictReader(archivo)
+        campos, filas = lector.fieldnames, list(lector)
+    with planilla.open('w', encoding='utf-8-sig', newline='') as archivo:
+        escritor = csv.DictWriter(archivo, fieldnames=campos)
+        escritor.writeheader()
+        escritor.writerows(dict(fila, humano_decision='aceptar') for fila in filas)
+    etiquetas = tmp_path / 'revisor' / 'etiquetas' / 'lote_001.yml'
+    assert cli.main(['etiquetas', '1']) == 0
+    assert 'independiente' not in yaml.safe_load(etiquetas.read_text(encoding='utf-8'))
+    assert cli.main(comando) == 0
+    assert yaml.safe_load(etiquetas.read_text(encoding='utf-8'))['independiente'] is True
+    etiquetas.write_text('independiente: false\n', encoding='utf-8')
+    with pytest.raises(SystemExit, match='ya consta'):
+        cli.main(comando)
+    assert yaml.safe_load(etiquetas.read_text(encoding='utf-8'))['independiente'] is False

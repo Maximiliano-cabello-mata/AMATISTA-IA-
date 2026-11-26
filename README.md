@@ -11,9 +11,15 @@ La IA que revisa los datos del lago de G7B «a la manera de G7B». Conoce el pro
 | Canon | **v5**: 17 documentos, 135 fragmentos. En Supabase está indexada la v3; la v5 se indexa al arrancar la consola. Recall@3 híbrido de 0.96 medido con la v3 |
 | Revisor | **v3 con criterios** (C1–C7, E1–E6): primero el motivo, cita de lista cerrada, datos por código, coherencia revisada. Su criterio todavía no está validado: no hay etiquetas humanas |
 | Revisor v4 | Medida y no adoptada: en el control a ciegas deja pasar más documentos malos que la v3 (6 contra 4 de 13). Ver el análisis de las corridas 10–12 en [`revisor/RESULTADOS_PRUEBA.md`](revisor/RESULTADOS_PRUEBA.md) |
-| Consola 24/7 | En marcha en el laboratorio. Lote 1 cerrado el 23 de noviembre, esperando el veredicto de la persona ([segunda opinión](revisor/SEGUNDA_OPINION_LOTE_001.md)) |
+| Consola 24/7 | En marcha en el laboratorio. Lote 1 promovido el 24 de noviembre tras aprobación en bloque ([segunda opinión](revisor/SEGUNDA_OPINION_LOTE_001.md)) |
 | Pesos de confianza | En uso: 38 predicciones resueltas, Brier 0.197 |
 | Segunda revisión de Site 4.1 | Lista, sin correr |
+
+## Cierre ciego y regla del veredicto
+
+Para un cierre nuevo, la persona lee `muestras.html` y marca `planilla.csv`. Los archivos de revisión muestran la fuente y el texto. El comando `python -m consola veredicto N` cruza las marcas con las decisiones originales por identificador. Para un cierre anterior pendiente y sin marcas, `python -m consola ciego N` prepara las mismas muestras en una carpeta aparte. La consola lee esa carpeta al emitir el veredicto y exportar etiquetas. La segunda opinión se consulta después de guardar la calificación independiente. Quien haya marcado toda la planilla a ciegas puede confirmarlo con `python -m consola etiquetas N --independiente`. Una exportación sin esa declaración deja la independencia sin acreditar.
+
+Para 20 muestras, 19–20 coincidencias aprueban, 17–18 dan aviso y hasta 16 bloquean. El informe conserva también aceptados buenos y buenos retenidos. La primera promoción histórica consta en `revisor/RESULTADOS_PRUEBA.md`. Sus etiquetas registran una aprobación en bloque.
 
 ## Dónde está cada cosa: un estado por documento
 

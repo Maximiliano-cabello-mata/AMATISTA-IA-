@@ -41,7 +41,7 @@ def _etiquetas(raiz, n):
     if not ruta.is_file():
         return None
     datos = yaml.safe_load(ruta.read_text(encoding='utf-8')) or {}
-    return datos.get('independiente', True)
+    return datos.get('independiente')
 
 
 def documento_auditado(original, entrada, resultado, lote, independiente, config, fecha):

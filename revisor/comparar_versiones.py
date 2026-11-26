@@ -7,7 +7,7 @@ Lee el lote de la consola (salidas/consola/lote_NNN.jsonl) y la corrida nueva. C
 dice también cuántas veces coincide cada versión con ella en las muestras. Solo lee: no cambia nada.
 """
 import argparse
-import csv
+from consola.nucleo import leer_planilla
 import json
 import sys
 from collections import Counter
@@ -58,8 +58,7 @@ def main(argv=None):
     nueva = json.loads(a.corrida.read_text(encoding='utf-8'))['resultados']
     planilla = None
     if a.planilla:
-        with open(a.planilla, encoding='utf-8-sig', newline='') as f:
-            planilla = list(csv.DictReader(f))
+        planilla = leer_planilla(a.planilla)
     print(json.dumps(comparar(lote, nueva, planilla), ensure_ascii=False, indent=2))
     return 0
 
