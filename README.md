@@ -2,7 +2,7 @@
 
 **Lugar en la base del proyecto:** Amatista IA es el **auditor**. Decide qué datos de G7B son buenos antes de que entren al cubo o a MongoDB; Geoda solo lee lo aprobado. Piezas, flujo y prioridades: [base oficial](https://github.com/Maximiliano-cabello-mata/amatista-recuperada-20261106/blob/recuperacion/BASE.md).
 
-La IA que revisa los datos del lago de G7B «a la manera de G7B». Conoce el proyecto por un canon de estándares en Supabase (RAG), decide cada documento con un revisor local (`qwen3:8b` en Ollama) y trabaja 24/7 desde una consola con cierres de 20 muestras para una persona. **Cómo se construyó, versión por versión: [`docs/HISTORIA.md`](docs/HISTORIA.md).**
+La IA que revisa los datos del lago de G7B «a la manera de G7B». Conoce el proyecto por un canon de estándares en Supabase (RAG), decide cada documento con un revisor local (`qwen3:8b` en Ollama) y trabaja 24/7 desde una consola con cierres de 20 muestras para una persona. **Cómo se construyó, versión por versión: [`docs/HISTORIA.md`](docs/HISTORIA.md). Cómo opera en flujo continuo sin cruce junto a G7B, MongoDB Flex y la VM de Oracle: [`ARQUITECTURA_FLUJO_CONTINUO.md`](ARQUITECTURA_FLUJO_CONTINUO.md).**
 
 **Estado (22 de noviembre de 2026):**
 
