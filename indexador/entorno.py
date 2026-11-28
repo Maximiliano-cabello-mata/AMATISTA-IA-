@@ -1,8 +1,12 @@
+# [REVISION 2026-11-27] Carga minima de .env sin dependencias (usada por todos los comandos). Entrada: ruta del .env (por omision
+# relativa al directorio actual). Salida: variables en os.environ; devuelve los nombres cargados.
 """Carga un archivo .env sin dependencias. No pisa variables que ya estén en el entorno y nunca imprime valores."""
 import os
 from pathlib import Path
 
 
+# [REVISION-BUG] ruta='.env' es relativa al directorio de trabajo: si se ejecuta fuera de la raiz del repo no carga
+# nada y el error aparece despues como 'faltan variables'. Sugerencia: resolver respecto a Path(__file__).parents[1].
 def cargar_env(ruta='.env'):
     """Lee líneas NOMBRE=valor (con o sin comillas; ignora vacías y comentarios). Devuelve los nombres cargados."""
     p = Path(ruta)

@@ -1,3 +1,4 @@
+# [REVISION 2026-11-27] Compara la v3 de la consola con otra corrida del revisor sobre el mismo lote. Solo lectura.
 """Compara la v3 de la consola con otra corrida del revisor sobre los mismos documentos de un lote.
 
     python -m revisor.comparar_versiones 1 salidas/prueba_revisor_v4_lote001.json
@@ -47,6 +48,7 @@ def comparar(lote, nueva, planilla=None):
 
 
 def main(argv=None):
+    """CLI: lee el lote, la corrida nueva y (opcional) la planilla, e imprime la comparacion."""
     p = argparse.ArgumentParser(description='Compara la v3 de la consola con otra corrida sobre el mismo lote.')
     p.add_argument('lote', type=int)
     p.add_argument('corrida', type=Path, help='salidas/prueba_revisor_<nombre>.json')

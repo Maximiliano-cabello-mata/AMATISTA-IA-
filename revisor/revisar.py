@@ -1,3 +1,6 @@
+# [REVISION 2026-11-27] Revisor local (Ollama): decide aceptar/revision/rechazar por documento con el canon (v3 con recuperacion
+# hibrida local; v4 con citas fijas y reintento ante E3/E1). Entradas: salidas/muestra.jsonl, canon de Supabase
+# (clave publicable, cacheado), taxonomia/hardware de G7B. Salidas: salidas/prueba_revisor*.json/.csv.
 """Prueba rápida del revisor: un modelo local (Ollama) revisa documentos del lago con los estándares del canon.
 
     python -m revisor.muestra --n 20                              # saca la muestra de MongoDB (solo lectura)
@@ -66,7 +69,10 @@ ETAPAS = ['entrada', 'calidad', 'duplicados', 'relevancia', 'valor', 'ninguna']
 DECISIONES = ['aceptar', 'revision', 'rechazar']
 CANON_REGLAS = 'g7b/ingesta'          # el embudo: va completo en la hoja fija, no se recupera
 CANON_CRITERIOS = 'ia/criterios'      # lo aprendido probando: con --criterios va en la hoja fija, nunca se recupera
+# [REVISION-SEGURIDAD] (baja) URL con usuario de GitHub hardcodeado; si el repo cambia de dueno o nombre se rompe.
+# Conviene derivarla de canon.yml (repositorios.g7b.url).
 G7B_CRUDO = 'https://raw.githubusercontent.com/Maximiliano-cabello-mata/amatista-g7b-etl/{commit}/fuentes/{archivo}'
+# [REVISION-MUERTO] TAXONOMIA no se usa en ningun lugar del repo.
 TAXONOMIA = G7B_CRUDO.replace('{archivo}', 'taxonomia.yml')
 VERSION_REVISOR = 3                   # la que usa la consola; --version 4 elige la nueva
 VERSIONES = (3, 4)
@@ -118,6 +124,7 @@ def descargar_canon(url, clave, cache, refrescar=False):
 
 
 def _coseno(a, b):
+    """Similitud coseno entre dos vectores (0 si alguno es nulo)."""
     return sum(x * y for x, y in zip(a, b)) / ((math.sqrt(sum(x * x for x in a)) * math.sqrt(sum(y * y for y in b))) or 1)
 
 
@@ -125,6 +132,7 @@ class BuscadorLocal:
     """La misma idea que buscar_canon() en Supabase (texto + vectores fusionados por RRF), pero en memoria."""
 
     def __init__(self, fragmentos, k_rrf=50):
+        """Excluye el embudo y los criterios (van fijos en la hoja) y prepara BM25."""
         self.frags = [f for f in fragmentos if f['documento_id'] not in (CANON_REGLAS, CANON_CRITERIOS)]
         self.bm25 = BM25(self.frags)
         self.k = k_rrf
@@ -136,6 +144,8 @@ class BuscadorLocal:
         puntos = {}
         for rango, f in enumerate(self.bm25.buscar(texto, cuantos=cuantos * 4), 1):
             puntos[f['id']] = puntos.get(f['id'], 0) + 1 / (self.k + rango)
+        # [REVISION-OPTIMIZAR] Recalcula la norma de cada vector del canon en cada documento y vuelve a calcular el coseno en
+        # la linea 145; precalcular normas (o usar numpy) reduce el costo a la mitad o menos.
         por_vector = sorted(self.frags, key=lambda f: -_coseno(vector, f['embedding']))[:cuantos * 4]
         for rango, f in enumerate(por_vector, 1):
             puntos[f['id']] = puntos.get(f['id'], 0) + 1 / (self.k + rango)
@@ -195,19 +205,23 @@ Responde solo con el JSON pedido.""" + (
 
 
 def palabras(texto, n):
+    """Primeras n palabras del texto, con ' […]' si se recorto."""
     p = (texto or '').split()
     return ' '.join(p[:n]) + (' […]' if len(p) > n else '')
 
 
 def cita_de(f):
+    """Etiqueta de cita 'documento_id · seccion' de un fragmento."""
     return f"{f['documento_id']} · {f['seccion']}"
 
 
 def citas_permitidas(contexto):
+    """Lista cerrada de citas para un documento: el embudo + los fragmentos mostrados."""
     return [CITA_EMBUDO] + [c for c in dict.fromkeys(cita_de(f) for f in contexto) if c != CITA_EMBUDO]
 
 
 def mensaje_documento(doc, contexto, max_palabras, version=VERSION_REVISOR):
+    """Mensaje de usuario para el modelo: fragmentos y citas (v3) + datos y texto del documento."""
     canon = '\n\n'.join(f"[{cita_de(f)}]\n{f['texto']}" for f in contexto)
     lista = '\n'.join(f'- {c}' for c in citas_permitidas(contexto))
     cabecera = '' if version >= 4 else f"""FRAGMENTOS DEL CANON QUE PUEDEN APLICAR:
@@ -229,7 +243,9 @@ TEXTO ({max_palabras} palabras como máximo):
 
 
 # --- Comprobaciones por código ---------------------------------------------------------------------------------------
+# [REVISION-MUERTO] _normal() no se usa en ningun lugar del repo.
 def _normal(s):
+    """Normaliza texto (sin acentos, minusculas, sin espacios)."""
     s = unicodedata.normalize('NFKD', s or '').encode('ascii', 'ignore').decode().lower()
     return re.sub(r'\s+', '', s)
 
@@ -309,18 +325,22 @@ def extraer_datos(doc, patrones_hardware):
 
 
 def patrones_de(hardware_yml):
+    """Compila las expresiones regulares de GPU/CPU de hardware.yml."""
     return [re.compile(r['patron'], re.I) for clave in ('gpus', 'cpus') for r in (hardware_yml.get(clave) or [])
             if r.get('patron')]
 
 
 # --- Modelo generativo -----------------------------------------------------------------------------------------------
 class Generador:
+    """Cliente de /api/chat de Ollama con salida JSON por esquema y 'think' apagado si se puede."""
     def __init__(self, base, modelo, contexto=8192, esquema=None):
+        """Guarda URL base, modelo, tamano de contexto y esquema por omision."""
         self.base, self.modelo, self.contexto = base.rstrip('/'), modelo, contexto
         self.esquema = esquema or ESQUEMA
         self.pensar = False
 
     def responder(self, sistema, usuario, esquema=None, max_tokens=300, formato=True, apagar_pensar=True):
+        """Llama al modelo y devuelve (contenido, estadisticas de tiempo/tokens). Reintenta sin 'think' si da 400."""
         cuerpo = {'model': self.modelo, 'stream': False, 'keep_alive': '30m',
                   'messages': [{'role': 'system', 'content': sistema}, {'role': 'user', 'content': usuario}],
                   'options': {'temperature': 0, 'num_ctx': self.contexto, 'num_predict': max_tokens}}
@@ -346,6 +366,7 @@ class Generador:
 # --- Corrida ---------------------------------------------------------------------------------------------------------
 def revisar_todo(docs, canon, taxonomia, embebedor, generador, max_palabras=450, cuantos=3, registro=print,
                  patrones_hardware=(), criterios=False, umbral=None, version=VERSION_REVISOR):
+    """Revisa una lista de documentos y devuelve un resultado por documento (ia, chequeo, decision_efectiva...)."""
     if version not in VERSIONES:
         raise ValueError(f'versión del revisor desconocida: {version}')
     buscador = BuscadorLocal(canon['fragmentos'])
@@ -383,6 +404,7 @@ def revisar_todo(docs, canon, taxonomia, embebedor, generador, max_palabras=450,
             salida = salida2
             stats = {k: stats.get(k, 0) + stats2.get(k, 0) for k in set(stats) | set(stats2)}
         chequeo = validar(salida, validas, set(citas))
+        # [REVISION-BUG] Si el modelo devuelve un JSON escalar (p. ej. 3), list(salida) lanza TypeError; comprobar isinstance(dict).
         chequeo['motivo_primero'] = bool(salida) and list(salida)[:1] == ['motivo']   # ¿Ollama respetó el orden?
         efectiva = (salida or {}).get('decision', 'persona') if chequeo.get('esquema') and chequeo.get('coherente') else 'persona'
         if reintento and reintento['errores_despues']:
@@ -404,6 +426,7 @@ def revisar_todo(docs, canon, taxonomia, embebedor, generador, max_palabras=450,
 
 
 def resumir(resultados):
+    """Metricas agregadas de una corrida (validez, coherencia, decisiones, tiempos, reintentos)."""
     n = len(resultados)
     validos = [r for r in resultados if r['chequeo'].get('esquema')]
     t = [r['tiempos']['total_s'] for r in resultados]
@@ -459,6 +482,7 @@ def escribir_planilla(resultados, ruta):
                         '; '.join(f"{k}: {', '.join(v)}" for k, v in datos.items() if v), '', '', ''])
 
 
+# [REVISION-MUERTO] El parametro 'variantes' se ignora (lo dice el docstring); igual que la opcion --variantes (linea 506).
 def diagnosticar_cache(generador, sistema, registro=print, variantes=None):
     """¿Ollama reutiliza las instrucciones fijas entre documentos?
 
@@ -488,6 +512,7 @@ def diagnosticar_cache(generador, sistema, registro=print, variantes=None):
 
 
 def main(argv=None):
+    """CLI de la prueba del revisor. Devuelve 0 si termina bien."""
     cargar_env()
     p = argparse.ArgumentParser(description='Prueba rápida del revisor local.')
     p.add_argument('muestra', type=Path, help='salidas/muestra.jsonl (de python -m revisor.muestra)')
@@ -515,8 +540,10 @@ def main(argv=None):
     if not url or not clave:
         sys.exit('Faltan SUPABASE_URL y SUPABASE_PUBLISHABLE_KEY en .env (solo se usan para descargar el canon).')
     canon = descargar_canon(url, clave, 'salidas/canon_local.json', a.refrescar_canon)
+    # [REVISION-BUG] next() sin valor por omision (StopIteration si no hay documento de g7b en el canon).
     commit = next(d['commit_fijado'] for d in canon['documentos'].values() if d['repositorio'] == 'g7b')
     def g7b(archivo):
+        """Descarga y parsea un YAML de fuentes/ de G7B en el commit fijado."""
         req = urllib.request.Request(G7B_CRUDO.format(commit=commit, archivo=archivo), headers={'User-Agent': 'amatista-ia-revisor'})
         with urllib.request.urlopen(req, timeout=60) as r:
             return yaml.safe_load(r.read().decode('utf-8'))

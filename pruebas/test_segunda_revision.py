@@ -5,17 +5,20 @@ from revisor.segunda_revision import adjudicar, cargar_auditoria, escribir_csv, 
 
 
 def test_wilson_reproduce_los_numeros_publicados_de_g7b():
+    """Prueba: wilson reproduce los numeros publicados de g7b."""
     assert round(wilson_inferior(20, 24), 4) == 0.6762          # resultados-site-4.1.json
     assert wilson_inferior(8, 10) < 0.80 <= wilson_inferior(19, 20)   # los ejemplos del README de G7B
     assert wilson_inferior(0, 0) == 0.0
 
 
 def test_kappa():
+    """Prueba: kappa."""
     assert kappa([True, False, True, False], [True, False, True, False]) == 1.0
     assert abs(kappa([True, True, False, False], [True, False, True, False])) < 1e-9
 
 
 def test_cargar_auditoria_marca_las_24_ineditas():
+    """Prueba: cargar auditoria marca las 24 ineditas."""
     import json
     resultados = {'calibracion_paginas_ineditas': {'n': 2, 'k': 1}, 'evidencia': [
         {'id': 'a', 'url': 'u1#x', 'trabajo': 't/3', 'util': True, 'muestra': True, 'motivo': ''},
@@ -30,11 +33,13 @@ def test_cargar_auditoria_marca_las_24_ineditas():
 
 
 def test_reconstruir_solo_acepta_ids_identicos():
+    """Prueba: reconstruir solo acepta ids identicos."""
     ev = [{'id': 'a', 'url': 'p1#s', 'util': True, 'motivo': 'm', 'muestra': True, 'inedita': True},
           {'id': 'b', 'url': 'p1#t', 'util': False, 'motivo': 'm', 'muestra': False, 'inedita': False}]
     visitadas = []
 
     def anotar(url):
+        """Anotador simulado: devuelve bloques con ids conocidos y uno ajeno."""
         visitadas.append(url)
         return [{'id': 'a', 'texto': 'Texto A', 'seccion': 'S'}, {'id': 'zz', 'texto': 'otro', 'seccion': 'S'}]
     b = reconstruir(ev, anotar, pausa=0)
@@ -43,12 +48,14 @@ def test_reconstruir_solo_acepta_ids_identicos():
 
 
 def _revisado(i, codex, ia, inedita=True):
+    """Bloque revisado simulado con las etiquetas de Codex y de la IA."""
     return {'id': str(i), 'url': 'u', 'seccion': 's', 'texto': 't', 'codex_util': codex, 'codex_motivo': 'm',
             'inedita': inedita, 'ia': None if ia is None else {'util': ia, 'falla': 'ninguna' if ia else 'otra',
                                                               'motivo': 'x', 'confianza': 'alta'}, 'segundos': 10.0}
 
 
 def test_resumen_y_adjudicacion_de_punta_a_punta(tmp_path):
+    """Prueba: resumen y adjudicacion de punta a punta."""
     rev = [_revisado(0, True, True), _revisado(1, True, False), _revisado(2, False, False), _revisado(3, True, None),
            _revisado(4, True, True, inedita=False)]
     s = resumir(rev)
@@ -68,5 +75,6 @@ def test_resumen_y_adjudicacion_de_punta_a_punta(tmp_path):
 
 
 def test_la_segunda_revision_tambien_razona_antes_de_decidir():
+    """Prueba: la segunda revision tambien razona antes de decidir."""
     from revisor.segunda_revision import ESQUEMA_UTIL
     assert list(ESQUEMA_UTIL['properties']) == ['motivo', 'falla', 'util', 'confianza']

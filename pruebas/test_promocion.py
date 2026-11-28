@@ -10,24 +10,31 @@ from test_consola import CONFIG, llenar
 
 
 class Fuente:
+    """Coleccion 'documentos' simulada (solo lectura)."""
     name = 'documentos'
 
     def __init__(self, docs):
+        """Guarda los documentos."""
         self.docs = docs
 
     def find(self, filtro, proyeccion=None):
+        """Filtra por doc_id $in."""
         ids = set(filtro['doc_id']['$in'])
         return [dict(d, _id='x') for d in self.docs if d['doc_id'] in ids]
 
 
 class Destino:
+    """Coleccion de destino simulada que registra las escrituras."""
     def __init__(self, name='conocimiento_auditado'):
+        """Crea la coleccion vacia con su nombre."""
         self.name, self.docs, self.escrituras = name, {}, 0
 
     def find(self, filtro, proyeccion=None):
+        """Devuelve copias de los documentos guardados."""
         return [copy.deepcopy(d) for d in self.docs.values()]
 
     def update_one(self, filtro, cambio, upsert=False):
+        """Aplica $set con notacion de puntos (upsert opcional)."""
         self.escrituras += 1
         doc = self.docs.get(filtro['doc_id'])
         if doc is None:
@@ -43,6 +50,7 @@ class Destino:
 
 
 def preparar(tmp_path):
+    """Consola con un lote aprobado y sus documentos fuente."""
     c = Consola(tmp_path / 'estado', CONFIG)
     llenar(c, ['aceptar'] * 6 + ['revision', 'revision', 'rechazar', 'persona'])
     c.cerrar(1, tmp_path / 'cierres')
@@ -53,6 +61,7 @@ def preparar(tmp_path):
 
 
 def test_simular_no_escribe_nada(tmp_path):
+    """Prueba: simular no escribe nada."""
     c, fuente = preparar(tmp_path)
     destino = Destino()
     r = promover(c, fuente, destino, CONFIG, tmp_path, simular=True)
@@ -61,6 +70,7 @@ def test_simular_no_escribe_nada(tmp_path):
 
 
 def test_copia_solo_lo_aprobado_con_su_rastro_y_es_idempotente(tmp_path):
+    """Prueba: copia solo lo aprobado con su rastro y es idempotente."""
     c, fuente = preparar(tmp_path)
     destino = Destino()
     r = promover(c, fuente, destino, CONFIG, tmp_path, fecha='2026-11-24 12:00:00')
@@ -77,6 +87,7 @@ def test_copia_solo_lo_aprobado_con_su_rastro_y_es_idempotente(tmp_path):
 
 
 def test_si_un_lote_deja_de_estar_aprobado_sus_documentos_se_retiran_sin_borrarse(tmp_path):
+    """Prueba: si un lote deja de estar aprobado sus documentos se retiran sin borrarse."""
     c, fuente = preparar(tmp_path)
     destino = Destino()
     promover(c, fuente, destino, CONFIG, tmp_path)
@@ -87,6 +98,7 @@ def test_si_un_lote_deja_de_estar_aprobado_sus_documentos_se_retiran_sin_borrars
 
 
 def test_lo_que_ya_no_esta_en_la_fuente_no_se_inventa(tmp_path):
+    """Prueba: lo que ya no esta en la fuente no se inventa."""
     c, fuente = preparar(tmp_path)
     fuente.docs = [d for d in fuente.docs if d['doc_id'] != 'd3']
     destino = Destino()
@@ -95,6 +107,7 @@ def test_lo_que_ya_no_esta_en_la_fuente_no_se_inventa(tmp_path):
 
 
 def test_nunca_escribe_en_documentos(tmp_path):
+    """Prueba: nunca escribe en documentos."""
     c, fuente = preparar(tmp_path)
     with pytest.raises(ValueError, match='nunca escribe'):
         comprobar_destino('documentos')
@@ -103,6 +116,7 @@ def test_nunca_escribe_en_documentos(tmp_path):
 
 
 def test_marcas_no_independientes_quedan_en_el_rastro(tmp_path):
+    """Prueba: marcas no independientes quedan en el rastro."""
     c, fuente = preparar(tmp_path)
     (tmp_path / 'revisor' / 'etiquetas').mkdir(parents=True)
     (tmp_path / 'revisor' / 'etiquetas' / 'lote_001.yml').write_text('lote: 1\nindependiente: false\n', encoding='utf-8')

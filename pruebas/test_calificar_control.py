@@ -13,6 +13,7 @@ C = RAIZ / 'control'
 
 
 def test_la_clave_es_la_misma_que_se_selló_antes_de_la_prueba():
+    """Prueba: la clave es la misma que se selló antes de la prueba."""
     assert hashlib.sha256((C / 'clave_c1.yml').read_bytes()).hexdigest() == (C / 'clave_c1.sha256').read_text().strip()
     clave = yaml.safe_load((C / 'clave_c1.yml').read_text(encoding='utf-8'))
     assert hashlib.sha256((C / 'conjunto_c1.jsonl').read_bytes()).hexdigest() == clave['sha256_conjunto']
@@ -21,6 +22,7 @@ def test_la_clave_es_la_misma_que_se_selló_antes_de_la_prueba():
 
 
 def test_v3_y_v4_en_el_conjunto_de_control():
+    """Prueba: v3 y v4 en el conjunto de control."""
     clave = yaml.safe_load((C / 'clave_c1.yml').read_text(encoding='utf-8'))
     r = {v: calificar(clave, json.loads((C / 'resultados' / f'prueba_revisor_{v}_control.json').read_text(encoding='utf-8'))['resultados'])
          for v in ('v3', 'v4')}
@@ -31,4 +33,5 @@ def test_v3_y_v4_en_el_conjunto_de_control():
 
 
 def test_wilson_inferior():
+    """Prueba: wilson inferior."""
     assert round(wilson_inferior(14, 14), 3) == 0.838 and wilson_inferior(0, 0) is None

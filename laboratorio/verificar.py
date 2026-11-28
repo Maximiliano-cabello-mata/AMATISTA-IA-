@@ -1,3 +1,5 @@
+# [REVISION 2026-11-27] Diagnostico del equipo del laboratorio: Python/PyYAML/disco, GitHub (commit fijado), Ollama y Supabase.
+# Entradas: .env, canon/canon.yml. Salida: salidas/verificacion_laboratorio.json (sin secretos). Codigo 1 si algo falla.
 """Comprueba que la computadora del laboratorio está lista: Ollama, el modelo de embeddings y la conexión a Supabase.
 
     python -m laboratorio.verificar                       # lo necesario para indexar
@@ -40,6 +42,7 @@ def pedir(url, datos=None, cabeceras=None, metodo=None, timeout=120):
 
 
 def tipo_de_clave(valor):
+    """Clasifica una clave de Supabase por su prefijo (secreta/publicable/jwt_antigua/desconocida) sin mostrarla."""
     if not valor:
         return None
     if valor.startswith('sb_secret_'):
@@ -53,6 +56,7 @@ def tipo_de_clave(valor):
 
 # --- Ollama ----------------------------------------------------------------------------------------------------------
 def revisar_ollama(base, modelo, pedir=pedir):
+    """Comprueba que Ollama responde, que el modelo de embeddings existe y su dimension. Lista de (nombre, estado, detalle)."""
     r = []
     try:
         c, cuerpo = pedir(f'{base}/api/version', timeout=10)
@@ -61,6 +65,7 @@ def revisar_ollama(base, modelo, pedir=pedir):
     r.append(('ollama', OK if c == 200 else FALLA, f"versión {json.loads(cuerpo).get('version')}" if c == 200 else f'HTTP {c}'))
     if c != 200:
         return r
+    # [REVISION-BUG] Esta segunda llamada no esta protegida con try/except OSError (la primera si).
     _, cuerpo = pedir(f'{base}/api/tags', timeout=10)
     nombres = [m['name'] for m in json.loads(cuerpo).get('models', [])]
     if not any(n in (modelo, f'{modelo}:latest') for n in nombres):
@@ -97,6 +102,7 @@ def medir_revisor(base, modelo, pedir=pedir):
 
 # --- Supabase --------------------------------------------------------------------------------------------------------
 def _explicar(codigo, cuerpo):
+    """Traduce un error HTTP de Supabase a un mensaje accionable."""
     if codigo == 401:
         return 'Supabase rechazó la clave (401): revisa que esté completa y vigente'
     if codigo == 404 and ('PGRST205' in cuerpo or 'PGRST202' in cuerpo or 'Could not find' in cuerpo):
@@ -105,6 +111,7 @@ def _explicar(codigo, cuerpo):
 
 
 def revisar_supabase(url, publicable, secreta, pedir=pedir):
+    """Comprueba URL, claves publicable/secreta y la funcion buscar_canon."""
     r = []
     if not url:
         return [('supabase_url', FALLA, 'falta SUPABASE_URL')]
@@ -163,7 +170,10 @@ def revisar_github(canon, pedir=pedir):
 
 
 def revisar_equipo(carpeta_modelos):
+    """Comprueba version de Python, PyYAML, espacio en disco y datos del sistema."""
     r = [('python', OK if sys.version_info >= (3, 10) else FALLA, platform.python_version())]
+    # [REVISION-MUERTO] yaml ya se importa al inicio del modulo (linea 22): si faltara PyYAML el script fallaria antes;
+    # este try/except ImportError nunca llega a la rama de error.
     try:
         import yaml  # noqa: F401
         r.append(('pyyaml', OK, 'instalado'))
@@ -176,6 +186,7 @@ def revisar_equipo(carpeta_modelos):
 
 
 def main(argv=None):
+    """CLI de la verificacion. Devuelve 0 si todo esta listo."""
     cargar_env()
     p = argparse.ArgumentParser(description='Comprueba la computadora del laboratorio para Amatista IA.')
     p.add_argument('--ollama', default=os.environ.get('OLLAMA_HOST', 'http://127.0.0.1:11434'))
@@ -186,6 +197,7 @@ def main(argv=None):
     base = a.ollama if a.ollama.startswith('http') else f'http://{a.ollama}'
     carpeta = os.environ.get('OLLAMA_MODELS') or str(Path.home())
 
+    # [REVISION-BUG] Ruta relativa al directorio actual: falla si no se ejecuta desde la raiz del repo.
     canon = yaml.safe_load(Path('canon/canon.yml').read_text(encoding='utf-8'))
     resultados = revisar_equipo(carpeta) + revisar_github(canon) + revisar_ollama(base.rstrip('/'), a.modelo)
     if a.revisor:

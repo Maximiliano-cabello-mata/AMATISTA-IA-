@@ -1,3 +1,4 @@
+-- [REVISION 2026-11-27] Migracion del canon RAG (tablas, indices HNSW/GIN, RLS de solo lectura y funcion buscar_canon con RRF).
 -- Canon de Amatista IA: RAG con los estándares del proyecto (canon/canon.yml).
 --
 -- · canon_documentos: un renglón por documento del canon, con su repositorio, ruta, commit fijado y hash.
@@ -65,6 +66,8 @@ create policy "canon: lectura" on public.canon_fragmentos for select to anon, au
 -- (g7b.hardware/1, n0). El analizador «simple» parte «v_exploracion» en «v» y «exploracion», igual en el texto guardado. Un AND de todas las palabras casi nunca encuentra nada con una pregunta
 -- normal: en la prueba de 46 preguntas, AND dio recall@3 de 0.17 y este OR, 0.89. Las palabras cortas («de», «qué»,
 -- «los») se quitan porque la configuración «simple» no tiene palabras vacías y ts_rank no pondera por rareza.
+-- [REVISION-BUG] (baja) Si ninguna palabra pasa el filtro, string_agg da NULL y to_tsquery(NULL) anula toda la
+-- rama de texto (solo queda la vectorial). Funciona, pero conviene documentarlo o devolver una tsquery vacia.
 create or replace function public.consulta_canon_texto(consulta text)
 returns tsquery
 language sql

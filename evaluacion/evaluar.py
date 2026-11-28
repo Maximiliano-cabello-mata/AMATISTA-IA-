@@ -1,3 +1,5 @@
+# [REVISION 2026-11-27] Prueba de recuperacion del canon (recall@1, recall@3, MRR) contra Supabase (buscar_canon) o con BM25 local.
+# Entradas: evaluacion/preguntas.yml, salidas/fragmentos.jsonl o Supabase+Ollama. Salida: salidas/evaluacion.json.
 """Prueba de recuperación del canon: ¿el documento correcto sale entre los primeros resultados?
 
 Dos modos:
@@ -46,6 +48,7 @@ def medir(preguntas, buscar):
         docs = documentos_en_orden(buscar(p['pregunta']))
         rango = docs.index(p['esperado']) + 1 if p['esperado'] in docs else None
         detalle.append({'id': p['id'], 'esperado': p['esperado'], 'rango': rango, 'obtenidos': docs[:3]})
+    # [REVISION-BUG] Con 0 preguntas se divide por cero (n == 0).
     n = len(detalle)
     resumen = {
         'preguntas': n,
@@ -58,14 +61,18 @@ def medir(preguntas, buscar):
 
 # --- Modo léxico: BM25 sin red ---------------------------------------------------------------------------------------
 def _tokens(texto):
+    """Tokeniza en minusculas por \\w+ (equivalente a la configuracion 'simple' de Postgres)."""
     return re.findall(r'\w+', texto.lower())   # sin raíces ni acentos quitados: igual que la configuración «simple»
 
 
 class BM25:
+    """Indice BM25 en memoria sobre fragmentos (seccion + texto)."""
     def __init__(self, fragmentos, k1=1.2, b=0.75):
+        """Precalcula frecuencias por fragmento, largos e IDF."""
         self.frags = fragmentos
         self.docs = [Counter(_tokens(f"{f.get('seccion') or ''} {f['texto']}")) for f in fragmentos]
         self.largos = [sum(d.values()) for d in self.docs]
+        # [REVISION-BUG] Con 0 fragmentos, sum/len divide por cero.
         self.promedio = sum(self.largos) / len(self.largos)
         df = Counter(t for d in self.docs for t in d)
         n = len(self.docs)
@@ -73,6 +80,7 @@ class BM25:
         self.k1, self.b = k1, b
 
     def buscar(self, consulta, cuantos=PROFUNDIDAD):
+        """Devuelve los 'cuantos' fragmentos con mayor puntaje BM25 (> 0) para la consulta."""
         q = _tokens(consulta)
         puntos = []
         for i, d in enumerate(self.docs):
@@ -88,9 +96,11 @@ class BM25:
 
 # --- Modo Supabase: la función buscar_canon con la clave publicable --------------------------------------------------
 def buscador_supabase(url, clave, embebedor, peso_texto, peso_vector):
+    """Crea la funcion buscar(pregunta) que llama a la RPC buscar_canon con la clave publicable."""
     base = url.rstrip('/').removesuffix('/rest/v1') + '/rest/v1'
 
     def buscar(pregunta):
+        """Vectoriza la pregunta con Ollama y consulta buscar_canon; devuelve los fragmentos."""
         vector = embebedor.vectores([pregunta])[0]
         return _json(f'{base}/rpc/buscar_canon', {
             'consulta': pregunta,
@@ -104,6 +114,7 @@ def buscador_supabase(url, clave, embebedor, peso_texto, peso_vector):
 
 
 def main(argv=None):
+    """CLI de la evaluacion; devuelve 1 si recall@3 queda bajo el umbral."""
     cargar_env()   # .env primero: los valores por omisión de los argumentos leen el entorno
     p = argparse.ArgumentParser(description='Prueba de recuperación del canon.')
     p.add_argument('preguntas', type=Path)
