@@ -1,0 +1,2245 @@
+{
+  "resumen": {
+    "revisor": 4,
+    "criterios": true,
+    "modelo": "qwen3:8b",
+    "palabras_por_documento": 450,
+    "cuantos": 3,
+    "umbral": null,
+    "canon_fragmentos": 135,
+    "fecha": "2026-11-23 00:36",
+    "documentos": 35,
+    "json_valido": 1.0,
+    "pregunta_valida": 1.0,
+    "cita_valida": 1.0,
+    "cita_embudo": 0.5428571428571428,
+    "coherente": 0.9428571428571428,
+    "motivo_primero": 1.0,
+    "coincide_pregunta_embudo": 0.8285714285714286,
+    "decisiones": {
+      "aceptar": 22,
+      "revision": 12,
+      "rechazar": 1
+    },
+    "decisiones_efectivas": {
+      "aceptar": 21,
+      "revision": 2,
+      "rechazar": 0,
+      "persona": 12
+    },
+    "etapas": {
+      "entrada": 1,
+      "relevancia": 3,
+      "valor": 10,
+      "ninguna": 21
+    },
+    "no_se": 0,
+    "segundos_por_documento": {
+      "mediana": 170.9308779999992,
+      "maximo": 281.5084074999904
+    },
+    "tokens_por_segundo": {
+      "genera": 1.9626896351866616,
+      "lee": 149.67839080944776
+    },
+    "tokens_por_documento": {
+      "lee": 7172,
+      "genera": 281
+    },
+    "horas_estimadas_para_1033": 49.04766582611088,
+    "reintentos": 21,
+    "reintento_por_error": {
+      "E3": 21,
+      "E1": 0
+    },
+    "reintento_cambia_decision": 10,
+    "reintento_sigue_con_error": 10
+  },
+  "resultados": [
+    {
+      "doc_id": "be8c36d05c3e6630d54ca40b7de8edf5edb2fd01d7572b3e439fb7dd82cbcde6",
+      "url": "https://docs.blender.org/manual/en/5.2/modeling/modifiers/generate/remesh.html",
+      "fuente": "blender-manual",
+      "titulo": "Remesh Modifier",
+      "preguntas_embudo": [
+        "P6",
+        "P1",
+        "P5"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe el modificador Remesh en Blender, explicando sus opciones y cómo funciona. Ofrece información sobre los modos (Blocks, Smooth, Sharp), la función de Sharpness, Voxel, Adaptivity y Smooth Shading. También menciona la importancia de la geometría de entrada y la posibilidad de usar el modificador en combinación con otros como el Solidify. El contenido es técnico y responde a preguntas sobre cómo se hace algo en una versión concreta de un programa libre (P6).",
+        "pregunta": "P6",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 3916,
+        "lee_s": 171.340939,
+        "genera_tokens": 182,
+        "genera_s": 98.937963,
+        "carga_s": 0.0071454,
+        "total_s": 270.5024706999975
+      },
+      "version": 4,
+      "reintento": null
+    },
+    {
+      "doc_id": "f5769e60129575267d9a90038d3517b8ef213a071a7a82cb6d636083c7fce827",
+      "url": "https://docs.blender.org/manual/en/4.5/animation/armatures/bones/properties/bendy_bones.html",
+      "fuente": "blender-manual",
+      "titulo": "Bendy Bones",
+      "preguntas_embudo": [
+        "P6",
+        "P1"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica en detalle cómo funcionan los B-Bones en Blender, incluyendo su uso para modelar columnas vertebrales o huesos faciales, y describe técnicamente cómo Blender los trata como secciones de una curva Bézier. Menciona propiedades como el número de segmentos y cómo afectan la deformación. Sin embargo, no responde directamente a una pregunta específica del plan ni proporciona ajustes concretos para trabajar con fluidez según el equipo (P1) ni versiones de Blender (P2).",
+        "pregunta": "ninguna",
+        "cita": "g7b/seleccion-documental · Objetivo de utilidad del 80 %",
+        "etapa": "relevancia",
+        "decision": "revision",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "persona",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.0127233,
+        "lee_s": 56.79813,
+        "genera_s": 203.333054,
+        "total_s": 260.22645100000955,
+        "lee_tokens": 8167,
+        "genera_tokens": 385
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento explica cómo funcionan los B-Bones en Blender, incluyendo su uso para modelar columnas vertebrales o huesos faciales. Describe técnicamente cómo Blender trata los B-Bones como secciones de una curva Bézier, menciona propiedades como segmentos y cómo afectan la deformación. Sin embargo, no responde directamente a una pregunta específica del plan ni proporciona ajustes concretos para trabajar con fluidez según el equipo (P1) ni versiones de Blender (P2).",
+          "pregunta": "ninguna",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "relevancia",
+          "decision": "revision",
+          "confianza": "media",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3932,
+          "lee_s": 37.902864,
+          "genera_tokens": 189,
+          "genera_s": 97.172102,
+          "carga_s": 0.0064137,
+          "total_s": 135.12698719999753
+        },
+        "errores_despues": [
+          "E3"
+        ]
+      }
+    },
+    {
+      "doc_id": "331ddcbdab7f03e892b5032ffaead84d615b3c848645305390ccaefcc7aac3f8",
+      "url": "https://docs.blender.org/manual/en/5.2/render/cycles/render_settings/volumes.html",
+      "fuente": "blender-manual",
+      "titulo": "Volumes",
+      "preguntas_embudo": [
+        "P1",
+        "P6"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe ajustes concretos relacionados con el renderizado de volúmenes en Blender, como 'Volume Step size', 'Step Rate Render Biased', 'Viewport Biased' y 'Max Steps Biased', que influyen en el tiempo de renderizado y la calidad. Estos ajustes cumplen con el criterio de valor del embudo, ya que son específicos y tienen un impacto en el resultado. La versión del documento está en su URL (5.2), lo que no afecta su valor. No se requieren medidas, hardware ni versiones adicionales para considerarlo útil.",
+        "pregunta": "P6",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.0145518,
+        "lee_s": 34.105502,
+        "genera_s": 174.769929,
+        "total_s": 208.95368700000108,
+        "lee_tokens": 7399,
+        "genera_tokens": 352
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento explica ajustes específicos para el renderizado de volúmenes en Blender, como 'Volume Step size', 'Step Rate Render Biased', 'Viewport Biased' y 'Max Steps Biased', que afectan el tiempo de renderizado y la calidad. Sin embargo, no menciona medidas concretas, versiones de Blender ni hardware, lo que podría limitar su valor.",
+          "pregunta": "P6",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "valor",
+          "decision": "revision",
+          "confianza": "media",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3565,
+          "lee_s": 16.971875,
+          "genera_tokens": 152,
+          "genera_s": 72.388034,
+          "carga_s": 0.0069683,
+          "total_s": 89.39691329999187
+        },
+        "errores_despues": []
+      }
+    },
+    {
+      "doc_id": "4d34e857b3cd385ef0856ac79ec839d57dd71e10e9e11f6af7355b4a1cd43a3c",
+      "url": "https://docs.blender.org/manual/en/4.5/modeling/modifiers/generate/wireframe.html",
+      "fuente": "blender-manual",
+      "titulo": "Wireframe Modifier",
+      "preguntas_embudo": [
+        "P1",
+        "P6",
+        "P5"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe las opciones del Wireframe Modifier en Blender 4.5, incluyendo Thickness, Offset y Boundary, con explicaciones técnicas sobre cómo afectan al renderizado y a la subdivisión. Aunque no menciona medidas concretas ni hardware, sí proporciona ajustes concretos que responden a la pregunta P6: 'Cómo se hace algo en una versión concreta de un programa libre'.",
+        "pregunta": "P6",
+        "cita": "g7b/seleccion-documental · Objetivo de utilidad del 80 %",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.0128843,
+        "lee_s": 26.922894999999997,
+        "genera_s": 141.165515,
+        "total_s": 168.15947119999328,
+        "lee_tokens": 7172,
+        "genera_tokens": 294
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento explica las opciones del Wireframe Modifier en Blender, incluyendo Thickness, Offset y Boundary. Sin embargo, el contenido es técnico y específico, pero no responde directamente a ninguna pregunta del plan. No menciona ajustes concretos, versiones, hardware ni medidas con unidades.",
+          "pregunta": "ninguna",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "relevancia",
+          "decision": "revision",
+          "confianza": "alta",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3461,
+          "lee_s": 10.741468,
+          "genera_tokens": 136,
+          "genera_s": 63.602103,
+          "carga_s": 0.0064154,
+          "total_s": 74.37848430000304
+        },
+        "errores_despues": []
+      }
+    },
+    {
+      "doc_id": "13064441a8000cdadd5abaf024ff9e612081c37c5f4d64f5012f1e94ab440acf",
+      "url": "https://docs.blender.org/manual/en/5.2/render/shader_nodes/vector/vector_rotate.html",
+      "fuente": "blender-manual",
+      "titulo": "Vector Rotate Node",
+      "preguntas_embudo": [
+        "P1",
+        "P5",
+        "P6"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica el funcionamiento del nodo Vector Rotate en Blender, describiendo sus entradas, propiedades y salidas. Sin embargo, no proporciona ajustes concretos ni ejemplos de uso que permitan aplicar la información en un contexto práctico. No responde directamente a ninguna pregunta del plan.",
+        "pregunta": "ninguna",
+        "cita": "g7b/seleccion-documental · Objetivo de utilidad del 80 %",
+        "etapa": "valor",
+        "decision": "revision",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "revision",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.016802400000000002,
+        "lee_s": 26.333197,
+        "genera_s": 131.747911,
+        "total_s": 158.1801173999993,
+        "lee_tokens": 7149,
+        "genera_tokens": 275
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento describe el nodo Vector Rotate en Blender, explicando sus entradas, propiedades y salidas. Sin embargo, el contenido es general y no proporciona ajustes concretos, ni medidas, ni versiones específicas. No responde directamente a ninguna pregunta del plan.",
+          "pregunta": "ninguna",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "valor",
+          "decision": "revision",
+          "confianza": "media",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3452,
+          "lee_s": 10.323632,
+          "genera_tokens": 131,
+          "genera_s": 61.497841,
+          "carga_s": 0.0086199,
+          "total_s": 71.87093099999765
+        },
+        "errores_despues": []
+      }
+    },
+    {
+      "doc_id": "181dc9000c3dad28daaaf4c8a0ab2c6182f69f014356c97041f67b4a5e47a5b4",
+      "url": "https://docs.blender.org/manual/en/5.2/scene_layout/object/editing/apply.html",
+      "fuente": "blender-manual",
+      "titulo": "Apply",
+      "preguntas_embudo": [
+        "P6",
+        "P4",
+        "P1",
+        "P5"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica cómo aplicar transformaciones a objetos en Blender, detallando los efectos de cada opción (ubicación, rotación, escala, etc.). Ofrece información técnica sobre cómo cambian las propiedades de los objetos y cómo afecta esto a modificadores, restricciones y parentizado. La versión del documento es 5.2, según su URL, pero no incluye medidas, hardware ni versiones adicionales. Su enfoque es general, pero incluye ajustes concretos como la aplicación de transformaciones y el comportamiento de los modificadores.",
+        "pregunta": "P6",
+        "cita": "g7b/seleccion-documental · Objetivo de utilidad del 80 %",
+        "etapa": "valor",
+        "decision": "revision",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "persona",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.0138291,
+        "lee_s": 54.176157,
+        "genera_s": 185.895139,
+        "total_s": 240.15775980000035,
+        "lee_tokens": 8109,
+        "genera_tokens": 355
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento explica cómo aplicar transformaciones a objetos en Blender, detallando los efectos de cada opción (ubicación, rotación, escala, etc.). Ofrece información técnica sobre cómo cambian las propiedades de los objetos y cómo afecta esto a modificadores, restricciones y parentizado. Sin embargo, no menciona versiones concretas de Blender ni hardware, y su enfoque es general.",
+          "pregunta": "P6",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "valor",
+          "decision": "revision",
+          "confianza": "alta",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3917,
+          "lee_s": 36.547205,
+          "genera_tokens": 158,
+          "genera_s": 80.428842,
+          "carga_s": 0.0069787,
+          "total_s": 117.01899290000438
+        },
+        "errores_despues": [
+          "E3"
+        ]
+      }
+    },
+    {
+      "doc_id": "f6e073d0edca91570e25c3e36f408abcac3de3097b2f9c69ad1ca712f34811d7",
+      "url": "https://docs.blender.org/manual/en/4.5/modeling/modifiers/generate/array.html",
+      "fuente": "blender-manual",
+      "titulo": "Array Modifier",
+      "preguntas_embudo": [
+        "P6",
+        "P1"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica el uso del Array Modifier en Blender, detallando sus opciones como Fit Type, Relative Offset, Constant Offset, Object Offset y Merge. Responde a la pregunta P6 sobre cómo se hace algo en una versión concreta de un programa libre (Blender 4.5).",
+        "pregunta": "P6",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 3873,
+        "lee_s": 34.643693,
+        "genera_tokens": 135,
+        "genera_s": 67.782178,
+        "carga_s": 0.0231242,
+        "total_s": 102.48552240000572
+      },
+      "version": 4,
+      "reintento": null
+    },
+    {
+      "doc_id": "b57ac70599895561e8981fb0f405c992c2848f3cb5bba82e4ffd2874b0261748",
+      "url": "https://docs.blender.org/manual/en/4.5/sculpt_paint/sculpting/tool_settings/dyntopo.html",
+      "fuente": "blender-manual",
+      "titulo": "Dyntopo",
+      "preguntas_embudo": [
+        "P6"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica cómo funciona Dyntopo en Blender, detallando los métodos de detalle (Relative, Constant, Brush Detail) y cómo se ajusta la topología durante el escultado. Ofrece información específica sobre los parámetros y sus efectos, respondiendo a la pregunta P6: Cómo se hace algo en una versión concreta de un programa libre.",
+        "pregunta": "P6",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 3907,
+        "lee_s": 35.650815,
+        "genera_tokens": 152,
+        "genera_s": 76.891296,
+        "carga_s": 0.0072255,
+        "total_s": 112.58217139999033
+      },
+      "version": 4,
+      "reintento": null
+    },
+    {
+      "doc_id": "504ce71d5ff3d23899279b75ea2b42c94b8e5cfe57bf66c44c6185b8e755b53f",
+      "url": "https://blender.stackexchange.com/questions/999999101/cycles-render-very-slow-with-gtx-1050",
+      "fuente": "blender-stackexchange",
+      "titulo": "Cycles render very slow with GTX 1050",
+      "preguntas_embudo": [
+        "P1"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.1"
+        ],
+        "hardware": [
+          "GTX 1050"
+        ],
+        "medidas": [
+          "128 samples",
+          "8 GB"
+        ]
+      },
+      "ia": {
+        "motivo": "El documento describe un problema de rendimiento en la renderización con Cycles en una GPU GTX 1050, mencionando tiempos de renderización elevados y lentitud en la vista previa. No falla ninguna etapa del embudo.",
+        "pregunta": "P1",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 3472,
+        "lee_s": 12.46784,
+        "genera_tokens": 127,
+        "genera_s": 59.768852,
+        "carga_s": 0.0064149,
+        "total_s": 72.27447400000528
+      },
+      "version": 4,
+      "reintento": null
+    },
+    {
+      "doc_id": "879d8331cd300654c1d3fae2679b5a545cda4f68d2f57101650528200ac52657",
+      "url": "https://docs.blender.org/manual/en/4.5/modeling/modifiers/generate/decimate.html",
+      "fuente": "blender-manual",
+      "titulo": "Decimate Modifier",
+      "preguntas_embudo": [
+        "P6",
+        "P1"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica el uso del modificador Decimate en Blender, detallando sus modos (Collapse, Un-Subdivide, Planar) y sus opciones (Ratio, Symmetry, Triangulate, Vertex Group, Factor, Iterations, Angle Limit, Delimit). Ofrece información específica sobre cómo funciona cada modo y qué efectos tiene, lo que responde a la pregunta P6: 'Cómo se hace algo en una versión concreta de un programa libre'.",
+        "pregunta": "P6",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 3922,
+        "lee_s": 37.896233,
+        "genera_tokens": 172,
+        "genera_s": 87.781871,
+        "carga_s": 0.0081285,
+        "total_s": 125.72132450000208
+      },
+      "version": 4,
+      "reintento": null
+    },
+    {
+      "doc_id": "ba5d46e106ac938b6ccc7d336bb5995eaf6b5b78eec2d16e5a0186abbc3dc53b",
+      "url": "https://docs.blender.org/manual/en/4.5/modeling/modifiers/deform/laplacian_smooth.html",
+      "fuente": "blender-manual",
+      "titulo": "Laplacian Smooth Modifier",
+      "preguntas_embudo": [
+        "P6"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento enumera las opciones del modificador Laplacian Smooth, como Repeat, Lambda Factor, Axis y Preserve Volume, y menciona su funcionamiento en Cycles y Eevee. Sin embargo, no proporciona ejemplos de configuración concretos ni explica cómo se aplica en una versión específica de Blender.",
+        "pregunta": "P6",
+        "cita": "g7b/seleccion-documental · Objetivo de utilidad del 80 %",
+        "etapa": "valor",
+        "decision": "revision",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "persona",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.0139243,
+        "lee_s": 26.672977,
+        "genera_s": 126.04958599899999,
+        "total_s": 152.79732979999972,
+        "lee_tokens": 7170,
+        "genera_tokens": 263
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento describe las opciones del modificador Laplacian Smooth en Blender, incluyendo parámetros como Repeat, Lambda Factor, Axis y Preserve Volume. Sin embargo, no explica cómo se usa en una versión específica de Blender ni proporciona ejemplos concretos de configuración.",
+          "pregunta": "P6",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "valor",
+          "decision": "revision",
+          "confianza": "media",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3462,
+          "lee_s": 10.712733,
+          "genera_tokens": 129,
+          "genera_s": 60.113216,
+          "carga_s": 0.0075298,
+          "total_s": 70.86372280000069
+        },
+        "errores_despues": [
+          "E3"
+        ]
+      }
+    },
+    {
+      "doc_id": "b0b89b39722252050baa2f9a6141144711d62c2c2e3725f9cf5c7c058f8af704",
+      "url": "https://docs.blender.org/manual/en/4.5/modeling/modifiers/generate/weld.html",
+      "fuente": "blender-manual",
+      "titulo": "Weld Modifier",
+      "preguntas_embudo": [
+        "P6"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe el nodo Wave Texture en Blender, explicando sus entradas, propiedades y salidas. Ofrece información detallada sobre cómo funciona el nodo y sus parámetros, lo que permite entender cómo se genera el efecto de ondas. La versión del documento está en su URL (4.5), y aunque no menciona ajustes concretos para un equipo, sí explica parámetros específicos como 'Detail', 'Detail Scale', 'Roughness' y 'Phase Offset', que son ajustes concretos según la regla del embudo.",
+        "pregunta": "P6",
+        "cita": "g7b/seleccion-documental · Objetivo de utilidad del 80 %",
+        "etapa": "valor",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "persona",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": false,
+        "incoherencias": [
+          "acepta pero marca una etapa que falla"
+        ],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.0144356,
+        "lee_s": 41.497451999999996,
+        "genera_s": 180.742138,
+        "total_s": 222.31955449999077,
+        "lee_tokens": 7667,
+        "genera_tokens": 358
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento describe el nodo Wave Texture en Blender, explicando sus entradas, propiedades y salidas. Ofrece información sobre cómo funciona el nodo y sus parámetros, lo que permite entender cómo se genera el efecto de ondas. Sin embargo, no responde directamente a una pregunta específica del plan, ya que no menciona una versión concreta de Blender ni proporciona ajustes concretos para un equipo.",
+          "pregunta": "ninguna",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "relevancia",
+          "decision": "revision",
+          "confianza": "media",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3695,
+          "lee_s": 23.972912,
+          "genera_tokens": 160,
+          "genera_s": 78.705112,
+          "carga_s": 0.0075505,
+          "total_s": 102.71911409999302
+        },
+        "errores_despues": []
+      }
+    },
+    {
+      "doc_id": "edec2f2c345da9a10ba769d5ddd9b70005f37dab85471130f38dcc691c421b4b",
+      "url": "https://docs.blender.org/manual/en/4.5/render/eevee/render_settings/depth_of_field.html",
+      "fuente": "blender-manual",
+      "titulo": "Depth of Field",
+      "preguntas_embudo": [
+        "P6"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica cómo funcionan los ajustes de emisión de partículas en Blender, incluyendo parámetros como 'Number', 'Seed', 'Frame Start', 'End', 'Lifetime' y 'Lifetime Randomness'. También describe las opciones de emisión ('Vertices', 'Faces', 'Volume') y cómo afectan la distribución de las partículas. El contenido es específico y responde a una pregunta del plan.",
+        "pregunta": "P6",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 3938,
+        "lee_s": 38.480955,
+        "genera_tokens": 163,
+        "genera_s": 83.702073,
+        "carga_s": 0.0216999,
+        "total_s": 122.23968080000486
+      },
+      "version": 4,
+      "reintento": null
+    },
+    {
+      "doc_id": "77b09b8ce27978a53669e133942b6c1aef281eb69ecf52fcbe3582349daba04d",
+      "url": "https://docs.blender.org/manual/en/4.5/render/output/properties/format.html",
+      "fuente": "blender-manual",
+      "titulo": "Format",
+      "preguntas_embudo": [
+        "P1",
+        "P6"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica las opciones de formato en Blender, incluyendo resolución, aspecto de píxel, región de renderizado y tasa de cuadros. Detalla cómo se representan tasas de cuadros como fracciones y menciona la importancia del aspecto de píxel para evitar distorsiones en pantallas de televisión. Sin embargo, no proporciona ajustes concretos ni medidas con unidades que permitan trabajar con fluidez según el equipo (P1) ni cómo se hace algo en una versión concreta de Blender (P6).",
+        "pregunta": "ninguna",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "valor",
+        "decision": "revision",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "persona",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.0317608,
+        "lee_s": 47.175831,
+        "genera_s": 196.685018,
+        "total_s": 243.96069140000327,
+        "lee_tokens": 7800,
+        "genera_tokens": 386
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento explica las opciones de formato en Blender, incluyendo resolución, aspecto de píxel, región de renderizado y tasa de cuadros. Ofrece información específica sobre ajustes técnicos como la relación de aspecto de píxel y la representación de tasas de cuadros como fracciones. Sin embargo, no menciona ajustes concretos ni medidas con unidades que permitan trabajar con fluidez según el equipo (P1) ni cómo se hace algo en una versión concreta de un programa libre (P6).",
+          "pregunta": "ninguna",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "valor",
+          "decision": "revision",
+          "confianza": "alta",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3746,
+          "lee_s": 27.14086,
+          "genera_tokens": 191,
+          "genera_s": 94.767811,
+          "carga_s": 0.024387,
+          "total_s": 121.96455460001016
+        },
+        "errores_despues": [
+          "E3"
+        ]
+      }
+    },
+    {
+      "doc_id": "a488904d8bc1ce9ece984a2ad1bdcae4c58fa6f79396ac9ce94c88663abebfa9",
+      "url": "https://docs.blender.org/manual/en/5.2/modeling/modifiers/deform/shrinkwrap.html",
+      "fuente": "blender-manual",
+      "titulo": "Shrinkwrap Modifier",
+      "preguntas_embudo": [
+        "P6",
+        "P1"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica el modificador Shrinkwrap en Blender, detallando sus opciones y cómo funciona. Responde a la pregunta P6 sobre cómo se hace algo en una versión concreta de un programa libre. No falla ninguna etapa del embudo.",
+        "pregunta": "P6",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 3878,
+        "lee_s": 34.787688,
+        "genera_tokens": 127,
+        "genera_s": 63.929973,
+        "carga_s": 0.0068804,
+        "total_s": 98.75782729999628
+      },
+      "version": 4,
+      "reintento": null
+    },
+    {
+      "doc_id": "523f61fb8dee12b38429915b1cd42ced78ddf80fd535686943d53ac3fe8a5328",
+      "url": "https://docs.blender.org/manual/en/4.5/render/eevee/index.html",
+      "fuente": "blender-manual",
+      "titulo": "EEVEE",
+      "preguntas_embudo": [
+        "P1",
+        "P6"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe la renderización en tiempo real con EEVEE, incluyendo configuraciones, materiales, iluminación y características como muestreo, sombras y profundidad de campo. Sin embargo, no proporciona ajustes concretos ni respuestas a preguntas específicas del plan.",
+        "pregunta": "ninguna",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "valor",
+        "decision": "revision",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "revision",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 3447,
+        "lee_s": 10.010788,
+        "genera_tokens": 135,
+        "genera_s": 63.001373,
+        "carga_s": 0.0064443,
+        "total_s": 73.0497447999951
+      },
+      "version": 4,
+      "reintento": null
+    },
+    {
+      "doc_id": "72453b0f4e21e587da2b47eb8b5458cb8fad6c47bf5c426b418e95ee5e2e3ef3",
+      "url": "https://docs.blender.org/manual/en/5.2/modeling/geometry_nodes/point/distribute_points_on_faces.html",
+      "fuente": "blender-manual",
+      "titulo": "Distribute Points on Faces",
+      "preguntas_embudo": [
+        "P6"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica cómo funciona el nodo Distribute Points on Faces en Blender, incluyendo sus entradas, propiedades y salidas. Responde a la pregunta P6: Cómo se hace algo en una versión concreta de un programa libre. Ofrece información sobre los métodos de distribución de puntos y sus parámetros.",
+        "pregunta": "P6",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 3893,
+        "lee_s": 35.270093,
+        "genera_tokens": 143,
+        "genera_s": 72.236547,
+        "carga_s": 0.0069642,
+        "total_s": 107.54730439999548
+      },
+      "version": 4,
+      "reintento": null
+    },
+    {
+      "doc_id": "44860bacb78d576f246758f4ec769ad5444cded699a33c180a492036de1b4fb4",
+      "url": "https://docs.blender.org/manual/en/4.5/render/cycles/render_settings/performance.html",
+      "fuente": "blender-manual",
+      "titulo": "Performance",
+      "preguntas_embudo": [
+        "P1",
+        "P6"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica ajustes de rendimiento en Blender 4.5, como la configuración de hilos, memoria y estructuras de aceleración. Ofrece información específica sobre cómo optimizar el rendimiento según el equipo, lo que responde a P1 y P6. No presenta problemas de calidad ni duplicados.",
+        "pregunta": "P1",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 3888,
+        "lee_s": 35.339605,
+        "genera_tokens": 140,
+        "genera_s": 70.720154,
+        "carga_s": 0.0075032,
+        "total_s": 106.10284700000193
+      },
+      "version": 4,
+      "reintento": null
+    },
+    {
+      "doc_id": "c6c6c7573048d9d00823bd94d121d76a9c8718a8bf39ded267b72b457d89a9b0",
+      "url": "https://docs.blender.org/manual/en/5.2/modeling/modifiers/generate/solidify.html",
+      "fuente": "blender-manual",
+      "titulo": "Solidify Modifier",
+      "preguntas_embudo": [
+        "P6",
+        "P1"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe en detalle el funcionamiento del modifier Solidify en Blender, incluyendo las opciones de modo (Simple y Complex) y cómo afectan a la generación de geometría. Explica casos específicos como Möbius strips y Klein bottles, y cómo el modo Complex maneja estos casos. Aunque no incluye medidas ni hardware, proporciona información sobre ajustes concretos como la elección entre modos de solidificación y cómo afectan al resultado final.",
+        "pregunta": "P6",
+        "cita": "g7b/seleccion-documental · Objetivo de utilidad del 80 %",
+        "etapa": "valor",
+        "decision": "revision",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "persona",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.013364999999999998,
+        "lee_s": 52.901528,
+        "genera_s": 171.059114,
+        "total_s": 224.04352609999478,
+        "lee_tokens": 8033,
+        "genera_tokens": 328
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento explica el uso del modifier Solidify en Blender, describiendo las opciones de modo (Simple y Complex) y cómo afectan a la generación de geometría. Menciona casos específicos como Möbius strips y Klein bottles, y cómo el modo Complex maneja estos casos. Sin embargo, no proporciona ajustes concretos ni medidas que permitan evaluar su utilidad técnica.",
+          "pregunta": "P6",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "valor",
+          "decision": "revision",
+          "confianza": "media",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3881,
+          "lee_s": 35.253169,
+          "genera_tokens": 154,
+          "genera_s": 78.398753,
+          "carga_s": 0.0070122,
+          "total_s": 113.6928470999992
+        },
+        "errores_despues": [
+          "E3"
+        ]
+      }
+    },
+    {
+      "doc_id": "3f61c5f7f2bbff634125a2bc4b8f8053a98db4bd2a3bd30c445161cb8648d2be",
+      "url": "https://docs.blender.org/manual/en/4.5/modeling/meshes/editing/mesh/cleanup.html",
+      "fuente": "blender-manual",
+      "titulo": "Clean Up",
+      "preguntas_embudo": [
+        "P6"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": [
+          "40%"
+        ]
+      },
+      "ia": {
+        "motivo": "El documento explica operadores para limpiar geometría en Blender, incluyendo opciones como 'Delete Loose', 'Decimate Geometry', 'Degenerate Dissolve', 'Limited Dissolve', 'Make Planar Faces', 'Split Non-Planar Faces' y 'Split Concave Faces'. Detalla parámetros como 'Ratio', 'Vertex Group', 'Weight', 'Invert', 'Merge Distance', 'Factor', 'Iterations' y 'Max Angle'. Ofrece ajustes concretos para cada herramienta, lo que cumple con el criterio de valor.",
+        "pregunta": "P6",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 3946,
+        "lee_s": 40.584989,
+        "genera_tokens": 190,
+        "genera_s": 100.371069,
+        "carga_s": 0.0063543,
+        "total_s": 140.99430910000228
+      },
+      "version": 4,
+      "reintento": null
+    },
+    {
+      "doc_id": "58ad86b0dade6f3b4c291b873252bfbef11bfb9a234f223607e1eadd2d7993f6",
+      "url": "https://docs.blender.org/manual/en/4.5/render/shader_nodes/shader/principled.html",
+      "fuente": "blender-manual",
+      "titulo": "Principled BSDF",
+      "preguntas_embudo": [
+        "P6",
+        "P1",
+        "P5"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica el nodo Principled BSDF en Blender, describiendo sus capas, parámetros y cómo modelar materiales. Ofrece información sobre ajustes concretos como Roughness, Metallic, IOR, Alpha y Normal, que son relevantes para P6. La versión del documento está en su URL (4.5), pero no menciona hardware ni medidas específicas.",
+        "pregunta": "P6",
+        "cita": "g7b/seleccion-documental · Objetivo de utilidad del 80 %",
+        "etapa": "valor",
+        "decision": "revision",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "persona",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.013491099999999999,
+        "lee_s": 58.992682,
+        "genera_s": 165.538404,
+        "total_s": 224.61252109998895,
+        "lee_tokens": 8229,
+        "genera_tokens": 306
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento explica el nodo Principled BSDF en Blender, describiendo sus capas, parámetros y cómo modelar materiales. Ofrece información sobre ajustes concretos como Roughness, Metallic, IOR, Alpha y Normal, que son relevantes para P6. Sin embargo, no menciona versiones de Blender ni hardware, y la información es general.",
+          "pregunta": "P6",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "valor",
+          "decision": "revision",
+          "confianza": "alta",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3982,
+          "lee_s": 41.106584,
+          "genera_tokens": 148,
+          "genera_s": 78.37297,
+          "carga_s": 0.0064262,
+          "total_s": 119.5174207999953
+        },
+        "errores_despues": [
+          "E3"
+        ]
+      }
+    },
+    {
+      "doc_id": "c2d09e57afaa68958bdb4fa4ab58f4cc908df61427d515d3c11c80ff11a8353a",
+      "url": "https://docs.blender.org/manual/en/5.2/modeling/modifiers/generate/subdivision_surface.html",
+      "fuente": "blender-manual",
+      "titulo": "Subdivision Surface Modifier",
+      "preguntas_embudo": [
+        "P6",
+        "P1",
+        "P5"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe el Subdivision Surface Modifier en Blender, incluyendo sus opciones y cómo afectan al rendimiento y a la calidad del modelo. Aunque no menciona medidas concretas ni hardware, sí proporciona ajustes concretos como niveles de subdivisión, modo Catmull-Clark y Simple, que son relevantes para el uso del modificador. No responde directamente a P1 ni P5, pero cumple con la relevancia al abordar una pregunta del plan (P6).",
+        "pregunta": "P6",
+        "cita": "g7b/seleccion-documental · Objetivo de utilidad del 80 %",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.0560878,
+        "lee_s": 58.80403,
+        "genera_s": 200.99758300000002,
+        "total_s": 259.94894979998935,
+        "lee_tokens": 8157,
+        "genera_tokens": 377
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento explica el uso del Subdivision Surface Modifier en Blender, incluyendo sus opciones como Catmull-Clark, Simple, y ajustes de niveles de subdivisión. Ofrece información sobre cómo afectan estos ajustes al rendimiento y a la calidad del modelo. Sin embargo, no menciona medidas concretas, versiones de Blender, hardware, ni ajustes específicos que permitan trabajar con fluidez según el equipo (P1), ni proporciona información sobre técnicas publicadas por la industria aplicables con herramientas libres (P5).",
+          "pregunta": "ninguna",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "valor",
+          "decision": "revision",
+          "confianza": "media",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3925,
+          "lee_s": 38.319792,
+          "genera_tokens": 190,
+          "genera_s": 98.877868,
+          "carga_s": 0.0481648,
+          "total_s": 137.29841789999045
+        },
+        "errores_despues": []
+      }
+    },
+    {
+      "doc_id": "308b70ea392dbf2c4028792d1c81730707b265d0f1f3308b84e843dbd2d1e8f2",
+      "url": "https://docs.blender.org/manual/en/4.5/render/cycles/render_settings/simplify.html",
+      "fuente": "blender-manual",
+      "titulo": "Simplify",
+      "preguntas_embudo": [
+        "P1",
+        "P6"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento detalla ajustes concretos para la simplificación en Blender, como 'Max Subdivision', 'Texture Limit', 'Volume Resolution', 'Camera Cull', y otros parámetros relacionados con el rendimiento. Estos ajustes permiten optimizar escenas complejas, respondiendo directamente a la pregunta P6: 'Cómo se hace algo en una versión concreta de un programa libre'.",
+        "pregunta": "P6",
+        "cita": "g7b/seleccion-documental · Objetivo de utilidad del 80 %",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.013485899999999999,
+        "lee_s": 37.722946,
+        "genera_s": 153.360977,
+        "total_s": 191.2121182999981,
+        "lee_tokens": 7522,
+        "genera_tokens": 301
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento describe ajustes específicos para la simplificación en Blender, como 'Max Subdivision', 'Texture Limit', 'Volume Resolution', y 'Camera Cull'. Ofrece información sobre cómo optimizar el rendimiento en escenas complejas. Sin embargo, no menciona medidas concretas, versiones de Blender ni hardware, lo que podría afectar su valor.",
+          "pregunta": "P6",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "valor",
+          "decision": "revision",
+          "confianza": "media",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3630,
+          "lee_s": 20.719098,
+          "genera_tokens": 145,
+          "genera_s": 70.971256,
+          "carga_s": 0.0071178,
+          "total_s": 91.77904209999542
+        },
+        "errores_despues": []
+      }
+    },
+    {
+      "doc_id": "8bbfebede4d86f9ba442b8bfc7b57ae59ca9d66cdb6ec157019bc2eab968520c",
+      "url": "https://docs.blender.org/manual/en/5.2/render/eevee/render_settings/sampling.html",
+      "fuente": "blender-manual",
+      "titulo": "Sampling",
+      "preguntas_embudo": [
+        "P1",
+        "P6"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe ajustes concretos en EEVEE, como el número de muestras, la reproyección temporal y los rayos de sombra, explicando su efecto en la calidad y rendimiento. Responde directamente a P6, ya que detalla cómo se hace algo en una versión específica de Blender (5.2). No requiere medidas ni hardware, ya que la regla del embudo acepta ajustes concretos como valor.",
+        "pregunta": "P6",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.0160635,
+        "lee_s": 43.137065,
+        "genera_s": 165.633991,
+        "total_s": 208.8593142999889,
+        "lee_tokens": 7626,
+        "genera_tokens": 324
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento explica ajustes relacionados con la renderización en EEVEE, como la cantidad de muestras, la reproyección temporal y los rayos de sombra. Ofrece información específica sobre parámetros y su efecto, lo que sugiere relevancia para P6. Sin embargo, el texto carece de medidas concretas, versiones o hardware, lo que podría afectar su valor.",
+          "pregunta": "P6",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "valor",
+          "decision": "revision",
+          "confianza": "alta",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3677,
+          "lee_s": 25.876903,
+          "genera_tokens": 155,
+          "genera_s": 77.661161,
+          "carga_s": 0.0071738,
+          "total_s": 103.58251209999435
+        },
+        "errores_despues": []
+      }
+    },
+    {
+      "doc_id": "7f31a6de0b2166b4733f06c36c52e289b42538806eb5cd3b7f4a050800df3b09",
+      "url": "https://docs.blender.org/manual/en/4.5/render/cycles/render_settings/sampling.html",
+      "fuente": "blender-manual",
+      "titulo": "Sampling",
+      "preguntas_embudo": [
+        "P1",
+        "P5",
+        "P6",
+        "P4"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [
+          "NVIDIA"
+        ],
+        "medidas": [
+          "2048 samples"
+        ]
+      },
+      "ia": {
+        "motivo": "El documento explica los ajustes de muestreo en Cycles, incluyendo el número máximo de muestras por píxel, el umbral de ruido y las opciones de desenfoque. Responde directamente a P6 (Cómo se hace algo en una versión concreta de un programa libre) y P5 (Técnicas publicadas por la industria aplicables con herramientas libres).",
+        "pregunta": "P6",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 3965,
+        "lee_s": 39.977566,
+        "genera_tokens": 162,
+        "genera_s": 85.829537,
+        "carga_s": 0.0079585,
+        "total_s": 125.85236790000636
+      },
+      "version": 4,
+      "reintento": null
+    },
+    {
+      "doc_id": "49c35e62770a44b2f58480198a2abc15574234db7cae81f08390d74aa2cc50ee",
+      "url": "https://docs.blender.org/manual/en/5.2/render/cycles/gpu_rendering.html",
+      "fuente": "blender-manual",
+      "titulo": "GPU Rendering",
+      "preguntas_embudo": [
+        "P1"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "La página solicitada no existe en la versión 5.2 del manual de Blender, ya que fue eliminada o renombrada. No proporciona información útil sobre el tema de la renderización con GPU.",
+        "pregunta": "ninguna",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "entrada",
+        "decision": "rechazar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "persona",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.0139473,
+        "lee_s": 24.192473,
+        "genera_s": 106.698679,
+        "total_s": 130.96796389999508,
+        "lee_tokens": 7095,
+        "genera_tokens": 222
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento no existe en la versión 5.2 del manual de Blender. La URL apunta a una página que ha sido eliminada o renombrada. No ofrece información útil sobre el tema de GPU Rendering.",
+          "pregunta": "ninguna",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "entrada",
+          "decision": "rechazar",
+          "confianza": "alta",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3431,
+          "lee_s": 9.553099,
+          "genera_tokens": 116,
+          "genera_s": 54.735495,
+          "carga_s": 0.0075866,
+          "total_s": 64.32896679999249
+        },
+        "errores_despues": [
+          "E3"
+        ]
+      }
+    },
+    {
+      "doc_id": "dafa41983d01315c372e33f0102de14eb826894a1338ad72db15aefe4eff3e49",
+      "url": "https://docs.blender.org/manual/en/4.5/render/cycles/render_settings/film.html",
+      "fuente": "blender-manual",
+      "titulo": "Film",
+      "preguntas_embudo": [
+        "P6"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe ajustes concretos de renderización en Blender, como los tipos de filtro de píxel (Box, Gaussian, Blackman-Harris) y la configuración de transparencia. Estos ajustes cumplen con el criterio de valor del embudo, ya que son específicos y orientados a la configuración del software. Sin embargo, no responde directamente a ninguna de las preguntas del plan (P1-P6) ni menciona versiones concretas de Blender, lo que limita su relevancia.",
+        "pregunta": "ninguna",
+        "cita": "g7b/seleccion-documental · Objetivo de utilidad del 80 %",
+        "etapa": "relevancia",
+        "decision": "revision",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "persona",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.0309255,
+        "lee_s": 34.134062,
+        "genera_s": 157.21358800000002,
+        "total_s": 191.46291009998822,
+        "lee_tokens": 7417,
+        "genera_tokens": 315
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento explica ajustes relacionados con la renderización en Blender, como el tipo de filtro de píxel y la opción de renderizar en transparencia. Sin embargo, no proporciona información específica sobre una versión concreta de Blender ni responde directamente a una pregunta del plan.",
+          "pregunta": "ninguna",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "valor",
+          "decision": "revision",
+          "confianza": "media",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3584,
+          "lee_s": 17.824903,
+          "genera_tokens": 132,
+          "genera_s": 63.900346,
+          "carga_s": 0.00812,
+          "total_s": 81.76745949999895
+        },
+        "errores_despues": [
+          "E3"
+        ]
+      }
+    },
+    {
+      "doc_id": "bfd930ca3b6a43e35486ffbf28fdc3f3bb18919b017acc2843d3499bc8d18e8a",
+      "url": "https://blender.stackexchange.com/questions/999999103/is-blender-4-2-good-for-low-end-pcs",
+      "fuente": "blender-stackexchange",
+      "titulo": "Is Blender 4.2 good for low-end PCs?",
+      "preguntas_embudo": [
+        "P1"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.2"
+        ],
+        "hardware": [
+          "Intel HD graphics"
+        ],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe una experiencia personal con Blender 4.2 en una laptop con gráficos Intel HD, destacando que funciona bien con Cycles y Eevee. Sin embargo, no incluye ajustes concretos, medidas, versiones de hardware ni datos técnicos que respalden una pregunta específica del plan.",
+        "pregunta": "P1",
+        "cita": "g7b/seleccion-documental · Objetivo de utilidad del 80 %",
+        "etapa": "valor",
+        "decision": "revision",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "persona",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.0133107,
+        "lee_s": 29.916527,
+        "genera_s": 140.938397,
+        "total_s": 170.9308779999992,
+        "lee_tokens": 7213,
+        "genera_tokens": 281
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento habla sobre la experiencia personal con Blender 4.2 en una laptop con gráficos Intel HD, mencionando que funciona bien con Cycles y Eevee, aunque hay opiniones divididas. No incluye medidas, versiones concretas de hardware, ajustes ni datos técnicos que respalden una pregunta específica del plan.",
+          "pregunta": "ninguna",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "relevancia",
+          "decision": "revision",
+          "confianza": "media",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3483,
+          "lee_s": 13.704912,
+          "genera_tokens": 148,
+          "genera_s": 72.636987,
+          "carga_s": 0.0063666,
+          "total_s": 86.37756790001004
+        },
+        "errores_despues": [
+          "E3"
+        ]
+      }
+    },
+    {
+      "doc_id": "70937ceafea5fd54e91e3c0bdf65fb4472040695e733a674237df11802551254",
+      "url": "https://docs.blender.org/manual/en/5.2/render/shader_nodes/textures/noise.html",
+      "fuente": "blender-manual",
+      "titulo": "Noise Texture Node",
+      "preguntas_embudo": [
+        "P6",
+        "P1"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": [
+          "50%"
+        ]
+      },
+      "ia": {
+        "motivo": "El documento describe el nodo Noise Texture en Blender, explicando sus entradas, propiedades y tipos de ruido. Ofrece información técnica sobre cómo funciona el nodo y sus parámetros. Sin embargo, no responde directamente a una pregunta específica del plan, aunque sí puede ser útil para entender cómo se usa en una versión concreta de Blender.",
+        "pregunta": "P6",
+        "cita": "g7b/seleccion-documental · Objetivo de utilidad del 80 %",
+        "etapa": "relevancia",
+        "decision": "revision",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "persona",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": false,
+        "incoherencias": [
+          "asigna una pregunta pero dice que falla la relevancia"
+        ],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 3957,
+        "lee_s": 39.719192,
+        "genera_tokens": 150,
+        "genera_s": 78.310857,
+        "carga_s": 0.006394,
+        "total_s": 118.0695612999989
+      },
+      "version": 4,
+      "reintento": null
+    },
+    {
+      "doc_id": "f9c03b5d2795364dddd4a0e686fd226acae358ea2acdedb76f54b7f45f705fc0",
+      "url": "https://blender.stackexchange.com/questions/999999102/how-to-make-eevee-render-faster",
+      "fuente": "blender-stackexchange",
+      "titulo": "How to make Eevee render faster?",
+      "preguntas_embudo": [
+        "P1",
+        "P6"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.2"
+        ],
+        "hardware": [
+          "GTX 1060"
+        ],
+        "medidas": [
+          "400%"
+        ]
+      },
+      "ia": {
+        "motivo": "El documento propone ajustes concretos para mejorar la velocidad de renderizado en Eevee en Blender 4.2 con una GTX 1060, como aumentar las muestras de renderizado, desactivar Simplify, ajustar la resolución y cambiar la gestión de color. Estos ajustes son específicos y responden a una pregunta del plan (P6).",
+        "pregunta": "P6",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.0139715,
+        "lee_s": 30.544139,
+        "genera_s": 158.19069000000002,
+        "total_s": 188.80976889999874,
+        "lee_tokens": 7242,
+        "genera_tokens": 319
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento ofrece ajustes concretos para mejorar la velocidad de renderizado en Eevee en Blender 4.2 con una GTX 1060. Propone aumentar las muestras de renderizado, desactivar Simplify, ajustar la resolución y cambiar la gestión de color. Sin embargo, no menciona medidas concretas, versiones de hardware ni ajustes específicos que permitan evaluar su utilidad con precisión.",
+          "pregunta": "P6",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "valor",
+          "decision": "revision",
+          "confianza": "media",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3488,
+          "lee_s": 13.264379,
+          "genera_tokens": 164,
+          "genera_s": 78.775442,
+          "carga_s": 0.0075685,
+          "total_s": 92.07574169999862
+        },
+        "errores_despues": []
+      }
+    },
+    {
+      "doc_id": "5a6b563cf7d7d1b5d66a5b5d9a84f41668e73c33c2d8e0c13feadaef726fcb07",
+      "url": "https://docs.blender.org/manual/en/4.5/render/cycles/baking.html",
+      "fuente": "blender-manual",
+      "titulo": "Render Baking",
+      "preguntas_embudo": [
+        "P6",
+        "P5",
+        "P1"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica cómo realizar el 'baking' en Cycles, incluyendo configuraciones como el tipo de pass, el uso de UV maps y la relación con los ajustes de renderizado. Ofrece información técnica sobre los diferentes tipos de passes y su propósito, lo que responde a la pregunta P6: 'Cómo se hace algo en una versión concreta de un programa libre'.",
+        "pregunta": "P6",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "lee_tokens": 3912,
+        "lee_s": 37.74435,
+        "genera_tokens": 155,
+        "genera_s": 79.744467,
+        "carga_s": 0.0075433,
+        "total_s": 117.52865720000409
+      },
+      "version": 4,
+      "reintento": null
+    },
+    {
+      "doc_id": "5c6f255f71b1498ef018a9665c0f3dda89f292b3dd8ec7064909cb4fcc2d8241",
+      "url": "https://docs.blender.org/manual/en/5.2/modeling/modifiers/generate/bevel.html",
+      "fuente": "blender-manual",
+      "titulo": "Bevel Modifier",
+      "preguntas_embudo": [
+        "P6",
+        "P1",
+        "P5"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento explica el modificador Bevel en Blender, describiendo sus opciones como 'Vertices', 'Edges', 'Width Type', 'Segments' y 'Limit Method'. Ofrece información detallada sobre cómo funciona el modificador, incluyendo ejemplos de anchos de bevel (0.1, 0.3, 0.5) y cómo se calcula la profundidad y el ancho. Contiene ajustes concretos como 'Segments' y 'Width Type', que permiten configurar el efecto del modificador. No menciona versiones específicas de Blender ni hardware, pero cumple con el criterio de valor al proporcionar parámetros y efectos concretos.",
+        "pregunta": "P6",
+        "cita": "g7b/seleccion-documental · Objetivo de utilidad del 80 %",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.0133571,
+        "lee_s": 58.128435,
+        "genera_s": 223.28515199999998,
+        "total_s": 281.5084074999904,
+        "lee_tokens": 8184,
+        "genera_tokens": 416
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento explica el modificador Bevel en Blender, describiendo sus opciones como 'Vertices', 'Edges', 'Width Type', 'Segments' y 'Limit Method'. Ofrece información sobre cómo funciona el modificador, incluyendo ejemplos de anchos de bevel (0.1, 0.3, 0.5) y cómo se calcula la profundidad y el ancho. Sin embargo, no menciona específicamente cómo se hace algo en una versión concreta de Blender ni proporciona ajustes concretos para un equipo.",
+          "pregunta": "P6",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "valor",
+          "decision": "revision",
+          "confianza": "alta",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3940,
+          "lee_s": 38.716413,
+          "genera_tokens": 187,
+          "genera_s": 97.236571,
+          "carga_s": 0.0074115,
+          "total_s": 135.99455239999224
+        },
+        "errores_despues": []
+      }
+    },
+    {
+      "doc_id": "918650a8dc758aed884bff3dcc9103fc7a9ea8c6b3a6720516f5175f49af8028",
+      "url": "https://docs.blender.org/manual/en/5.2/modeling/geometry_nodes/mesh/operations/extrude_mesh.html",
+      "fuente": "blender-manual",
+      "titulo": "Extrude Mesh Node",
+      "preguntas_embudo": [
+        "P6",
+        "P1"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe en detalle el funcionamiento del nodo Extrude Mesh, incluyendo sus entradas, propiedades y modos de operación. Explica cómo se generan nuevas aristas y caras al extruir geometría, así como aspectos técnicos sobre la orientación de las normales. Sin embargo, no proporciona ajustes concretos ni menciona versiones específicas de Blender, lo que limita su valor según la regla del embudo.",
+        "pregunta": "P6",
+        "cita": "g7b/ingesta · 4. El embudo",
+        "etapa": "valor",
+        "decision": "revision",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "persona",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.013457199999999999,
+        "lee_s": 54.500603,
+        "genera_s": 182.17155300000002,
+        "total_s": 236.76278160001675,
+        "lee_tokens": 8098,
+        "genera_tokens": 344
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento explica cómo funciona el nodo Extrude Mesh en Blender, describiendo sus entradas, propiedades y modos de operación. Ofrece información técnica sobre cómo se generan nuevas aristas o caras al extruir geometría, incluyendo detalles sobre la orientación de las normales y la duplicación de vértices. Sin embargo, no menciona específicamente qué hacer en una versión concreta de Blender ni proporciona ajustes concretos para trabajar con fluidez según el equipo.",
+          "pregunta": "P6",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "valor",
+          "decision": "revision",
+          "confianza": "alta",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3902,
+          "lee_s": 35.881498,
+          "genera_tokens": 177,
+          "genera_s": 91.525758,
+          "carga_s": 0.0065462,
+          "total_s": 127.45193950000976
+        },
+        "errores_despues": [
+          "E3"
+        ]
+      }
+    },
+    {
+      "doc_id": "0e7705b704222259f6302616597c1f1b6e892ae0f7db3097153df3f718fb6b3a",
+      "url": "https://docs.blender.org/manual/en/4.5/modeling/geometry_nodes/instances/instance_on_points.html",
+      "fuente": "blender-manual",
+      "titulo": "Instance on Points Node",
+      "preguntas_embudo": [
+        "P6"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "4.5"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe el nodo Instance on Points de Blender 4.5, explicando su función, inputs, propiedades y outputs. Aunque no incluye medidas, hardware ni versiones explícitas, proporciona información sobre ajustes concretos como la selección de puntos, rotación, escala y el uso de la opción Pick Instances. Cumple con los criterios de valor del embudo al ofrecer detalles técnicos sobre el uso del nodo.",
+        "pregunta": "P6",
+        "cita": "g7b/seleccion-documental · Objetivo de utilidad del 80 %",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.0138731,
+        "lee_s": 50.611959,
+        "genera_s": 168.657055,
+        "total_s": 219.35281940001005,
+        "lee_tokens": 7969,
+        "genera_tokens": 321
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento explica el uso del nodo Instance on Points en Blender, describiendo cómo se utilizan instancias en geometría. Ofrece información sobre los inputs, propiedades y outputs del nodo, incluyendo cómo afectan las transformaciones a las instancias. No incluye medidas, versiones, hardware ni ajustes concretos, lo que podría limitar su valor.",
+          "pregunta": "P6",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "valor",
+          "decision": "revision",
+          "confianza": "alta",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3852,
+          "lee_s": 32.853578,
+          "genera_tokens": 148,
+          "genera_s": 75.932221,
+          "carga_s": 0.0074485,
+          "total_s": 108.82916150000528
+        },
+        "errores_despues": []
+      }
+    },
+    {
+      "doc_id": "239177998e30451afed2e479b2ab425a9bde238d5fa7bd8eaaad42f2f066b37e",
+      "url": "https://docs.blender.org/manual/en/5.2/modeling/modifiers/deform/cast.html",
+      "fuente": "blender-manual",
+      "titulo": "Cast Modifier",
+      "preguntas_embudo": [
+        "P6",
+        "P1"
+      ],
+      "contexto": [],
+      "similitudes": [],
+      "datos_codigo": {
+        "version_blender": [
+          "5.2"
+        ],
+        "hardware": [],
+        "medidas": []
+      },
+      "ia": {
+        "motivo": "El documento describe el modificador Cast en Blender, explicando sus opciones como Factor, Vertex Group, Invert, Resolution, Clamp, Cycles y Show in Viewport. La información es general pero incluye ajustes concretos como Factor, Vertex Group, Invert, Resolution y Clamp, que indican cómo configurar el modificador. No menciona versiones específicas de Blender, pero la versión del documento (5.2) está en su URL. La información es útil para entender cómo funciona el modificador, aunque no da instrucciones detalladas sobre su uso en un contexto específico.",
+        "pregunta": "P6",
+        "cita": "g7b/seleccion-documental · Objetivo de utilidad del 80 %",
+        "etapa": "ninguna",
+        "decision": "aceptar",
+        "confianza": "alta",
+        "no_se": false
+      },
+      "decision_efectiva": "aceptar",
+      "crudo": null,
+      "chequeo": {
+        "esquema": true,
+        "pregunta": true,
+        "cita": true,
+        "coherente": true,
+        "incoherencias": [],
+        "motivo_primero": true
+      },
+      "tiempos": {
+        "carga_s": 0.025683900000000003,
+        "lee_s": 27.503289000000002,
+        "genera_s": 177.915043,
+        "total_s": 205.52412339999864,
+        "lee_tokens": 7190,
+        "genera_tokens": 362
+      },
+      "version": 4,
+      "reintento": {
+        "errores": [
+          "E3"
+        ],
+        "primera": {
+          "motivo": "El documento describe el modificador Cast en Blender, explicando sus opciones como Factor, Vertex Group, Invert, Resolution, Clamp, Cycles y Show in Viewport. No responde a ninguna pregunta del plan porque no menciona ajustes concretos, versiones, hardware ni medidas. La información es general y no proporciona instrucciones específicas sobre cómo usar el modificador en una versión concreta de Blender.",
+          "pregunta": "ninguna",
+          "cita": "g7b/ingesta · 4. El embudo",
+          "etapa": "valor",
+          "decision": "revision",
+          "confianza": "alta",
+          "no_se": false
+        },
+        "tiempos_primera": {
+          "lee_tokens": 3458,
+          "lee_s": 10.555665,
+          "genera_tokens": 160,
+          "genera_s": 76.541938,
+          "carga_s": 0.0071621,
+          "total_s": 87.13409049999609
+        },
+        "errores_despues": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+# [REVISION 2026-11-27] Configuracion de la consola (leida por consola/__main__.py y consola/nucleo.py).
+# Configuración de la consola de Amatista IA (BASE.md, sección 3). Cambiar estos valores es un cambio del flujo:
+# se decide antes de un lote, no a mitad de uno.
+tamano_lote: 100            # documentos por lote; al llegar aquí, la consola hace el cierre sola
+muestras: 20                # muestras al azar por cierre
+muestras_descartadas: 6     # de esas, cuántas salen de lo que la IA NO aceptó (revisión, rechazo o «persona»)
+# [REVISION-BUG] (doc) max_lotes_esperando=50 contradice el docstring de consola/nucleo.py ('con 2 lotes esperando,
+# la consola se pausa'). Actualizar la documentacion o el valor.
+max_lotes_esperando: 50     # ciclo continuo 24h: no pausar aunque haya lotes sin veredicto humano
+espera_s: 120               # cada cuánto vuelve a mirar cuando está en pausa o sin documentos nuevos
+refresco_s: 5               # cada cuánto se redibuja la consola
+reintento_preparar_s: 120   # si al arrancar falta Ollama o MongoDB, cada cuánto vuelve a intentar (no se detiene)
+
+# Revisor (el mismo de revisor/revisar.py)
+modelo: "qwen3:8b"
+embeddings: "bge-m3"
+criterios: true             # criterios aprendidos y errores conocidos (ia/criterios) en las instrucciones fijas
+palabras: 450
+cuantos: 3
+refrescar_canon_al_iniciar: true
+
+# Carpeta donde aparecen los cierres. Vacía = el escritorio de esta computadora («Amatista IA · cierres»).
+carpeta_cierres: ""
+
+# La puerta (python -m consola promover): colección de MongoDB donde se copia lo aprobado. Nunca «documentos».
+coleccion_promocion: "conocimiento_auditado"
+
+# Carpetas externas con JSONL de otros auditores (p. ej. Gemini API) cuyos doc_id se omiten para no duplicar trabajo.
+excluir_carpetas:
+  - "../lab-limites-gemini/resultados/ciclo_24h"

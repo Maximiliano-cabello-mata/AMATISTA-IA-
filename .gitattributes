@@ -1,0 +1,4 @@
+# Estos archivos se comparan por su huella SHA-256: deben quedar byte a byte, sin convertir finales de línea.
+control/clave_c1.yml -text
+control/conjunto_c1.jsonl -text
+control/clave_c1.sha256 -text

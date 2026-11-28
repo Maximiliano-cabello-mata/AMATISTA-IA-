@@ -1,0 +1,134 @@
+# Cómo se comportó cada revisor: conteos [éxitos, total] de las comprobaciones por código. Solo agregados:
+# ningún texto del lago. Fuente de cada corrida: revisor/RESULTADOS_PRUEBA.md.
+version: 1
+corridas:
+  - id: v1-codellama
+    revisor: 1
+    modelo: "codellama:latest"
+    fecha: 2026-11-21
+    muestra: 20 documentos de conocimiento_3d (todos blender-manual)
+    senales:
+      json: [20, 20]
+      cita: [1, 20]
+      datos: [15, 73]      # sin contar la URL; también tomó versiones de la URL, pero no se contaron aparte
+  - id: v1-qwen3
+    revisor: 1
+    modelo: "qwen3:8b"
+    fecha: 2026-11-22
+    muestra: la misma
+    senales:
+      json: [20, 20]
+      cita: [3, 20]        # 17 de 20 si se cuenta el id del canon puesto en el campo equivocado
+      datos: [17, 19]      # contando la URL (criterio C2); 0 de 19 sin ella
+  - id: v2-qwen3
+    revisor: 2
+    modelo: "qwen3:8b"
+    fecha: 2026-11-22
+    muestra: la misma (canon 108 fragmentos)
+    senales:
+      json: [20, 20]
+      cita: [20, 20]
+      coherente: [11, 20]
+  - id: v2-canon3
+    revisor: 2
+    criterios: false
+    modelo: "qwen3:8b"
+    fecha: 2026-11-22
+    muestra: la misma (canon v3, 119 fragmentos, sin --criterios)
+    senales:
+      json: [20, 20]
+      cita: [20, 20]
+      coherente: [10, 20]
+  - id: v2-criterios
+    revisor: 2
+    criterios: true
+    modelo: "qwen3:8b"
+    fecha: 2026-11-22
+    muestra: la misma (canon v3, 119 fragmentos, con --criterios)
+    senales:
+      json: [20, 20]
+      cita: [20, 20]
+      coherente: [14, 20]
+  - id: v3-qwen3
+    revisor: 3
+    criterios: false
+    modelo: "qwen3:8b"
+    fecha: 2026-11-22
+    muestra: la misma (canon v3, 119 fragmentos, razona antes de decidir)
+    senales:
+      json: [20, 20]
+      cita: [20, 20]
+      coherente: [18, 20]
+  - id: v3-c1-qwen3
+    revisor: 3
+    criterios: false
+    cuantos: 1
+    modelo: "qwen3:8b"
+    fecha: 2026-11-22
+    muestra: la misma (canon v3, 119 fragmentos, --cuantos 1)
+    senales:
+      json: [20, 20]
+      cita: [20, 20]
+      coherente: [17, 20]
+  - id: v3-canon4
+    revisor: 3
+    criterios: false
+    modelo: "qwen3:8b"
+    fecha: 2026-11-22
+    muestra: la misma (canon v4, 126 fragmentos, sin --criterios)
+    senales:
+      json: [20, 20]
+      cita: [20, 20]
+      coherente: [19, 20]
+  - id: v3-criterios
+    revisor: 3
+    criterios: true
+    modelo: "qwen3:8b"
+    fecha: 2026-11-22
+    muestra: la misma (canon v4, 126 fragmentos, con --criterios y errores conocidos E1-E6)
+    senales:
+      json: [20, 20]
+      cita: [20, 20]
+      coherente: [18, 20]
+  - id: lote-001
+    revisor: 3
+    criterios: true
+    modelo: "qwen3:8b"
+    fecha: 2026-11-23
+    muestra: 20 muestras del primer cierre de la consola (14 aceptados + 6 no aceptados, estratificada; todas blender-manual). Ver revisor/SEGUNDA_OPINION_LOTE_001.md
+    senales:
+      json: [20, 20]
+      cita: [20, 20]
+      coherente: [20, 20]      # por código; el código no ve 2 motivos positivos con decisión «revisión»
+      cita_regla: [7, 20]      # la cita es el embudo (g7b/ingesta) o la rúbrica de selección; 9 son de telemetría, fichas o conexión
+      motivo_breve: [0, 20]    # motivo de 40 palabras o menos, como piden las instrucciones (43–79; mediana 54)
+  - id: v3-control-c1
+    revisor: 3
+    criterios: true
+    modelo: "qwen3:8b"
+    fecha: 2026-11-22
+    muestra: conjunto de control C1 (35 documentos públicos, canon v5, 135 fragmentos)
+    senales:
+      json: [35, 35]
+      cita: [35, 35]
+      coherente: [35, 35]
+  - id: v4-control-c1
+    revisor: 4
+    criterios: true
+    modelo: "qwen3:8b"
+    fecha: 2026-11-23
+    muestra: conjunto de control C1 (35 documentos públicos, canon v5, 135 fragmentos)
+    senales:
+      json: [35, 35]
+      cita: [35, 35]
+      coherente: [33, 35]
+  - id: v4-lote001
+    revisor: 4
+    criterios: true
+    modelo: "qwen3:8b"
+    fecha: 2026-11-23
+    muestra: lote 1 completo de la consola (100 documentos, canon v5, 135 fragmentos)
+    senales:
+      json: [100, 100]
+      cita: [100, 100]
+      coherente: [93, 100]

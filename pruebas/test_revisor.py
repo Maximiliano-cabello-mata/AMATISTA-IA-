@@ -1,0 +1,256 @@
+"""Pruebas del revisor sin red: el modelo, los vectores y el canon se simulan."""
+import json
+
+from revisor.revisar import (CANON_REGLAS, CITA_EMBUDO, BuscadorLocal, citas_permitidas, diagnosticar_cache,
+                             escribir_planilla, esquema_para, extraer_datos, hoja_fija, mensaje_documento, resumir,
+                             revisar_todo, validar)
+
+TAX = {'preguntas': {'P1': {'nombre': 'Fluidez'}, 'P2': {'nombre': 'Versión'}}}
+
+
+def frag(i, doc, seccion, texto, eje):
+    """Fragmento simulado del canon con un vector de un solo eje."""
+    v = [0.0] * 4
+    v[eje] = 1.0
+    return {'id': i, 'documento_id': doc, 'seccion': seccion, 'texto': texto, 'embedding': v, 'titulo': doc}
+
+
+CANON = {'fragmentos': [
+    frag(1, CANON_REGLAS, 'Ingesta > 4. El embudo (`g7b_ingesta/embudo.py`)', 'Cinco etapas: entrada, calidad...', 0),
+    frag(2, 'g7b/cubo', 'Cubo > Calidad', 'v_resumen no suma FPS con muestras por minuto', 1),
+    frag(3, 'g7b/estandar-telemetria', 'Hardware', 'hardware records g7b.hardware/1 gpu vram', 2),
+]}
+
+
+def salida(**cambios):
+    """Respuesta valida del modelo con los cambios dados."""
+    base = {'decision': 'aceptar', 'etapa': 'ninguna', 'motivo': 'Tiene medidas.', 'pregunta': 'P1',
+            'cita': CITA_EMBUDO, 'confianza': 'alta', 'no_se': False}
+    return {**base, **cambios}
+
+
+TEXTO = 'En Blender 4.2 con una RTX 3060 la vista da 45 fps.'
+
+
+def test_validar_detecta_citas_ajenas_preguntas_fuera_de_lista_e_incoherencias():
+    """Prueba: validar detecta citas ajenas preguntas fuera de lista e incoherencias."""
+    ok = validar(salida(), {'P1', 'P2'}, {CITA_EMBUDO})
+    assert ok == {'esquema': True, 'pregunta': True, 'cita': True, 'coherente': True, 'incoherencias': []}
+    mal = validar(salida(pregunta='P9', cita='g7b/vision · x'), {'P1', 'P2'}, {CITA_EMBUDO})
+    assert not mal['pregunta'] and not mal['cita']
+    # Lo que hizo qwen3:8b en «Group»: asigna P6 y a la vez dice que falla la relevancia.
+    raro = validar(salida(decision='revision', etapa='relevancia', pregunta='P6'), {'P6'}, {CITA_EMBUDO})
+    assert not raro['coherente'] and 'falla la relevancia' in raro['incoherencias'][0]
+    assert not validar(salida(etapa='valor'), {'P1'}, {CITA_EMBUDO})['coherente']        # acepta con etapa que falla
+    assert not validar(salida(decision='revision'), {'P1'}, {CITA_EMBUDO})['coherente']  # no acepta sin etapa
+    assert validar(None, set(), set()) == {'esquema': False}
+
+
+def test_la_cita_es_una_lista_cerrada_por_documento():
+    """Prueba: la cita es una lista cerrada por documento."""
+    contexto = [CANON['fragmentos'][1], CANON['fragmentos'][2], CANON['fragmentos'][1]]
+    citas = citas_permitidas(contexto)
+    assert citas == [CITA_EMBUDO, 'g7b/cubo · Cubo > Calidad', 'g7b/estandar-telemetria · Hardware']
+    assert esquema_para(citas)['properties']['cita']['enum'] == citas
+    assert 'CITAS PERMITIDAS:\n- ' + CITA_EMBUDO in mensaje_documento({'titulo': 't'}, contexto, 50)
+
+
+def test_los_datos_los_extrae_el_codigo_con_la_tabla_de_hardware():
+    """Prueba: los datos los extrae el codigo con la tabla de hardware."""
+    import re
+    patrones = [re.compile(r'rtx (4090|3090)', re.I), re.compile(r'rtx 3060', re.I), re.compile(r'intel.*(uhd|hd graphics)', re.I)]
+    d = extraer_datos({'titulo': 'T', 'texto': TEXTO, 'url': 'https://docs.blender.org/manual/en/4.5/x.html'}, patrones)
+    assert d == {'version_blender': ['4.2', '4.5'], 'hardware': ['RTX 3060'], 'medidas': ['45 fps']}
+    # Los ejemplos del embudo («UHD 620») NO están en el documento: el código no los puede «copiar».
+    assert extraer_datos({'titulo': 'x', 'texto': 'Sin datos.', 'url': ''}, patrones) == \
+        {'version_blender': [], 'hardware': [], 'medidas': []}
+
+
+def test_el_buscador_local_no_devuelve_el_embudo_y_fusiona_texto_y_vector():
+    """Prueba: el buscador local no devuelve el embudo y fusiona texto y vector."""
+    b = BuscadorLocal(CANON['fragmentos'])
+    r = b.buscar('fps muestras por minuto', [0, 1, 0, 0], cuantos=2)
+    assert r[0]['documento_id'] == 'g7b/cubo'
+    assert all(f['documento_id'] != CANON_REGLAS for f in r)
+
+
+def test_la_hoja_fija_lleva_el_embudo_y_la_lista_cerrada():
+    """Prueba: la hoja fija lleva el embudo y la lista cerrada."""
+    h = hoja_fija(CANON['fragmentos'], TAX)
+    assert 'Cinco etapas' in h and '- P1: Fluidez' in h and '- P2: Versión' in h
+
+
+class FalsoEmbebedor:
+    """Embebedor simulado con vectores fijos."""
+    def vectores(self, textos):
+        """Devuelve un vector fijo por texto."""
+        return [[0, 1, 0, 0] for _ in textos]
+
+
+class FalsoGenerador:
+    """Generador simulado que devuelve respuestas en orden."""
+    def __init__(self, respuestas):
+        """Guarda la lista de respuestas."""
+        self.respuestas, self.sistemas = list(respuestas), []
+
+    def responder(self, sistema, usuario, esquema=None, max_tokens=300, formato=True, apagar_pensar=True):
+        """Devuelve la siguiente respuesta y estadisticas fijas."""
+        self.sistemas.append(sistema)
+        self.esquemas = getattr(self, 'esquemas', []) + [esquema]
+        return self.respuestas.pop(0), {'lee_tokens': 900, 'lee_s': 30.0, 'genera_tokens': 120, 'genera_s': 24.0, 'carga_s': 0}
+
+
+def test_corrida_completa_resume_y_escribe_la_planilla(tmp_path):
+    """Prueba: corrida completa resume y escribe la planilla."""
+    docs = [{'doc_id': 'a', 'titulo': 'Rendimiento', 'texto': TEXTO, 'preguntas': ['P1']},
+            {'doc_id': 'b', 'titulo': 'Receta', 'texto': 'Pan con harina.', 'preguntas': ['P2']},
+            {'doc_id': 'c', 'titulo': 'Roto', 'texto': 'x', 'preguntas': []}]
+    gen = FalsoGenerador([json.dumps(salida()),
+                          json.dumps(salida(decision='rechazar', etapa='relevancia', pregunta='ninguna')),
+                          'esto no es JSON'])
+    r = revisar_todo(docs, CANON, TAX, FalsoEmbebedor(), gen, registro=lambda *_: None)
+    assert len(set(gen.sistemas)) == 1                         # la hoja fija es idéntica: Ollama la reutiliza
+    s = resumir(r)
+    assert s['json_valido'] == 2 / 3 and s['decisiones'] == {'aceptar': 1, 'revision': 0, 'rechazar': 1}
+    assert s['cita_valida'] == 1.0 and s['coherente'] == 1.0 and s['coincide_pregunta_embudo'] == 0.5
+    assert all(e['properties']['cita']['enum'][0] == CITA_EMBUDO for e in gen.esquemas)   # cita cerrada en cada documento
+    assert r[0]['datos_codigo']['medidas'] == ['45 fps'] and len(r[0]['similitudes']) == len(r[0]['contexto'])
+    assert s['tokens_por_documento'] == {'lee': 900, 'genera': 120}
+    assert s['tokens_por_segundo'] == {'genera': 5.0, 'lee': 30.0}
+    escribir_planilla(r, tmp_path / 'p.csv')
+    filas = (tmp_path / 'p.csv').read_text(encoding='utf-8-sig').splitlines()
+    assert len(filas) == 4 and 'JSON inválido' in filas[3] and filas[0].endswith('humano_nota')
+
+
+def test_comparar_mide_acuerdo_deteccion_y_falsas_alarmas():
+    """Prueba: comparar mide acuerdo deteccion y falsas alarmas."""
+    from revisor.comparar import comparar
+    filas = [{'ia_decision': 'aceptar', 'humano_decision': 'aceptar', 'ia_pregunta': 'P1', 'humano_pregunta': 'P1'},
+             {'ia_decision': 'rechazar', 'humano_decision': 'Rechazar', 'ia_pregunta': 'ninguna', 'humano_pregunta': ''},
+             {'ia_decision': 'revision', 'humano_decision': 'aceptar', 'ia_pregunta': 'P2', 'humano_pregunta': 'P1'},
+             {'ia_decision': 'aceptar', 'humano_decision': 'revision', 'ia_pregunta': 'P1', 'humano_pregunta': ''},
+             {'ia_decision': 'aceptar', 'humano_decision': '', 'ia_pregunta': 'P1', 'humano_pregunta': ''}]
+    r = comparar(filas)
+    assert r['marcadas'] == 4 and r['acuerdo_decision'] == 0.5
+    assert r['detecta_problemas'] == 0.5 and r['falsas_alarmas'] == 0.5 and r['acuerdo_pregunta'] == 0.5
+
+
+def test_diagnostico_de_cache_compara_contra_una_llamada_fria():
+    """Prueba: diagnostico de cache compara contra una llamada fria."""
+    class G:
+        """Generador simulado con tiempos de lectura fijos."""
+        def __init__(self, segundos):
+            """Guarda los segundos simulados por llamada."""
+            self.segundos, self.llamadas = list(segundos), []
+
+        def responder(self, sistema, usuario, esquema=None, max_tokens=300, formato=True, apagar_pensar=True):
+            """Devuelve una respuesta vacia con el siguiente tiempo simulado."""
+            self.llamadas.append((sistema, usuario, tuple(esquema['properties']['cita']['enum'])))
+            return '{}', {'lee_tokens': 1200, 'lee_s': self.segundos.pop(0)}
+    g = G([30.0, 2.0, 29.0])
+    r = diagnosticar_cache(g, 'hoja', registro=lambda *_: None)
+    assert r['reutiliza_entre_documentos'] and not r['reutiliza_con_otras_citas']
+    assert len({s for s, _, _ in g.llamadas}) == 1 and g.llamadas[0][0].startswith('[diagnóstico ')   # fría y la misma
+    assert g.llamadas[2][2] != g.llamadas[1][2]                                                        # otras citas
+    otra = G([30.0, 2.0, 29.0])
+    diagnosticar_cache(otra, 'hoja', registro=lambda *_: None)
+    assert otra.llamadas[0][0] != g.llamadas[0][0]                     # cada diagnóstico usa una marca nueva
+
+
+def test_v3_el_motivo_va_primero_y_la_decision_al_final():
+    """Prueba: v3 el motivo va primero y la decision al final."""
+    props = list(esquema_para([CITA_EMBUDO])['properties'])
+    assert props[0] == 'motivo' and props.index('decision') > props.index('etapa') > props.index('pregunta')
+    h = hoja_fija(CANON['fragmentos'], TAX)
+    assert 'primero piensas, al final decides' in h and 'o la que más pesa' not in h
+
+
+def test_v3_una_decision_incoherente_va_a_una_persona():
+    """Prueba: v3 una decision incoherente va a una persona."""
+    docs = [{'doc_id': 'a', 'titulo': 'A', 'texto': TEXTO, 'preguntas': ['P6'], 'url': 'u'},
+            {'doc_id': 'b', 'titulo': 'B', 'texto': TEXTO, 'preguntas': ['P6'], 'url': 'v'}]
+    gen = FalsoGenerador([json.dumps({'motivo': 'Responde P6.', **salida(decision='revision', etapa='relevancia', pregunta='P6')}),
+                          json.dumps({'motivo': 'Explica un nodo.', **salida()})])
+    r = revisar_todo(docs, CANON, {'preguntas': {'P6': {'nombre': 'x'}}}, FalsoEmbebedor(), gen, registro=lambda *_: None)
+    assert [x['decision_efectiva'] for x in r] == ['persona', 'aceptar']
+    s = resumir(r)
+    assert s['decisiones'] == {'aceptar': 1, 'revision': 1, 'rechazar': 0}
+    assert s['decisiones_efectivas'] == {'aceptar': 1, 'revision': 0, 'rechazar': 0, 'persona': 1}
+    assert s['etapas'] == {'relevancia': 1, 'ninguna': 1} and s['motivo_primero'] == 1.0
+
+
+def test_v3_buscar_con_cuantos_y_umbral():
+    """Prueba: v3 buscar con cuantos y umbral."""
+    b = BuscadorLocal(CANON['fragmentos'])
+    assert b.buscar('fps muestras', [0, 1, 0, 0], cuantos=0) == []
+    assert [f['documento_id'] for f in b.buscar('fps muestras', [0, 1, 0, 0], cuantos=3, umbral=0.9)] == ['g7b/cubo']
+
+
+def test_v3_los_errores_conocidos_entran_con_los_criterios():
+    """Prueba: v3 los errores conocidos entran con los criterios."""
+    from revisor.revisar import CANON_CRITERIOS
+    fr = CANON['fragmentos'] + [
+        {'id': 9, 'documento_id': CANON_CRITERIOS, 'orden': 1, 'seccion': 'X > Criterios verificados > C1. Datos', 'texto': 'c', 'embedding': [0, 0, 0, 1]},
+        {'id': 10, 'documento_id': CANON_CRITERIOS, 'orden': 2, 'seccion': 'X > Errores conocidos del revisor > E1. Decidías antes', 'texto': 'e', 'embedding': [0, 0, 0, 1]},
+        {'id': 11, 'documento_id': CANON_CRITERIOS, 'orden': 3, 'seccion': 'X > Errores conocidos del revisor', 'texto': 'intro', 'embedding': [0, 0, 0, 1]}]
+    h = hoja_fija(fr, TAX, criterios=True)
+    assert 'C1. Datos\nc' in h and 'E1. Decidías antes\ne' in h and 'intro' not in h and 'TUS ERRORES CONOCIDOS' in h
+
+
+# --- v4 ------------------------------------------------------------------------------------------------------------
+from revisor.revisar import CANON_RUBRICA, citas_fijas, errores_en_motivo, observacion  # noqa: E402
+
+CANON4 = {'fragmentos': CANON['fragmentos'] + [
+    {**frag(4, CANON_RUBRICA, 'Objetivo de utilidad del 80 %', 'Un bloque útil responde una pregunta técnica.', 3), 'orden': 1}]}
+URL_52 = 'https://docs.blender.org/manual/en/5.2/render/x.html'
+
+
+class SinEmbebedor:
+    """Embebedor que falla si se usa (la v4 no debe vectorizar)."""
+    def vectores(self, textos):
+        """Lanza AssertionError: la v4 no debe calcular vectores."""
+        raise AssertionError('la v4 no recupera por parecido: no debe calcular vectores')
+
+
+def test_v4_citas_fijas_en_la_hoja_y_mensaje_sin_fragmentos():
+    """Prueba: v4 citas fijas en la hoja y mensaje sin fragmentos."""
+    assert citas_fijas(CANON4['fragmentos']) == [CITA_EMBUDO, f'{CANON_RUBRICA} · Objetivo de utilidad del 80 %']
+    h = hoja_fija(CANON4['fragmentos'], TAX, version=4)
+    assert 'REGLA DE UTILIDAD' in h and 'Un bloque útil' in h and h.rstrip().endswith('Objetivo de utilidad del 80 %')
+    m = mensaje_documento({'titulo': 't', 'texto': 'x', 'url': URL_52}, [], 50, version=4)
+    assert m.startswith('DOCUMENTO A REVISAR') and 'FRAGMENTOS' not in m and 'CITAS PERMITIDAS' not in m
+    assert 'REGLA DE UTILIDAD' not in hoja_fija(CANON4['fragmentos'], TAX)          # la v3 (consola) no cambia
+
+
+def test_v4_errores_en_motivo():
+    """Prueba: v4 errores en motivo."""
+    rev = lambda m: errores_en_motivo({'decision': 'revision', 'motivo': m})
+    assert rev('Explica el nodo. No menciona versiones concretas ni hardware.') == ['E3']
+    assert rev('Describe sus parámetros, lo que le da valor según el embudo.') == ['E1']
+    assert rev('Ofrece ajustes concretos, pero las definiciones solo repiten el nombre.') == []
+    assert rev('No proporciona ajustes concretos ni ejemplos.') == []
+    assert errores_en_motivo({'decision': 'aceptar', 'motivo': 'No menciona versiones.'}) == []   # solo si no acepta
+    obs = observacion(['E3'], {'decision': 'revision', 'motivo': 'x'}, {'url': URL_52})
+    assert 'URL: 5.2' in obs and 'E3' in obs and 'aceptar' not in obs           # nombra el error, no sugiere la decisión
+
+
+def test_v4_reintenta_una_vez_y_si_el_error_sigue_decide_una_persona():
+    """Prueba: v4 reintenta una vez y si el error sigue decide una persona."""
+    docs = [{'doc_id': 'a', 'titulo': 'Nodo', 'texto': 'x', 'url': URL_52, 'preguntas': ['P6']},
+            {'doc_id': 'b', 'titulo': 'Nodo 2', 'texto': 'y', 'url': URL_52, 'preguntas': ['P6']},
+            {'doc_id': 'c', 'titulo': 'Nodo 3', 'texto': 'z', 'url': URL_52, 'preguntas': ['P6']}]
+    e3 = salida(decision='revision', etapa='valor', pregunta='P6', motivo='No menciona versiones ni hardware.')
+    gen = FalsoGenerador([json.dumps(e3), json.dumps(salida(pregunta='P6', motivo='Explica el nodo y su efecto.')),
+                          json.dumps(e3), json.dumps(e3),
+                          json.dumps(salida(decision='revision', etapa='valor', pregunta='P6', motivo='Las opciones solo repiten su nombre.'))])
+    tax = {'preguntas': {'P6': {'nombre': 'x'}}}
+    r = revisar_todo(docs, CANON4, tax, SinEmbebedor(), gen, registro=lambda *_: None, version=4)
+    assert [x['decision_efectiva'] for x in r] == ['aceptar', 'persona', 'revision']
+    assert r[0]['reintento']['errores'] == ['E3'] and r[0]['reintento']['primera']['decision'] == 'revision'
+    assert r[1]['reintento']['errores_despues'] == ['E3'] and r[2]['reintento'] is None
+    assert len(set(gen.sistemas)) == 1 and all(e['properties']['cita']['enum'] == citas_fijas(CANON4['fragmentos'])
+                                              for e in gen.esquemas)        # hoja y esquema idénticos: caché
+    s = resumir(r)
+    assert s['reintentos'] == 2 and s['reintento_por_error'] == {'E3': 2, 'E1': 0}
+    assert s['reintento_cambia_decision'] == 1 and s['reintento_sigue_con_error'] == 1
+    assert r[0]['tiempos']['genera_tokens'] == 240                            # cuenta las dos llamadas

@@ -1,0 +1,182 @@
+# Canon de Amatista IA: lo que el modelo debe saber del proyecto para revisar «a la manera de G7B».
+#
+# Reglas del canon:
+#   1. Solo entra lo que está en la rama oficial (main / recuperacion), FIJADO a un commit. Lo que vive en una rama
+#      sin fusionar no es estándar todavía.
+#   2. No entran los datos que la IA va a revisar (telemetría, foros, documentos de conocimiento): se juzgaría con
+#      sus propios datos.
+#   3. No se copian los documentos: aquí solo se dice cuáles, de dónde y qué secciones. El indexador los lee del
+#      repositorio de origen en el commit fijado (una sola fuente de verdad, sin copias que se desactualicen).
+#   4. Lo que es una consulta exacta (la tabla de hardware, la lista de motivos) NO va por RAG: se consulta por código.
+#
+# Para actualizar: cambiar el commit de un repositorio, revisar el diff de los documentos listados, subir
+# `version`. El indexador solo vuelve a calcular los fragmentos cuyo hash cambió.
+
+contrato: amatista.ia.canon/1
+version: 5
+fecha: 2026-11-22
+
+repositorios:
+  g7b:
+    url: https://github.com/Maximiliano-cabello-mata/amatista-g7b-etl
+    rama: main
+    commit: 81104a10f67db87d0cdc73b76a0414c015cae879
+  ia:
+    # Este mismo repositorio: los criterios que aprendimos probando. Mientras el PR #1 no se fusione, el commit
+    # vive en la rama de trabajo; GitHub lo conserva en refs/pull/1/head aunque la rama se borre.
+    url: https://github.com/Maximiliano-cabello-mata/AMATISTA-IA-
+    rama: main
+    commit: 1d0b74c74a053cbdbdb2794ee03ee8d3211d7d37
+  amatista:
+    url: https://github.com/Maximiliano-cabello-mata/amatista-recuperada-20261106
+    rama: recuperacion
+    commit: 41b6d01e9fa5aaf07541d2921afb41cd03f25318
+
+# tipo: vision | glosario | estandar | contrato | regla | politica
+documentos:
+  - id: g7b/vision
+    repo: g7b
+    ruta: docs/VISION.md
+    tipo: vision
+    por_que: Qué es G7B y para qué existe; el marco de cualquier juicio.
+
+  - id: g7b/fichas-tecnicas
+    repo: g7b
+    ruta: docs/FICHAS_TECNICAS.md
+    tipo: glosario
+    por_que: Definición única de cada concepto interno (lago, embudo, cubo, niveles N0–N4…).
+    advertencia: Fechado el 1 de noviembre y se declara autoridad sobre los demás documentos; revisar que no contradiga los estándares posteriores (INVENTARIO.md, conflicto C3).
+
+  - id: g7b/estandar-telemetria
+    repo: g7b
+    ruta: docs/ESTANDAR_TELEMETRIA.md
+    tipo: estandar
+    idioma: en
+    por_que: g7b.hardware/1 y la representación de mediciones; base para revisar telemetría y nombres de hardware.
+
+  - id: g7b/cubo
+    repo: g7b
+    ruta: docs/CUBO.md
+    tipo: contrato
+    excluir_secciones: ["Ejecutar", "Operación", "Primera publicación verificada — 2026-11-03"]
+    por_que: El contrato del cubo (entradas aceptado/revisión, vistas, calidad). En main es g7b.cubo/1.
+
+  - id: g7b/telemetria
+    repo: g7b
+    ruta: docs/TELEMETRIA.md
+    tipo: regla
+    excluir_secciones: ["Automatización", "Activación verificada"]
+    por_que: Fuente pública frente a sonda propia, y por qué lo público va a revisión.
+
+  - id: g7b/consentimiento
+    repo: g7b
+    ruta: docs/CONSENTIMIENTO_TELEMETRIA.md
+    tipo: politica
+    por_que: Qué se puede medir y guardar de una persona y qué no.
+    advertencia: "El documento está marcado como BORRADOR: la IA lo trata como propuesta, no como regla aprobada (INVENTARIO.md, C5)."
+
+  - id: g7b/ingesta
+    repo: g7b
+    ruta: docs/INGESTA.md
+    tipo: regla
+    excluir_secciones: ["3. Disparadores (`g7b_ingesta/vigilar.py`)"]
+    por_que: El embudo de cinco etapas (entrada, calidad, duplicados, relevancia, valor), qué va a revisión y qué suma valor. Es la regla principal para revisar documentos.
+
+  - id: g7b/geodar-radar
+    repo: g7b
+    ruta: docs/GEODAR_RADAR.md
+    tipo: regla
+    por_que: Catálogo de fuentes y reglas de ruteo (qué fuente es documento y cuál es telemetría).
+
+  - id: g7b/geoda
+    repo: g7b
+    ruta: docs/GEODA.md
+    tipo: contrato
+    excluir_secciones: ["5. Lo que sigue"]
+    por_que: Cómo usa Geoda los datos revisados; por qué una recomendación exige mediciones propias.
+
+  - id: g7b/geoda-kernel
+    repo: g7b
+    ruta: docs/GEODA_KERNEL.md
+    tipo: contrato
+    por_que: El núcleo de Geoda y su escalera de evidencia.
+
+  - id: g7b/decision-ia
+    repo: g7b
+    ruta: docs/investigacion/2026-11-17_decision_ia.md
+    tipo: politica
+    excluir_secciones: ["Fuentes"]
+    por_que: La decisión vigente sobre IA en G7B (local por omisión, conjunto de prueba antes de elegir modelo, ningún dato de estudiantes a capas gratuitas).
+
+  - id: g7b/seleccion-documental
+    repo: g7b
+    ruta: algoritmos/documentacion/README.md
+    tipo: regla
+    solo_secciones: ["Objetivo de utilidad del 80 %"]
+    por_que: Qué es un bloque útil de documentación (responde una pregunta técnica o logra el objetivo, con condición y efecto correctos) y la regla de Wilson al 95 % para habilitar la publicación automática de una fuente.
+
+  - id: g7b/site
+    repo: g7b
+    ruta: algoritmos/documentacion/site-4.md
+    tipo: regla
+    idioma: en
+    solo_secciones: ["Evaluating the 80% target", "Changes after the first pilot"]
+    por_que: La rúbrica de la araña Site 4.1 y las fallas que ya se observaron (descripciones genéricas de la interfaz, ejemplos imprecisos, pasajes repetidos). La IA juzga los bloques con el mismo criterio que la auditoría de la araña. Los resultados del piloto no entran porque son un registro de un momento.
+
+  - id: ia/criterios
+    repo: ia
+    ruta: canon/criterios/criterios_revision.md
+    tipo: regla
+    excluir_secciones: ["Por decidir"]
+    por_que: Lo que aprendimos probando (datos solo del documento, versión en la URL, citas al canon, coherencia, bloque útil, duda a revisión, la IA propone) y los errores conocidos del revisor con lo que tiene que hacer en su lugar (v4). Si choca con un estándar de G7B, manda el estándar. Lo «por decidir» queda fuera hasta que una persona lo decida.
+
+  - id: amatista/base
+    repo: amatista
+    ruta: BASE.md
+    tipo: vision
+    por_que: "La base oficial del proyecto (versión 1, congelada): términos (Amatista, API, motor y add-on, G7B, Amatista IA como auditor, Geoda como kernel adaptativo, Amatista Machine Learning), el ciclo con una sola puerta al cubo, el flujo diario con 20 muestras, las reglas y las prioridades. Manda sobre cualquier otro plan (v5)."
+
+  - id: amatista/direccion
+    repo: amatista
+    ruta: PROYECTO.md
+    tipo: vision
+    solo_secciones: ["1. Dirección y límite de trabajo"]
+    por_que: Qué es Amatista y cómo se relaciona con G7B (proyectos separados que se alimentan).
+
+  - id: amatista/conexion-g7b-geoda
+    repo: amatista
+    ruta: docs/arquitectura/2026-11-02_conexion_g7b_y_geoda.md
+    tipo: contrato
+    por_que: "La frontera de privacidad: G7B mide y modela; solo Amatista guarda datos personales."
+
+# Consultas exactas: las usa el revisor por código, no por RAG (más rápido y sin errores de recuperación).
+consultas_exactas:
+  - id: g7b/hardware
+    repo: g7b
+    ruta: fuentes/hardware.yml
+    uso: Normalizar nombres de hardware con la tabla oficial; la IA solo propone para los nombres que la tabla no reconoce.
+  - id: g7b/taxonomia
+    repo: g7b
+    ruta: fuentes/taxonomia.yml
+    uso: Las preguntas del plan (P1, P2…) y sus palabras clave; la IA clasifica contra esta lista cerrada.
+  - id: g7b/catalogo
+    repo: g7b
+    ruta: fuentes/catalogo.yml
+    uso: Qué fuente es cada registro, su licencia y su destino.
+
+# Lo que NO entra, y por qué (la lista completa con el detalle está en INVENTARIO.md).
+excluidos:
+  - patron: "datos del lago: telemetría, foros, documentos de conocimiento (MongoDB)"
+    por_que: Son lo que la IA va a revisar.
+  - patron: "g7b: docs/PLAN.md, docs/PLAN_MAESTRO.md"
+    por_que: Planeación del 3 de noviembre, superada por los estándares posteriores; mezclaría reglas viejas.
+  - patron: "g7b: docs/OPERACION_24_7.md, docs/TAREAS_24_7.md, docs/GEODA_PUENTE_24_7.md, docs/azure/*"
+    por_que: Operación e infraestructura, no estándares de datos.
+  - patron: "g7b: docs/ARANA_MANUALES.md, docs/arana_fragmentos.md, docs/GEODAR_RADAR_MAPA.md; de algoritmos/documentacion/, todo salvo la rúbrica"
+    por_que: Cómo funcionan las arañas por dentro (frontera, prioridad, gradiente); no cambia cómo se juzga un dato. La excepción es la rúbrica de utilidad, que sí es un criterio de juicio (versión 2 del canon).
+  - patron: "g7b: docs/OFERTAS_Y_GITHUB.md, docs/estadia/*, docs/hack4edu/*, docs/historia/*"
+    por_que: Contexto comercial, académico o histórico.
+  - patron: "g7b: docs/auditorias/*, docs/bitacoras/*, docs/reportes/*, docs/investigacion/* (salvo la decisión de IA)"
+    por_que: Registros de un momento; pueden contradecir el estado actual.
+  - patron: "amatista: todo lo demás (plataforma, motor, rediseño, historia)"
+    por_que: La IA revisa datos de G7B; el resto de Amatista no cambia ese juicio. Se puede sumar cuando haya un asistente para el proyecto.

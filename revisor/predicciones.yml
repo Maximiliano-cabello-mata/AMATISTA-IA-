@@ -1,0 +1,54 @@
+# Predicciones sobre el revisor, escritas ANTES de cada corrida. resultado: null (pendiente), true o false.
+# revisor/confianza.py calcula el puntaje de Brier de las que ya se resolvieron.
+version: 1
+predicciones:
+  - {id: H1, corrida: v2-qwen3, p: 0.95, texto: "cita_valida = 1.00", resultado: true}
+  - {id: H2, corrida: v2-qwen3, p: 0.60, texto: "coherente >= 0.90", resultado: false}
+  - {id: H3, corrida: v2-qwen3, p: 0.70, texto: "mediana de tokens generados <= 120", resultado: true}
+  - {id: H4, corrida: v2-qwen3, p: 0.60, texto: "mediana de segundos por documento entre 90 y 125", resultado: true}
+  - {id: H5, corrida: v2-qwen3, p: 0.60, texto: "el diagnóstico dice que la caché NO se reutiliza", resultado: true}
+  - {id: H6, corrida: v2-qwen3, p: 0.65, texto: "manda a revisión entre 6 y 12 de 20", resultado: false}
+  - {id: H7, corrida: v2-qwen3, p: 0.65, texto: "coincide con v1 en al menos 15 de 20 decisiones", resultado: true}
+  # NOTA (22 nov): H8–H10 se evaluaron en v2 (canon3 vs criterios: 0.70 >= 0.50, 14 vs 13, +28.6 s); en v3 (canon4 vs criterios_v3): coherente 0.90 vs 0.95, revision+rechazar 11 vs 17, y mediana 155.3 s vs 113.7 s (+41.6 s).
+  - {id: H8, corrida: criterios, p: 0.70, texto: "coherente de «criterios» >= coherente de «canon4»", resultado: true}
+  - {id: H9, corrida: criterios, p: 0.55, texto: "«criterios» manda a revisión menos documentos que «canon4»", resultado: false}
+  - {id: H10, corrida: criterios, p: 0.75, texto: "la mediana de segundos por documento de «criterios» es al menos 25 s mayor que la de «canon4»", resultado: true}
+  - {id: H11, corrida: v3, p: 0.85, texto: "motivo_primero = 1.00 (Ollama respeta el orden del esquema)", resultado: true}
+  - {id: H12, corrida: v3, p: 0.60, texto: "coherente >= 0.85 (v2: 0.55)", resultado: true}
+  - {id: H13, corrida: v3, p: 0.60, texto: "manda a revisión (decisión del modelo) 11 o menos de 20 (v2: 14)", resultado: true}
+  - {id: H14, corrida: v3, p: 0.70, texto: "los 6 que v2 aceptó siguen aceptados", resultado: false}
+  - {id: H15, corrida: v3, p: 0.60, texto: "«relevancia» es la etapa en menos de la mitad de las revisiones (v2: 14 de 14)", resultado: false}
+  - {id: H16, corrida: v3, p: 0.65, texto: "mediana de tokens generados <= 140 (el motivo puede ser más largo)", resultado: false}
+  - {id: H17, corrida: cache-variantes, p: 0.55, texto: "al menos una de las 4 variantes del diagnóstico reutiliza la caché", resultado: true}
+  - {id: H18, corrida: cache-variantes, p: 0.50, texto: "«el mismo mensaje dos veces» reutiliza la caché", resultado: true}
+  - {id: H19, corrida: v3_c1, p: 0.70, texto: "con --cuantos 1, la mediana de segundos es al menos 10 s menor que la de v3", resultado: true}
+  - {id: H20, corrida: v3_4b, p: 0.70, texto: "con qwen3:4b, la mediana de segundos es como mucho el 70 % de la de v3", resultado: null}
+  - {id: H21, corrida: cache-fria, p: 0.60, texto: "con la primera llamada fría, entre documentos SÍ se reutiliza la caché (paso 2 < 50 % del paso 1)", resultado: true}
+  - {id: H22, corrida: cache-fria, p: 0.50, texto: "con otra lista de citas en el esquema, la caché NO se reutiliza", resultado: false}
+  - {id: H23, corrida: criterios, p: 0.70, texto: "v3 con --criterios (canon v4) rechaza 2 o menos de 20 (v3 sin criterios: 8)", resultado: true}
+  - {id: H24, corrida: criterios, p: 0.60, texto: "v3 con --criterios asigna pregunta del plan en 12 o más de 20 (v3 sin criterios: 5)", resultado: true}
+  - {id: H25, corrida: criterios, p: 0.55, texto: "v3 con --criterios acepta 5 o más de 20 (v3 sin criterios: 1)", resultado: true}
+  - {id: H26, corrida: criterios, p: 0.65, texto: "v3 con --criterios tiene coherente >= 0.85", resultado: true}
+  # Lote 1 y lote 2 de la consola (23 nov). Escritas antes de las etiquetas de la persona (lote 1) y antes de ver el lote 2.
+  - {id: H27, corrida: lote-001, p: 0.70, texto: "la persona coincide con la IA en 16 o menos de las 20 muestras (veredicto «no aprobado»)", resultado: null}
+  - {id: H28, corrida: lote-001, p: 0.85, texto: "la persona no marca «rechazar» ninguno de los 14 aceptados de la muestra", resultado: null}
+  - {id: H29, corrida: lote-002, p: 0.80, texto: "la IA no rechaza ninguno de los 100 documentos", resultado: null}
+  - {id: H30, corrida: lote-002, p: 0.75, texto: "la cita es el embudo o la rúbrica de selección en 8 o menos de las 20 muestras", resultado: null}
+  - {id: H31, corrida: lote-002, p: 0.80, texto: "confianza «alta» en 16 o más de las 20 muestras", resultado: null}
+  # Revisor v4 en el lote 1 (23 nov), escritas antes de correrla. Las del conjunto de control están en su clave (control/clave_c1.sha256).
+  - {id: H32, corrida: v4-lote001, p: 0.97, texto: "cita del embudo o de la regla de utilidad en 100 de 100 (por construcción)", resultado: true}
+  - {id: H33, corrida: v4-lote001, p: 0.70, texto: "la mediana de segundos por documento es al menos 15 s menor que la de la v3 en el mismo lote", resultado: false}
+  - {id: H34, corrida: v4-lote001, p: 0.60, texto: "el código encuentra E3 o E1 en 15 o más de los 100", resultado: true}
+  - {id: H35, corrida: v4-lote001, p: 0.55, texto: "tras el reintento, cambia la decisión en la mitad o más de los reintentos", resultado: false}
+  - {id: H36, corrida: v4-lote001, p: 0.80, texto: "la v4 acepta más documentos que la v3 en el lote 1 (decisión efectiva)", resultado: true}
+  # NOTA (24 nov): H32–H36 con el resumen de v4_lote001 y la consola. H32: cita de lista fija 100/100. H33: v4 160.8 s contra 133 s de la v3 en la consola (más lenta, no más rápida). H34: E3 en 67 de 100. H35: 33 de 67 cambian (49 %). H36: 52 aceptados contra 39.
+  # Conjunto de control C1: escritas el 23 nov dentro de la clave, antes de correr nada (huella en control/clave_c1.sha256). Resueltas con revisor/calificar_control.py.
+  - {id: K1, corrida: control-c1, p: 0.60, texto: "la v3 deja pasar (acepta) 5 o más de los 13 malos", resultado: false}
+  - {id: K2, corrida: control-c1, p: 0.55, texto: "la v4 deja pasar más malos que la v3 (el reintento empuja hacia aceptar)", resultado: true}
+  - {id: K3, corrida: control-c1, p: 0.60, texto: "la v4 acepta 18 o más de los 22 buenos", resultado: false}
+  - {id: K4, corrida: control-c1, p: 0.55, texto: "la v3 acepta 16 o menos de los 22 buenos", resultado: true}
+  - {id: K5, corrida: control-c1, p: 0.65, texto: "ninguna versión detiene los 2 de dato_invertido", resultado: true}
+  - {id: K6, corrida: control-c1, p: 0.70, texto: "las dos versiones detienen pagina_de_error e indice_en_prosa", resultado: true}
+  - {id: K7, corrida: control-c1, p: 0.60, texto: "al menos 1 de los 2 de contenido_cruzado pasa la puerta en la v3", resultado: true}
+  - {id: K8, corrida: control-c1, p: 0.75, texto: "ninguna versión rechaza ninguno de los 22 buenos", resultado: true}
+  # NOTA (24 nov): H27 y H28 quedan sin resolver. El lote 1 se aprobó en bloque (humano_decision = ia_decision, copiado por el agente a pedido de la persona): no hay marcas independientes con qué compararlas. Ver revisor/etiquetas/lote_001.yml.

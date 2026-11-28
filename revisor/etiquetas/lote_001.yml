@@ -1,0 +1,151 @@
+# Marcas de la persona en el cierre (consola etiquetas). Solo títulos y URL públicas.
+version: 1
+lote: 1
+independiente: false
+como_se_marco: >-
+  Aprobación en bloque: la persona aprobó el lote por chat y el agente copió ia_decision en humano_decision
+  en las 20 filas. Es una decisión válida sobre el lote, pero NO una revisión independiente muestra por muestra:
+  el acuerdo de 20/20 sale por construcción y estas marcas no sirven para medir si la IA acierta
+  (pesos de confianza, comparación v3/v4, predicciones H27-H28).
+marcadas: 20
+documentos:
+- n: 1
+  titulo: Smooth Vertices
+  url: https://docs.blender.org/manual/en/4.5/modeling/meshes/editing/vertex/smooth_vertices.html
+  fuente: blender-manual
+  ia: revision
+  humano: revision
+  nota: Aprobado en bloque por Maximiliano tras revisar el lote 1
+- n: 2
+  titulo: Simulation Zone 
+  url: https://docs.blender.org/manual/en/3.6/modeling/geometry_nodes/simulation/simulation_zone.html
+  fuente: blender-manual
+  ia: aceptar
+  humano: aceptar
+  nota: Aprobado en bloque por Maximiliano tras revisar el lote 1
+- n: 3
+  titulo: Volumes
+  url: https://docs.blender.org/manual/en/4.5/render/cycles/render_settings/volumes.html
+  fuente: blender-manual
+  ia: aceptar
+  humano: aceptar
+  nota: Aprobado en bloque por Maximiliano tras revisar el lote 1
+- n: 4
+  titulo: Endpoint Selection Node
+  url: https://docs.blender.org/manual/en/5.2/modeling/geometry_nodes/curve/read/endpoint_selection.html
+  fuente: blender-manual
+  ia: aceptar
+  humano: aceptar
+  nota: Aprobado en bloque por Maximiliano tras revisar el lote 1
+- n: 5
+  titulo: Sample Grid Node
+  url: https://docs.blender.org/manual/en/5.2/modeling/geometry_nodes/volume/sample/sample_grid.html
+  fuente: blender-manual
+  ia: revision
+  humano: revision
+  nota: Aprobado en bloque por Maximiliano tras revisar el lote 1
+- n: 6
+  titulo: Attribute Node
+  url: https://docs.blender.org/manual/en/5.2/render/shader_nodes/input/attribute.html
+  fuente: blender-manual
+  ia: aceptar
+  humano: aceptar
+  nota: Aprobado en bloque por Maximiliano tras revisar el lote 1
+- n: 7
+  titulo: Get Geometry Bundle Node
+  url: https://docs.blender.org/manual/en/5.2/modeling/geometry_nodes/geometry/read/get_geometry_bundle.html
+  fuente: blender-manual
+  ia: aceptar
+  humano: aceptar
+  nota: Aprobado en bloque por Maximiliano tras revisar el lote 1
+- n: 8
+  titulo: Volume Scatter 
+  url: https://docs.blender.org/manual/en/3.6/render/shader_nodes/shader/volume_scatter.html
+  fuente: blender-manual
+  ia: revision
+  humano: revision
+  nota: Aprobado en bloque por Maximiliano tras revisar el lote 1
+- n: 9
+  titulo: Rip 
+  url: https://docs.blender.org/manual/en/3.6/modeling/meshes/uv/tools/rip.html
+  fuente: blender-manual
+  ia: aceptar
+  humano: aceptar
+  nota: Aprobado en bloque por Maximiliano tras revisar el lote 1
+- n: 10
+  titulo: Snap to Symmetry
+  url: https://docs.blender.org/manual/en/5.2/modeling/meshes/editing/mesh/snap_symmetry.html
+  fuente: blender-manual
+  ia: aceptar
+  humano: aceptar
+  nota: Aprobado en bloque por Maximiliano tras revisar el lote 1
+- n: 11
+  titulo: Select Loops
+  url: https://docs.blender.org/manual/en/4.5/modeling/meshes/selecting/loops.html
+  fuente: blender-manual
+  ia: aceptar
+  humano: aceptar
+  nota: Aprobado en bloque por Maximiliano tras revisar el lote 1
+- n: 12
+  titulo: Motion Blur
+  url: https://docs.blender.org/manual/en/5.2/render/cycles/render_settings/motion_blur.html
+  fuente: blender-manual
+  ia: revision
+  humano: revision
+  nota: Aprobado en bloque por Maximiliano tras revisar el lote 1
+- n: 13
+  titulo: Retopology 
+  url: https://docs.blender.org/manual/en/3.6/modeling/meshes/retopology.html
+  fuente: blender-manual
+  ia: aceptar
+  humano: aceptar
+  nota: Aprobado en bloque por Maximiliano tras revisar el lote 1
+- n: 14
+  titulo: Mesh Circle Node
+  url: https://docs.blender.org/manual/en/5.2/modeling/geometry_nodes/mesh/primitives/mesh_circle.html
+  fuente: blender-manual
+  ia: aceptar
+  humano: aceptar
+  nota: Aprobado en bloque por Maximiliano tras revisar el lote 1
+- n: 15
+  titulo: Merge
+  url: https://docs.blender.org/manual/en/5.2/modeling/meshes/editing/mesh/merge.html
+  fuente: blender-manual
+  ia: aceptar
+  humano: aceptar
+  nota: Aprobado en bloque por Maximiliano tras revisar el lote 1
+- n: 16
+  titulo: Mapping Node
+  url: https://docs.blender.org/manual/en/5.2/render/shader_nodes/utilities/vector/mapping.html
+  fuente: blender-manual
+  ia: aceptar
+  humano: aceptar
+  nota: Aprobado en bloque por Maximiliano tras revisar el lote 1
+- n: 17
+  titulo: Point Density Node 
+  url: https://docs.blender.org/manual/en/3.6/render/shader_nodes/textures/point_density.html
+  fuente: blender-manual
+  ia: aceptar
+  humano: aceptar
+  nota: Aprobado en bloque por Maximiliano tras revisar el lote 1
+- n: 18
+  titulo: Clamp Node 
+  url: https://docs.blender.org/manual/en/3.6/render/shader_nodes/converter/clamp.html
+  fuente: blender-manual
+  ia: revision
+  humano: revision
+  nota: Aprobado en bloque por Maximiliano tras revisar el lote 1
+- n: 19
+  titulo: Triangulate Node
+  url: https://docs.blender.org/manual/en/5.2/modeling/geometry_nodes/mesh/operations/triangulate.html
+  fuente: blender-manual
+  ia: aceptar
+  humano: aceptar
+  nota: Aprobado en bloque por Maximiliano tras revisar el lote 1
+- n: 20
+  titulo: Split Edges Node
+  url: https://docs.blender.org/manual/en/5.2/modeling/geometry_nodes/mesh/operations/split_edges.html
+  fuente: blender-manual
+  ia: revision
+  humano: revision
+  nota: Aprobado en bloque por Maximiliano tras revisar el lote 1
