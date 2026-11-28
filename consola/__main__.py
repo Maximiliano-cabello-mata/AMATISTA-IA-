@@ -1,3 +1,8 @@
+# [REVISION 2026-11-27] CLI de la consola: arranca el hilo de trabajo 24/7 (clase Trabajo) y los subcomandos estado/veredicto/
+# etiquetas/registro/promover/cierre/quitar-freno/instalar-acceso.
+# Entradas: consola/config.yml, .env (SUPABASE_*, MONGO_URI_*), MongoDB (solo lectura), Ollama local.
+# Salidas: salidas/consola/ (estado.json, lotes), carpeta de cierres en el escritorio.
+# Dependencias: PyYAML, pymongo, consola.nucleo, revisor.revisar, indexador.
 """Consola de control de Amatista IA.
 
     python -m consola                       # el botón: arranca el trabajo 24/7 y muestra la consola en vivo
@@ -35,10 +40,12 @@ CAMPOS = ['doc_id', 'url', 'fuente', 'titulo', 'texto', 'licencia', 'modo', 'pre
 
 
 def cargar_config():
+    """Lee consola/config.yml y devuelve el dict de configuracion."""
     return yaml.safe_load((RAIZ / 'consola' / 'config.yml').read_text(encoding='utf-8'))
 
 
 def carpeta_cierres(config):
+    """Carpeta donde se escriben los cierres: la de config o, si esta vacia, el escritorio."""
     return Path(config['carpeta_cierres']) if config.get('carpeta_cierres') else carpeta_escritorio()
 
 
@@ -110,14 +117,19 @@ class Trabajo:
     """Prepara el revisor una vez y revisa documentos de MongoDB uno por uno, sin parar."""
 
     def __init__(self, consola, config):
+        """Guarda la consola (estado persistente) y la config; crea el evento para detener el hilo."""
         self.c, self.config = consola, config
         self.detener = threading.Event()
 
     def actividad(self, texto):
+        """Actualiza el texto de actividad visible en la consola y persiste el estado."""
         self.c.estado['actividad'] = texto
         self.c.guardar()
 
     def preparar(self):
+        """Carga .env, descarga el canon y la taxonomia/hardware de G7B, prepara Ollama (embeddings y
+        generador) y abre la coleccion MongoDB de solo lectura. Lanza RuntimeError si falta algo.
+        """
         from indexador.entorno import cargar_env
         from indexador.indexar import Ollama
         from revisor import revisar as R
@@ -129,9 +141,14 @@ class Trabajo:
         self.actividad('preparando: canon, taxonomía y modelos')
         self.canon = R.descargar_canon(url, clave, str(RAIZ / 'salidas' / 'canon_local.json'),
                                        refrescar=self.config.get('refrescar_canon_al_iniciar', True))
+        # [REVISION-BUG] next() sin valor por omision: si el canon no trae ningun documento de 'g7b' lanza StopIteration
+        # (poco claro). Sugerencia: next(..., None) y error explicito. Mismo patron en revisor/revisar.py:518.
         commit = next(d['commit_fijado'] for d in self.canon['documentos'].values() if d['repositorio'] == 'g7b')
 
+        # [REVISION-OPTIMIZAR] Funcion g7b() duplicada casi identica en revisor/revisar.py:519 (main.g7b): conviene
+        # moverla a revisor/revisar.py como funcion reutilizable.
         def g7b(archivo):
+            """Descarga y parsea un YAML de fuentes/ de G7B en el commit fijado del canon."""
             req = urllib.request.Request(R.G7B_CRUDO.format(commit=commit, archivo=archivo), headers={'User-Agent': 'amatista-ia-consola'})
             with urllib.request.urlopen(req, timeout=60) as r:
                 return yaml.safe_load(r.read().decode('utf-8'))
@@ -165,21 +182,28 @@ class Trabajo:
                             doc_id = json.loads(linea).get('doc_id')
                             if doc_id:
                                 vistos.add(doc_id)
+                        # [REVISION-BUG] Excepcion tragada: una linea JSONL corrupta de otro auditor se ignora en silencio (no se registra).
                         except Exception:
                             pass
         return vistos
 
     def pendientes(self):
+        """Generador de documentos de MongoDB aun no revisados (ni aqui ni por auditores externos)."""
         vistos = self.c.revisados() | self.excluidos_externos()
+        # [REVISION-BUG] Cursor de MongoDB abierto durante horas: cada documento tarda minutos en revisarse y el servidor
+        # cierra cursores inactivos ~10 min (CursorNotFound). La excepcion no esta dentro del try de correr() y mataria el hilo.
+        # Sugerencia: no_cursor_timeout=True con cierre explicito, o leer primero la lista de doc_id pendientes.
         for doc in self.coleccion.find({}, {'_id': 0, **{k: 1 for k in CAMPOS}}).sort('doc_id', 1):
             if doc.get('doc_id') not in vistos:
                 yield doc
 
     def esperar(self, motivo):
+        """Pausa interrumpible (config.espera_s) mostrando el motivo."""
         self.actividad(f"en pausa: {motivo}")
         self.detener.wait(self.config['espera_s'])
 
     def revisar(self, doc):
+        """Revisa UN documento con el revisor v3 y anade el extracto de texto y la fecha."""
         r = self.R.revisar_todo([doc], self.canon, self.taxonomia, self.embebedor, self.generador,
                                 self.config['palabras'], cuantos=self.config['cuantos'], registro=lambda *_: None,
                                 patrones_hardware=self.patrones, criterios=self.config['criterios'])[0]
@@ -209,6 +233,7 @@ class Trabajo:
         return False
 
     def correr(self):
+        """Bucle principal del hilo: revisa pendientes, respeta freno/buzon y cierra lotes al llenarse."""
         if not self.preparar_con_reintento():
             self.actividad('detenida')
             return
@@ -245,6 +270,7 @@ class Trabajo:
 
 
 def cmd_iniciar(config):
+    """Subcomando por omision: lanza el hilo de trabajo y redibuja la consola hasta Ctrl+C."""
     consola = Consola(CARPETA, config)
     consola.aplicar_buzon()
     trabajo = Trabajo(consola, config)
@@ -282,6 +308,7 @@ def cmd_promover(consola, config, simular):
     from pymongo import MongoClient
     base = os.environ.get('MONGO_DATABASE', 'conocimiento_3d')
     fuente = MongoClient(lectura, serverSelectionTimeoutMS=20000)[base]['documentos']
+    # [REVISION-BUG] Los MongoClient de fuente/destino nunca se cierran (recurso abierto hasta que termina el proceso).
     destino = MongoClient(escritura or lectura, serverSelectionTimeoutMS=20000)[base][nombre]
     if not simular:
         destino.create_index('doc_id', unique=True)
@@ -311,6 +338,7 @@ def cmd_instalar_acceso():
 
 
 def main(argv=None):
+    """Punto de entrada de la CLI: parsea argumentos y despacha el subcomando. Devuelve el codigo de salida."""
     config = cargar_config()
     p = argparse.ArgumentParser(description='Consola de control de Amatista IA.')
     sub = p.add_subparsers(dest='cmd')

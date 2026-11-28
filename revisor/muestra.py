@@ -1,3 +1,5 @@
+# [REVISION 2026-11-27] Saca una muestra (al azar o de un lote) de conocimiento_3d.documentos con usuario de solo lectura.
+# Entradas: MONGO_URI_LECTURA, MONGO_DATABASE. Salida: salidas/muestra.jsonl.
 """Saca una muestra al azar de los documentos de conocimiento de MongoDB, con un usuario de SOLO LECTURA.
 
     python -m revisor.muestra --n 20
@@ -15,6 +17,7 @@ from pathlib import Path
 
 from indexador.entorno import cargar_env
 
+# [REVISION-MUERTO] CAMPOS duplicado de consola/__main__.py:34; mantener una sola definicion.
 CAMPOS = ['doc_id', 'url', 'fuente', 'titulo', 'texto', 'licencia', 'modo', 'preguntas', 'puntajes']
 
 
@@ -25,6 +28,7 @@ def ids_de_lote(ruta):
 
 
 def main(argv=None):
+    """CLI de la muestra; escribe el JSONL y un resumen por fuente."""
     cargar_env()
     p = argparse.ArgumentParser(description='Muestra al azar de conocimiento_3d.documentos.')
     p.add_argument('--n', type=int, default=20)
@@ -40,6 +44,7 @@ def main(argv=None):
     except ImportError:
         sys.exit('Falta pymongo: python -m pip install pymongo')
 
+    # [REVISION-BUG] El MongoClient nunca se cierra (usar 'with MongoClient(...) as cliente').
     cliente = MongoClient(uri, serverSelectionTimeoutMS=20000)
     coleccion = cliente[os.environ.get('MONGO_DATABASE', 'conocimiento_3d')]['documentos']
     total = coleccion.estimated_document_count()

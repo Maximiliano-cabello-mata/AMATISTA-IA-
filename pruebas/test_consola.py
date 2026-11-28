@@ -12,6 +12,7 @@ CONFIG = {'tamano_lote': 10, 'muestras': 4, 'muestras_descartadas': 1, 'max_lote
 
 
 def resultado(i, decision):
+    """Resultado simulado del revisor para el documento i con la decision dada."""
     return {'doc_id': f'd{i}', 'url': f'https://docs.blender.org/{i}', 'titulo': f'Doc {i}', 'fuente': 'blender-manual',
             'texto': 'texto ' * 20, 'decision_efectiva': decision, 'tiempos': {'total_s': 100.0 + i},
             'ia': {'decision': decision if decision != 'persona' else 'revision', 'etapa': 'ninguna', 'pregunta': 'P6',
@@ -19,6 +20,7 @@ def resultado(i, decision):
 
 
 def llenar(c, decisiones):
+    """Registra en la consola un resultado por decision de la lista."""
     lleno = False
     for i, d in enumerate(decisiones):
         lleno = c.registrar(resultado(i, d))
@@ -26,6 +28,7 @@ def llenar(c, decisiones):
 
 
 def test_el_lote_se_llena_y_cuenta_decisiones(tmp_path):
+    """Prueba: el lote se llena y cuenta decisiones."""
     c = Consola(tmp_path, CONFIG)
     assert not llenar(c, ['aceptar'] * 9)
     assert c.registrar(resultado(9, 'rechazar'))
@@ -36,6 +39,7 @@ def test_el_lote_se_llena_y_cuenta_decisiones(tmp_path):
 
 
 def test_muestra_estratificada_y_reproducible(tmp_path):
+    """Prueba: muestra estratificada y reproducible."""
     c = Consola(tmp_path, CONFIG)
     llenar(c, ['aceptar'] * 7 + ['revision', 'rechazar', 'persona'])
     m = c.muestrear(1)
@@ -48,6 +52,7 @@ def test_muestra_estratificada_y_reproducible(tmp_path):
 
 
 def test_el_cierre_escribe_la_carpeta_y_espera_veredicto(tmp_path):
+    """Prueba: el cierre escribe la carpeta y espera veredicto."""
     c = Consola(tmp_path / 'estado', CONFIG)
     llenar(c, ['aceptar'] * 10)
     carpeta = c.cerrar(1, tmp_path / 'escritorio')
@@ -59,6 +64,7 @@ def test_el_cierre_escribe_la_carpeta_y_espera_veredicto(tmp_path):
 
 
 def marcar(carpeta, bien):
+    """Marca la planilla del cierre con 'bien' aciertos (el resto, en desacuerdo)."""
     filas = leer_planilla(carpeta / 'planilla.csv')
     for i, f in enumerate(filas):
         f['humano_decision'] = f['ia_decision'] if i < bien else ('revision' if f['ia_decision'] == 'aceptar' else 'aceptar')
@@ -67,7 +73,9 @@ def marcar(carpeta, bien):
 
 def test_reglas_del_veredicto_con_20_muestras():
     # Muestra estratificada real: 14 aceptados por la IA y 6 detenidos (revision/persona)
+    """Prueba: reglas del veredicto con 20 muestras."""
     def estratificada(malos_admitidos=0, retenidos_buenos=0):
+        """Planilla de 20 filas con malos admitidos y buenos retenidos dados."""
         acept = [{'ia_decision': 'aceptar', 'humano_decision': 'rechazar' if i < malos_admitidos else 'aceptar'} for i in range(14)]
         det = [{'ia_decision': 'revision', 'humano_decision': 'aceptar' if i < retenidos_buenos else 'revision'} for i in range(6)]
         return acept + det
@@ -86,6 +94,7 @@ def test_reglas_del_veredicto_con_20_muestras():
 
 
 def test_el_veredicto_pasa_por_el_buzon_y_dos_fallos_ponen_el_freno(tmp_path):
+    """Prueba: el veredicto pasa por el buzon y dos fallos ponen el freno."""
     c = Consola(tmp_path / 'estado', CONFIG)
     for n in (1, 2):
         llenar(c, ['aceptar'] * 10)
@@ -103,6 +112,7 @@ def test_el_veredicto_pasa_por_el_buzon_y_dos_fallos_ponen_el_freno(tmp_path):
 
 
 def test_la_vista_muestra_lo_que_importa(tmp_path):
+    """Prueba: la vista muestra lo que importa."""
     c = Consola(tmp_path / 'estado', CONFIG)
     llenar(c, ['aceptar'] * 10)
     c.cerrar(1, tmp_path / 'escritorio')
@@ -113,29 +123,37 @@ def test_la_vista_muestra_lo_que_importa(tmp_path):
 
 
 class FalsaColeccion:
+    """Coleccion de MongoDB simulada (find + sort)."""
     def __init__(self, docs):
+        """Guarda los documentos simulados."""
         self.docs = docs
 
     def find(self, filtro, proyeccion):
+        """Devuelve self para encadenar .sort()."""
         return self
 
     def sort(self, campo, orden):
+        """Devuelve los documentos ordenados por el campo."""
         return sorted(self.docs, key=lambda d: d['doc_id'])
 
 
 class FalsoR:
+    """Sustituto del modulo revisor.revisar para las pruebas."""
     @staticmethod
     def revisar_todo(docs, *a, **k):
+        """Decide 'aceptar' para cada documento sin llamar a ningun modelo."""
         d = docs[0]
         decision = 'aceptar' if int(d['doc_id'][1:]) % 3 else 'revision'
         return [{**resultado(int(d['doc_id'][1:]), decision), 'doc_id': d['doc_id']}]
 
     @staticmethod
     def palabras(texto, n):
+        """Devuelve el texto sin recortar."""
         return ' '.join((texto or '').split()[:n])
 
 
 def test_el_trabajo_revisa_cierra_solo_y_se_pausa_con_dos_lotes_esperando(tmp_path):
+    """Prueba: el trabajo revisa cierra solo y se pausa con dos lotes esperando."""
     c = Consola(tmp_path / 'estado', CONFIG)
     config = {**CONFIG, 'carpeta_cierres': str(tmp_path / 'escritorio')}
 
@@ -161,6 +179,7 @@ def test_el_trabajo_revisa_cierra_solo_y_se_pausa_con_dos_lotes_esperando(tmp_pa
 
 
 def test_carpeta_escritorio_encuentra_onedrive_empresarial(tmp_path, monkeypatch):
+    """Prueba: carpeta escritorio encuentra onedrive empresarial."""
     from consola.nucleo import carpeta_escritorio
     onedrive = tmp_path / 'OneDrive - Universidad'
     (onedrive / 'Escritorio').mkdir(parents=True)
@@ -172,6 +191,7 @@ def test_carpeta_escritorio_encuentra_onedrive_empresarial(tmp_path, monkeypatch
 
 
 def test_marcas_con_acento_mayusculas_y_planilla_de_excel_con_punto_y_coma(tmp_path):
+    """Prueba: marcas con acento mayusculas y planilla de excel con punto y coma."""
     from consola.nucleo import Consola, decision_normal, etiquetas_de_planilla, leer_planilla
     assert decision_normal(' Revisión ') == 'revision' and decision_normal('ACEPTAR') == 'aceptar'
     ruta = tmp_path / 'planilla.csv'
@@ -188,6 +208,7 @@ def test_marcas_con_acento_mayusculas_y_planilla_de_excel_con_punto_y_coma(tmp_p
 
 
 def test_registro_un_estado_por_documento(tmp_path):
+    """Prueba: registro un estado por documento."""
     import json
     from consola.nucleo import estado_documento
     assert estado_documento('aceptar', ESPERANDO) == 'en_cuarentena'
@@ -213,6 +234,7 @@ def test_registro_un_estado_por_documento(tmp_path):
 
 
 def test_si_ollama_no_esta_listo_reintenta_en_vez_de_detenerse(tmp_path):
+    """Prueba: si ollama no esta listo reintenta en vez de detenerse."""
     c = Consola(tmp_path / 'estado', CONFIG)
     config = {**CONFIG, 'reintento_preparar_s': 0}
 
@@ -237,6 +259,7 @@ def test_si_ollama_no_esta_listo_reintenta_en_vez_de_detenerse(tmp_path):
 
 
 def test_el_reintento_respeta_la_orden_de_detener(tmp_path):
+    """Prueba: el reintento respeta la orden de detener."""
     c = Consola(tmp_path / 'estado', CONFIG)
 
     class TrabajoDePrueba(Trabajo):
@@ -250,6 +273,7 @@ def test_el_reintento_respeta_la_orden_de_detener(tmp_path):
 
 
 def test_pureza_perfecta_con_retenidos_aprueba_con_aviso_y_habilita_promocion(tmp_path):
+    """Prueba: pureza perfecta con retenidos aprueba con aviso y habilita promocion."""
     c = Consola(tmp_path / 'estado', CONFIG)
     llenar(c, ['aceptar'] * 7 + ['revision', 'revision', 'persona'])
     carpeta = c.cerrar(1, tmp_path / 'escritorio')

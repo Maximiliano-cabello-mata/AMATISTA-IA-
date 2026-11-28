@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
+# [REVISION 2026-11-27] Aplica las migraciones de supabase/migrations y pruebas/canon_rag.sql en un Postgres local (pgvector).
 # Aplica la migración del canon en un Postgres local con pgvector, simulando lo que Supabase ya trae, y corre las
 # pruebas. Uso (como root, con PostgreSQL 16+ y postgresql-<versión>-pgvector instalados):
 #
 #   bash pruebas/probar_migracion.sh
 #
 # Crea y borra la base «prueba_canon». No toca Supabase.
+# [REVISION-BUG] Sin 'trap': si una migracion falla (set -e), la base prueba_canon queda creada sin borrar.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 psql_pg() { su postgres -c "psql -v ON_ERROR_STOP=1 -q $*"; }

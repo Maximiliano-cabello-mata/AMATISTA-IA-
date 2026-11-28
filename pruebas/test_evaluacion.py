@@ -9,11 +9,13 @@ RAIZ = Path(__file__).resolve().parents[1]
 
 
 def test_documentos_en_orden_quita_repetidos_y_conserva_el_primero():
+    """Prueba: documentos en orden quita repetidos y conserva el primero."""
     frags = [{'documento_id': d} for d in ['a', 'b', 'a', 'c', 'b']]
     assert documentos_en_orden(frags) == ['a', 'b', 'c']
 
 
 def test_medir_calcula_recall_y_mrr_por_documento():
+    """Prueba: medir calcula recall y mrr por documento."""
     respuestas = {'q1': ['a', 'b'], 'q2': ['b', 'x', 'y', 'a'], 'q3': []}
     preguntas = [{'id': k, 'pregunta': k, 'esperado': 'a'} for k in respuestas]
     resumen, detalle = medir(preguntas, lambda q: [{'documento_id': d} for d in respuestas[q]])
@@ -23,12 +25,14 @@ def test_medir_calcula_recall_y_mrr_por_documento():
 
 
 def test_bm25_prefiere_el_fragmento_con_la_palabra_rara():
+    """Prueba: bm25 prefiere el fragmento con la palabra rara."""
     frags = [{'documento_id': 'a', 'seccion': '', 'texto': 'el embudo tiene cinco etapas'},
              {'documento_id': 'b', 'seccion': '', 'texto': 'el cubo tiene tablas y el cubo tiene vistas'}]
     assert BM25(frags).buscar('etapas del embudo')[0]['documento_id'] == 'a'
 
 
 def test_las_preguntas_apuntan_a_documentos_del_canon_y_no_se_repiten():
+    """Prueba: las preguntas apuntan a documentos del canon y no se repiten."""
     canon = yaml.safe_load((RAIZ / 'canon/canon.yml').read_text(encoding='utf-8'))
     conjunto = yaml.safe_load((RAIZ / 'evaluacion/preguntas.yml').read_text(encoding='utf-8'))
     ids_canon = {d['id'] for d in canon['documentos']}

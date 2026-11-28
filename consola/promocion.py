@@ -1,3 +1,6 @@
+# [REVISION 2026-11-27] La puerta de escritura: copia a MongoDB (coleccion conocimiento_auditado) los documentos aprobados, con
+# rastro de auditoria; nunca escribe en 'documentos'. Entradas: registro de la consola, coleccion fuente (lectura).
+# Salidas: upserts en la coleccion destino y resumen en estado.json. Dependencias: PyYAML, pymongo (via __main__).
 """La puerta: lo aprobado entra a MongoDB (BASE.md: «una sola puerta»).
 
     python -m consola promover --simular      # qué se escribiría, sin escribir nada
@@ -26,11 +29,14 @@ DESTINO_POR_OMISION = 'conocimiento_auditado'
 PUERTA = 'amatista-ia/consola promover'
 
 
+# [REVISION-MUERTO] Duplicado de consola/nucleo.ahora(); podria importarse de alli.
 def ahora():
+    """Fecha y hora local como texto (duplicada de consola/nucleo.ahora)."""
     return time.strftime('%Y-%m-%d %H:%M:%S')
 
 
 def comprobar_destino(nombre):
+    """Lanza ValueError si el destino esta vacio o es la coleccion fuente 'documentos'."""
     if not nombre or nombre == FUENTE:
         raise ValueError(f'la promoción nunca escribe en «{FUENTE}» (es de G7B): elige otra colección de destino')
 
@@ -90,6 +96,8 @@ def promover(consola, fuente, destino, config, raiz, simular=False, fecha=None):
         else:
             nuevos += 1
         if not simular:
+            # [REVISION-OPTIMIZAR] Un update_one por documento (N viajes a MongoDB). Con muchos aprobados conviene bulk_write
+            # con UpdateOne(upsert=True).
             destino.update_one({'doc_id': d['doc_id']}, {'$set': doc}, upsert=True)
     vigentes = set(ids) - set(faltan)
     retirar = [i for i, e in existentes.items() if (e.get('auditoria') or {}).get('vigente', True) and i not in vigentes]
@@ -108,6 +116,7 @@ def promover(consola, fuente, destino, config, raiz, simular=False, fecha=None):
 
 
 def texto_resumen(r):
+    """Frase legible con el resumen de una promocion (real o simulada)."""
     verbo = 'Se escribirían' if r['simulado'] else 'Escritos'
     return (f"{verbo} en «{r['destino']}»: {r['nuevos']} nuevos y {r['actualizados']} actualizados de {r['aprobados']} aprobados; "
             f"{r['retirados']} dejan de estar vigentes; {r['faltan_en_fuente']} ya no están en la fuente."

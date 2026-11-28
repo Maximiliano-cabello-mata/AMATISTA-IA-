@@ -1,3 +1,7 @@
+# [REVISION 2026-11-27] Indexador del canon: lee los documentos de canon/canon.yml en su commit fijado, los filtra y fragmenta,
+# calcula embeddings con Ollama (bge-m3, 1024 dim.) y sincroniza con Supabase (REST, clave secreta).
+# Entradas: canon.yml, GitHub raw o clones locales, Ollama, SUPABASE_URL/SUPABASE_SECRET_KEY.
+# Salidas: tablas canon_documentos/canon_fragmentos o salidas/fragmentos.jsonl (--simulacro).
 """Indexador del canon de Amatista IA (canon/canon.yml → Supabase).
 
     python -m indexador.indexar canon/canon.yml --simulacro
@@ -41,6 +45,7 @@ VALLA = re.compile(r'^\s*(```|~~~)')
 
 
 def sha256(texto):
+    """Hash SHA-256 hexadecimal de un texto UTF-8."""
     return hashlib.sha256(texto.encode('utf-8')).hexdigest()
 
 
@@ -89,6 +94,7 @@ def filtrar_secciones(texto, excluir=(), solo=()):
 
 
 def _palabras(texto):
+    """Numero de palabras (separadas por espacios) de un texto."""
     return len(texto.split())
 
 
@@ -98,9 +104,11 @@ def fragmentar(texto, max_palabras=260):
     fragmentos, pila, bloque, buffer, en_codigo = [], [], [], [], False
 
     def ruta():
+        """Ruta de titulos actual ('A > B > C') o None."""
         return ' > '.join(t for _, t in pila) or None
 
     def cerrar_bloque():
+        """Pasa el bloque de lineas acumulado al buffer de parrafos."""
         if bloque:
             buffer.append('\n'.join(bloque).strip())
             bloque.clear()
@@ -121,6 +129,7 @@ def fragmentar(texto, max_palabras=260):
         return grupos
 
     def volcar():
+        """Convierte el buffer en fragmentos respetando max_palabras (las tablas se parten por filas)."""
         cerrar_bloque()
         actual = []
         piezas = []
@@ -166,8 +175,11 @@ def fragmentar(texto, max_palabras=260):
 
 # --- Lectura de documentos -----------------------------------------------------------------------------------------
 def leer_documento(repo, ruta, locales):
+    """Lee un documento del canon desde un clon local (git show) o desde GitHub raw. Devuelve el texto."""
     nombre, commit = repo['nombre'], repo['commit']
     if nombre in locales:
+        # [REVISION-BUG] subprocess.run(text=True) decodifica con la codificacion local (cp1252 en Windows): los .md en UTF-8
+        # con acentos pueden salir corruptos y cambiar el sha256. Sugerencia: anadir encoding='utf-8'.
         r = subprocess.run(['git', '-C', locales[nombre], 'show', f'{commit}:{ruta}'], capture_output=True, text=True)
         if r.returncode:
             raise RuntimeError(f'{nombre}:{ruta}@{commit[:7]}: {r.stderr.strip()}')
@@ -184,6 +196,7 @@ def leer_documento(repo, ruta, locales):
 
 
 def url_cruda(repo, ruta):
+    """URL de raw.githubusercontent.com para la ruta en el commit fijado del repositorio."""
     dueno_repo = urllib.parse.urlparse(repo['url']).path.strip('/')
     return f"https://raw.githubusercontent.com/{dueno_repo}/{repo['commit']}/{urllib.parse.quote(ruta)}"
 
@@ -197,6 +210,7 @@ def cabeceras_github():
 
 
 def titulo_de(texto, ruta):
+    """Primer titulo de nivel 1 del Markdown, o el nombre del archivo si no hay."""
     for _, nivel, titulo in lineas_con_titulos(texto):
         if nivel == 1:
             return titulo
@@ -224,11 +238,13 @@ def preparar(canon, locales, max_palabras):
 
 
 def entrada_embedding(doc, frag):
+    """Texto que se vectoriza: 'titulo · seccion' + texto del fragmento."""
     return f"{doc['titulo']} · {frag['seccion'] or ''}\n\n{frag['texto']}"
 
 
 # --- Ollama ---------------------------------------------------------------------------------------------------------
 def _json(url, datos=None, cabeceras=None, metodo=None, timeout=300):
+    """Peticion HTTP con cuerpo/respuesta JSON (urllib). Devuelve el JSON o None si la respuesta esta vacia."""
     cuerpo = None if datos is None else json.dumps(datos).encode('utf-8')
     req = urllib.request.Request(url, data=cuerpo, method=metodo, headers={'Content-Type': 'application/json', **(cabeceras or {})})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
@@ -237,7 +253,9 @@ def _json(url, datos=None, cabeceras=None, metodo=None, timeout=300):
 
 
 class Ollama:
+    """Cliente minimo de embeddings de Ollama; fija la version exacta del modelo por su digest."""
     def __init__(self, base, modelo):
+        """Comprueba que el modelo existe en Ollama y arma el id 'modelo@digest'."""
         self.base, self.modelo = base.rstrip('/'), modelo
         etiquetas = _json(f'{self.base}/api/tags')['models']
         m = next((x for x in etiquetas if x['name'] in (modelo, f'{modelo}:latest')), None)
@@ -246,6 +264,7 @@ class Ollama:
         self.id = f"{modelo}@{m['digest'][:12]}"   # el digest fija la versión exacta del modelo
 
     def vectores(self, textos, lote=16):
+        """Calcula vectores en lotes y valida que tengan DIMENSIONES componentes."""
         salida = []
         for i in range(0, len(textos), lote):
             r = _json(f'{self.base}/api/embed', {'model': self.modelo, 'input': textos[i:i + lote]})
@@ -258,24 +277,31 @@ class Ollama:
 
 # --- Supabase (REST, con la clave secreta) ------------------------------------------------------------------------
 class Supabase:
+    """Cliente REST minimo (PostgREST) de Supabase con la clave en la cabecera apikey."""
     def __init__(self, url, clave):
+        """Normaliza la URL base (/rest/v1) y guarda la cabecera de la clave."""
         self.base = url.rstrip('/').removesuffix('/rest/v1') + '/rest/v1'
         self.cab = {'apikey': clave}
 
     def get(self, ruta):
+        """GET a una ruta de PostgREST; devuelve el JSON."""
         return _json(f'{self.base}/{ruta}', cabeceras=self.cab)
 
     def post(self, tabla, filas, conflicto=None):
+        """POST de filas; con 'conflicto' hace upsert (merge-duplicates)."""
         q = f'?on_conflict={conflicto}' if conflicto else ''
         cab = {**self.cab, 'Prefer': 'resolution=merge-duplicates,return=minimal' if conflicto else 'return=minimal'}
         return _json(f'{self.base}/{tabla}{q}', filas, cabeceras=cab, metodo='POST')
 
     def delete(self, ruta):
+        """DELETE con filtro PostgREST en la ruta."""
         return _json(f'{self.base}/{ruta}', cabeceras={**self.cab, 'Prefer': 'return=minimal'}, metodo='DELETE')
 
 
 def sincronizar(preparado, embebedor, base, podar=False, registro=print):
     """Sube lo que cambió. Devuelve el resumen {sin_cambios, actualizados, fragmentos, podados}."""
+    # [REVISION-BUG] PostgREST limita a max_rows=1000 filas (supabase/config.toml): con mas de 1000 fragmentos estas
+    # consultas se truncan y se recalculan vectores sin necesidad. Paginar con Range/limit-offset.
     existentes = {d['id']: d['sha256'] for d in base.get('canon_documentos?select=id,sha256')}
     con_modelo = {f['documento_id'] for f in base.get(
         f"canon_fragmentos?select=documento_id&modelo_embedding=eq.{urllib.parse.quote(embebedor.id)}")}
@@ -285,6 +311,9 @@ def sincronizar(preparado, embebedor, base, podar=False, registro=print):
             resumen['sin_cambios'] += 1
             continue
         vectores = embebedor.vectores([entrada_embedding(doc, f) for f in frags])
+        # [REVISION-BUG] Escritura no atomica: el documento se sube con su nuevo sha256 ANTES de reemplazar los fragmentos.
+        # Si falla a mitad de los POST de fragmentos, la siguiente corrida lo ve 'sin cambios' (sha igual y ya tiene algun
+        # fragmento del modelo) y el indice queda incompleto para siempre. Subir el documento al final o usar una RPC transaccional.
         base.post('canon_documentos', [doc], conflicto='id')
         base.delete(f"canon_fragmentos?documento_id=eq.{urllib.parse.quote(doc['id'])}"
                     f"&modelo_embedding=eq.{urllib.parse.quote(embebedor.id)}")
@@ -305,6 +334,7 @@ def sincronizar(preparado, embebedor, base, podar=False, registro=print):
 
 
 def main(argv=None):
+    """CLI del indexador. Devuelve 0 si termina bien."""
     cargar_env()   # .env primero: los valores por omisión de los argumentos leen el entorno
     p = argparse.ArgumentParser(description='Indexa el canon de Amatista IA en Supabase.')
     p.add_argument('canon', type=Path)
@@ -324,6 +354,7 @@ def main(argv=None):
     total = sum(len(f) for _, f in preparado)
     palabras = [_palabras(x['texto']) for _, fs in preparado for x in fs]
     print(f"Canon v{canon['version']}: {len(preparado)} documentos, {total} fragmentos "
+          # [REVISION-BUG] Si el canon no produce fragmentos, sorted(palabras)[...] y max() lanzan error (lista vacia).
           f"(palabras por fragmento: mediana {sorted(palabras)[len(palabras) // 2]}, máximo {max(palabras)})")
     if a.simulacro:
         Path('salidas').mkdir(exist_ok=True)

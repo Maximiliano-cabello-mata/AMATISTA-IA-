@@ -1,3 +1,5 @@
+# [REVISION 2026-11-27] Califica corridas del revisor sobre el conjunto de control C1 con la clave sellada por SHA-256.
+# Entradas: control/clave_c1.yml, control/conjunto_c1.jsonl, resultados JSON. Salida: JSON por pantalla.
 """Califica corridas del revisor sobre el conjunto de control C1 con su clave (control/clave_c1.yml).
 
 La clave y este script se guardaron fuera del repositorio mientras corría la prueba, para que nadie ajustara nada al
@@ -12,7 +14,9 @@ from collections import Counter, defaultdict
 import yaml
 
 
+# [REVISION-MUERTO] Duplica revisor/segunda_revision.wilson_inferior (aqui devuelve None con n=0; alli 0.0).
 def wilson_inferior(k, n, z=1.64485):
+    """Limite inferior unilateral de Wilson (z=1.64485); None si n == 0."""
     if not n:
         return None
     p = k / n
@@ -20,6 +24,7 @@ def wilson_inferior(k, n, z=1.64485):
 
 
 def calificar(clave, resultados):
+    """Compara las decisiones efectivas con la clave: buenos aceptados, malos detenidos, por tipo, etc."""
     docs = clave['documentos']
     por_id = {r['doc_id']: r for r in resultados}
     faltan = [i for i in docs if i not in por_id]
@@ -45,10 +50,12 @@ def calificar(clave, resultados):
 
 
 def main(argv):
+    """Verifica la huella de la clave y del conjunto y califica cada archivo de resultados."""
     import os
     raiz = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     sello = os.path.join(raiz, 'control', 'clave_c1.sha256')
     if os.path.basename(argv[0]) == 'clave_c1.yml' and os.path.isfile(sello):
+        # [REVISION-BUG] open() sin cerrar (aqui y en las lineas 54, 55 y 59); usar with o Path.read_bytes().
         if hashlib.sha256(open(argv[0], 'rb').read()).hexdigest() != open(sello).read().strip():
             sys.exit('La clave no coincide con la huella subida antes de la prueba.')
     clave = yaml.safe_load(open(argv[0], encoding='utf-8'))

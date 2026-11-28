@@ -1,3 +1,4 @@
+# [REVISION 2026-11-27] Compara las decisiones de la IA con las de una persona en la planilla del revisor. Entrada: CSV. Salida: JSON.
 """Compara lo que propuso la IA con lo que marcó una persona en la planilla.
 
     python -m revisor.comparar salidas/prueba_revisor.csv
@@ -14,6 +15,7 @@ DECISIONES = ('aceptar', 'revision', 'rechazar')
 
 
 def comparar(filas):
+    """Acuerdo, deteccion de problemas, falsas alarmas y matriz IA vs humano de las filas marcadas."""
     marcadas = [f for f in filas if (f.get('humano_decision') or '').strip().lower() in DECISIONES]
     n = len(marcadas)
     if not n:
@@ -36,6 +38,7 @@ def comparar(filas):
 
 
 def main(argv=None):
+    """CLI: lee la planilla (por omision salidas/prueba_revisor.csv) e imprime el resumen."""
     ruta = (argv or sys.argv[1:] or ['salidas/prueba_revisor.csv'])[0]
     with open(ruta, encoding='utf-8-sig', newline='') as f:
         print(json.dumps(comparar(list(csv.DictReader(f))), ensure_ascii=False, indent=2))

@@ -1,3 +1,7 @@
+# [REVISION 2026-11-27] Segunda revision de Site 4.1: reconstruye los 70 bloques auditados con el codigo de G7B en el commit fijado
+# (git worktree en salidas/g7b-<commit>), los juzga a ciegas con un modelo local y adjudica desacuerdos.
+# Entradas: clon de amatista-g7b-etl, manual de Blender (web), canon (rubrica). Salidas: salidas/site41_bloques.jsonl,
+# salidas/segunda_revision.json/.csv.
 """Segunda revisión de la auditoría de Site 4.1: un modelo local juzga, a ciegas, los 70 bloques que etiquetó Codex.
 
     python -m revisor.segunda_revision reconstruir --g7b ../amatista-g7b-etl
@@ -29,6 +33,7 @@ from pathlib import Path
 import yaml
 
 from indexador.entorno import cargar_env
+# [REVISION-MUERTO] Import de Ollama sin uso (marcado noqa a proposito); puede quitarse.
 from indexador.indexar import Ollama  # noqa: F401  (misma instalación que el revisor)
 from revisor.revisar import Generador, descargar_canon
 
@@ -78,6 +83,9 @@ def kappa(a, b):
 
 # --- 1. Reconstruir --------------------------------------------------------------------------------------------------
 def _git(ruta, *args):
+    """Ejecuta git -C ruta ... y devuelve stdout; RuntimeError si falla."""
+    # [REVISION-BUG] text=True usa la codificacion local (cp1252 en Windows) para leer JSON UTF-8 con git show:
+    # posible UnicodeDecodeError o texto corrupto. Anadir encoding='utf-8'.
     r = subprocess.run(['git', '-C', str(ruta), *args], capture_output=True, text=True)
     if r.returncode:
         raise RuntimeError(f"git {' '.join(args)}: {r.stderr.strip()}")
@@ -117,6 +125,7 @@ def reconstruir(evidencia, anotar_pagina, pausa=0.5):
 
 def anotador_g7b(ruta_codigo):
     """Usa el extractor y el modelo Site de G7B tal como están en ese commit."""
+    # [REVISION-BUG] sys.path.insert global y permanente: los modulos de G7B quedan importados para el resto del proceso.
     sys.path.insert(0, str(ruta_codigo))
     from scrapy.http import HtmlResponse
     from motor_extraccion.site import ModeloSite
@@ -124,6 +133,7 @@ def anotador_g7b(ruta_codigo):
     modelo = ModeloSite()
 
     def anotar(url):
+        """Descarga una pagina del manual y devuelve sus bloques [{id, texto, seccion}] con el modelo Site de G7B."""
         req = urllib.request.Request(url, headers={'User-Agent': 'amatista-ia-segunda-revision'})
         with urllib.request.urlopen(req, timeout=60) as r:
             resp = HtmlResponse(url=url, body=r.read(), encoding='utf-8')
@@ -143,6 +153,7 @@ def anotador_g7b(ruta_codigo):
 
 
 def cmd_reconstruir(a):
+    """Subcomando reconstruir: worktree en el commit fijado, descarga y une por id exacto."""
     canon = yaml.safe_load(Path('canon/canon.yml').read_text(encoding='utf-8'))
     commit = canon['repositorios']['g7b']['commit']
     g7b = Path(a.g7b).resolve()
@@ -169,6 +180,7 @@ def cmd_reconstruir(a):
 
 # --- 2. Revisar ------------------------------------------------------------------------------------------------------
 def hoja_rubrica(fragmentos):
+    """Instrucciones fijas del juez con la rubrica del canon (g7b/seleccion-documental y g7b/site)."""
     rubrica = '\n\n'.join(f"[{f['documento_id']} · {f['seccion']}]\n{f['texto']}" for f in fragmentos
                           if f['documento_id'] in RUBRICA)
     if not rubrica:
@@ -191,10 +203,12 @@ Juzga solo el texto que se te muestra. Responde solo con el JSON pedido."""
 
 
 def mensaje_bloque(b):
+    """Mensaje de usuario con la seccion, URL y texto del bloque."""
     return f"BLOQUE DEL MANUAL DE BLENDER 4.5\n- sección: {b['seccion']}\n- url: {b['url']}\n\nTEXTO:\n{b['texto']}"
 
 
 def resumir(revisados):
+    """Acuerdo, kappa, matriz Codex vs IA y Wilson de las ineditas."""
     validos = [r for r in revisados if r['ia'] is not None]
     codex, ia = [r['codex_util'] for r in validos], [r['ia']['util'] for r in validos]
     ined = [r for r in validos if r['inedita']]
@@ -216,6 +230,7 @@ def resumir(revisados):
 
 
 def escribir_csv(revisados, ruta):
+    """Planilla de desacuerdos para que una persona adjudique."""
     with open(ruta, 'w', encoding='utf-8-sig', newline='') as f:
         w = csv.writer(f)
         w.writerow(['id', 'url', 'seccion', 'texto', 'inedita', 'codex_util', 'codex_motivo', 'ia_util', 'ia_falla',
@@ -230,6 +245,7 @@ def escribir_csv(revisados, ruta):
 
 
 def cmd_revisar(a):
+    """Subcomando revisar: el modelo local juzga cada bloque reconstruido."""
     url, clave = os.environ.get('SUPABASE_URL'), os.environ.get('SUPABASE_PUBLISHABLE_KEY')
     if not url or not clave:
         sys.exit('Faltan SUPABASE_URL y SUPABASE_PUBLISHABLE_KEY en .env (solo para descargar la rúbrica del canon).')
@@ -264,6 +280,7 @@ def cmd_revisar(a):
 
 # --- 3. Adjudicar ----------------------------------------------------------------------------------------------------
 def _si_no(v):
+    """Convierte 'si/no/true/false/1/0' a bool (None si no se reconoce)."""
     v = (v or '').strip().lower()
     return True if v in ('sí', 'si', 'true', '1') else False if v in ('no', 'false', '0') else None
 
@@ -295,6 +312,7 @@ def adjudicar(filas):
 
 
 def cmd_adjudicar(a):
+    """Subcomando adjudicar: imprime el resultado final con las marcas de la persona."""
     with open(a.planilla, encoding='utf-8-sig', newline='') as f:
         r = adjudicar(list(csv.DictReader(f)))
     print(json.dumps(r, ensure_ascii=False, indent=2))
@@ -302,6 +320,7 @@ def cmd_adjudicar(a):
 
 
 def main(argv=None):
+    """CLI de la segunda revision."""
     cargar_env()
     p = argparse.ArgumentParser(description='Segunda revisión de la auditoría de Site 4.1.')
     sub = p.add_subparsers(dest='cmd', required=True)

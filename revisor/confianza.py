@@ -1,3 +1,6 @@
+# [REVISION 2026-11-27] Pesos de confianza de los revisores: Beta(a,b) teorica + observada, sensibilidad/especificidad con etiquetas
+# humanas, combinacion en log-odds y puntaje de Brier. Entradas: pesos_teoricos.yml, comportamiento.yml,
+# predicciones.yml, votos o corridas. Salida: salidas/confianza.json e informe Markdown por pantalla.
 """Pesos de confianza de la IA revisora: de lo teórico a lo observado.
 
     python -m revisor.confianza
@@ -58,6 +61,7 @@ def _betacf(a, b, x):
 
 
 def beta_cdf(x, a, b):
+    """Funcion de distribucion acumulada de Beta(a, b) en x (beta incompleta regularizada)."""
     if x <= 0:
         return 0.0
     if x >= 1:
@@ -69,6 +73,7 @@ def beta_cdf(x, a, b):
 
 
 def beta_cuantil(q, a, b):
+    """Cuantil q de Beta(a, b) por biseccion (80 iteraciones)."""
     bajo, alto = 0.0, 1.0
     for _ in range(80):
         medio = (bajo + alto) / 2
@@ -77,16 +82,19 @@ def beta_cuantil(q, a, b):
 
 
 def resumen_beta(a, b):
+    """Media e intervalo del 90 % de Beta(a, b)."""
     return {'media': a / (a + b), 'intervalo_90': [beta_cuantil(0.05, a, b), beta_cuantil(0.95, a, b)], 'a': a, 'b': b}
 
 
 def actualizar(prior, exitos, total):
+    """Actualizacion conjugada: (a + exitos, b + fracasos)."""
     a, b = prior
     return a + exitos, b + (total - exitos)
 
 
 # --- Capas -----------------------------------------------------------------------------------------------------------
 def descartado(teoricos, revisor):
+    """True si el revisor (sin el sufijo @version) esta en la lista de descartados."""
     return revisor.split('@')[0] in set(teoricos.get('descartados') or [])
 
 
@@ -116,6 +124,7 @@ def capa_comportamiento(teoricos, comportamiento):
 
 
 def es_problema(decision):
+    """True si la decision es 'revision' o 'rechazar'."""
     return (decision or '').strip().lower() in PROBLEMA
 
 
@@ -162,6 +171,7 @@ def capa_acierto(teoricos, documentos):
 
 
 def combinar(documentos, acierto):
+    """Combina los votos de cada documento en P(problema) por log-odds y asigna el triaje."""
     base = acierto['tasa_problemas']['media']
     salida = []
     for d in documentos:
@@ -171,6 +181,7 @@ def combinar(documentos, acierto):
             w = acierto['revisores'][r]['peso_si_marca' if es_problema(voto) else 'peso_si_deja']
             aportes[r] = w
             logit += w
+        # [REVISION-BUG] math.exp(-logit) puede desbordar (OverflowError) con logit muy negativo (muchos votos 'deja').
         p = 1 / (1 + math.exp(-logit))
         triaje = 'proponer dejar' if p < UMBRAL_DEJAR else 'proponer revisar' if p > UMBRAL_REVISAR else 'persona'
         salida.append({**d, 'p_problema': p, 'aportes': aportes, 'triaje': triaje})
@@ -178,6 +189,7 @@ def combinar(documentos, acierto):
 
 
 def brier(predicciones):
+    """Puntaje de Brier de las predicciones ya resueltas."""
     resueltas = [x for x in predicciones if x.get('resultado') is not None]
     if not resueltas:
         return {'resueltas': 0, 'pendientes': len(predicciones), 'brier': None}
@@ -195,11 +207,13 @@ def cargar_etiquetas(ruta):
 
 
 def informe(comp, acierto, combinados, puntaje):
+    """Informe Markdown con las tres capas y el puntaje de las predicciones."""
     lineas = ['## Comportamiento comprobable por código (teórico → observado → actualizado)', '',
               '| Revisor | Señal | Teórico | Observado | Actualizado (intervalo 90 %) |', '|---|---|---:|---:|---|']
     for modelo, senales in comp.items():
         for senal, f in senales.items():
             act = f['actualizado']
+            # [REVISION-BUG] Si una senal tiene n == 0, f['observado'] es None y el formato :.2f lanza TypeError.
             lineas.append(f"| {modelo} | {senal} | {f['teorico_media']:.2f} | {f['k']}/{f['n']} = {f['observado']:.2f} | "
                           f"{act['media']:.2f} ({act['intervalo_90'][0]:.2f}–{act['intervalo_90'][1]:.2f}) |")
     lineas += ['', f"## Acierto frente a una persona ({acierto['etiquetados']} documentos con etiqueta humana)", '',
@@ -223,6 +237,7 @@ def informe(comp, acierto, combinados, puntaje):
 
 
 def main(argv=None):
+    """CLI de los pesos de confianza."""
     p = argparse.ArgumentParser(description='Pesos de confianza de la IA revisora.')
     p.add_argument('--votos', type=Path, default=RAIZ / 'votos_prueba_20.yml')
     p.add_argument('--corridas', type=Path, nargs='+', help='prueba_revisor.json de varias corridas (en vez de --votos)')

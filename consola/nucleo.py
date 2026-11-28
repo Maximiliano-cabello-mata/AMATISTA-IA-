@@ -1,3 +1,8 @@
+# [REVISION 2026-11-27] Logica pura de la consola (sin red): estado persistente en salidas/consola/estado.json, lotes JSONL,
+# cierre con muestras estratificadas, buzon de mensajes, veredicto y freno.
+# Entradas: resultados del revisor (dict), planilla.csv marcada por una persona.
+# Salidas: estado.json, lote_NNN.jsonl, carpeta de cierre (planilla.csv, muestras.html, LEEME.txt, .md).
+# Dependencias: solo biblioteca estandar.
 """Lógica de la consola de Amatista IA: estado, lotes, cierre con muestras, veredicto y freno.
 
 Todo es lógica pura sobre archivos en `salidas/consola/` (nada sale de esta computadora): se prueba sin Ollama ni
@@ -49,6 +54,9 @@ ESTADOS_DOCUMENTO = ('pendiente', 'en_cuarentena', 'aprobado', 'descartado', 'po
 
 
 def estado_documento(decision, estado_lote):
+    """Deriva el estado de un documento (en_cuarentena/aprobado/descartado/por_revisar) de la decision
+    de la IA y del estado de su lote.
+    """
     if estado_lote in (ABIERTO, ESPERANDO):
         return 'en_cuarentena'
     if estado_lote == NO_APROBADO:
@@ -63,6 +71,7 @@ def decision_normal(texto):
 
 
 def ahora():
+    """Fecha y hora local como texto 'AAAA-MM-DD HH:MM:SS'."""
     return time.strftime('%Y-%m-%d %H:%M:%S')
 
 
@@ -70,6 +79,7 @@ class Consola:
     """Estado persistente en un JSON. Se guarda después de cada cambio: si la computadora se apaga, se retoma."""
 
     def __init__(self, carpeta, config):
+        """Crea la carpeta de estado y carga estado.json (o una copia profunda de ESTADO_INICIAL)."""
         self.dir = Path(carpeta)
         self.dir.mkdir(parents=True, exist_ok=True)
         self.config = config
@@ -79,20 +89,24 @@ class Consola:
 
     # --- persistencia ------------------------------------------------------------------------------------------------
     def guardar(self):
+        """Escribe estado.json de forma atomica (archivo .tmp + os.replace)."""
         self.estado['actualizado'] = ahora()
         tmp = self.ruta_estado.with_suffix('.tmp')
         tmp.write_text(json.dumps(self.estado, ensure_ascii=False, indent=2), encoding='utf-8')
         os.replace(tmp, self.ruta_estado)
 
     def ruta_lote(self, n):
+        """Ruta del JSONL del lote n (lote_NNN.jsonl)."""
         return self.dir / f'lote_{int(n):03d}.jsonl'
 
     def lote(self, n=None):
+        """Devuelve (creandolo si no existe) el dict del lote n o del lote actual."""
         n = str(n or self.estado['lote_actual'])
         return self.estado['lotes'].setdefault(n, {'estado': ABIERTO, 'abierto': ahora(), 'documentos': 0,
                                                   'decisiones': {d: 0 for d in DECISIONES}, 'segundos': []})
 
     def resultados(self, n):
+        """Lee todos los resultados guardados del lote n (lista de dicts)."""
         ruta = self.ruta_lote(n)
         if not ruta.is_file():
             return []
@@ -102,6 +116,8 @@ class Consola:
         """doc_id de todo lo que ya pasó por el revisor, en cualquier lote."""
         vistos = set()
         for n in self.estado['lotes']:
+            # [REVISION-OPTIMIZAR] revisados()/registro() releen TODOS los lote_NNN.jsonl en cada llamada; registrar() llama a
+            # actualizar_registro() por cada documento -> I/O O(N^2) a medida que crecen los lotes. Sugerencia: cache en memoria.
             vistos.update(r.get('doc_id') for r in self.resultados(n))
         return vistos
 
@@ -118,6 +134,7 @@ class Consola:
         return list(docs.values())
 
     def resumen_registro(self, docs=None):
+        """Cuenta documentos por estado y estima los pendientes con documentos_en_fuente."""
         docs = self.registro() if docs is None else docs
         cuenta = {e: 0 for e in ESTADOS_DOCUMENTO}
         for d in docs:
@@ -127,6 +144,7 @@ class Consola:
         return {'tipo': 'conocimiento', 'en_fuente': fuente, 'revisados': len(docs), 'estados': cuenta, 'actualizado': ahora()}
 
     def actualizar_registro(self):
+        """Recalcula y guarda en memoria el resumen del registro."""
         self.estado['registro'] = self.resumen_registro()
 
     def escribir_registro(self, carpeta=None):
@@ -148,6 +166,7 @@ class Consola:
 
     # --- trabajo -----------------------------------------------------------------------------------------------------
     def esperando(self):
+        """Numeros de lote que esperan veredicto humano."""
         return [n for n, l in self.estado['lotes'].items() if l['estado'] == ESPERANDO]
 
     def puede_trabajar(self):
@@ -205,6 +224,7 @@ class Consola:
     # Solo el proceso que trabaja escribe estado.json. Los comandos de la persona dejan un mensaje en el buzón, y el
     # estado lo aplica al cargarse o en la siguiente vuelta del trabajo. Aplicar es idempotente.
     def escribir_buzon(self, tipo, datos):
+        """Deja un mensaje JSON en el buzon para que lo aplique el proceso que trabaja."""
         buzon = self.dir / 'buzon'
         buzon.mkdir(exist_ok=True)
         nombre = f"{time.strftime('%Y%m%d-%H%M%S')}-{tipo}-{random.randrange(1 << 30):08x}.json"
@@ -212,12 +232,14 @@ class Consola:
         return nombre
 
     def aplicar_buzon(self):
+        """Aplica (de forma idempotente) los mensajes del buzon aun no aplicados. Devuelve los tipos aplicados."""
         buzon = self.dir / 'buzon'
         aplicados = set(self.estado.setdefault('buzon_aplicado', []))
         cambios = []
         for ruta in sorted(buzon.glob('*.json')) if buzon.is_dir() else []:
             if ruta.name in aplicados:
                 continue
+            # [REVISION-BUG] Un archivo del buzon con JSON invalido (escritura a medias) lanza excepcion y bloquea el buzon entero.
             m = json.loads(ruta.read_text(encoding='utf-8'))
             if m['tipo'] == 'veredicto':
                 self._aplicar_veredicto(
@@ -229,6 +251,7 @@ class Consola:
             elif m['tipo'] == 'quitar_freno':
                 self.estado.update(freno=False, motivo_freno=None, fallos_seguidos=0)
                 self.estado.setdefault('bitacora', []).append({'fecha': m['fecha'], 'freno_quitado': m['motivo']})
+            # [REVISION-OPTIMIZAR] 'buzon_aplicado' crece sin limite dentro de estado.json (se reescribe completo en cada guardado).
             self.estado['buzon_aplicado'].append(ruta.name)
             cambios.append(m['tipo'])
         if cambios:
@@ -237,6 +260,7 @@ class Consola:
 
     def _aplicar_veredicto(self, n, resultado, bien, marcadas, fecha,
                            aceptados_bien=None, aceptados_total=None, retenidos_buenos=None):
+        """Registra el veredicto de un lote y pone el freno tras dos lotes no aprobados seguidos."""
         lote = self.lote(n)
         self.estado['fallos_seguidos'] = self.estado['fallos_seguidos'] + 1 if resultado == NO_APROBADO else 0
         if self.estado['fallos_seguidos'] >= 2:
@@ -276,6 +300,8 @@ class Consola:
         if n_a > 0:
             max_malos_aviso = max(1, round(n_a / 14))
             if malos_admitidos == 0:
+                # [REVISION-BUG] Inconsistencia documental: LEEME.txt y el docstring del modulo dicen '19-20 bien / 17-18 aviso', pero
+                # esta regla usa 'malos admitidos' entre los aceptados. Decidir cual es la regla oficial y alinear los textos.
                 resultado = APROBADO if bien >= round(19 / 20 * n_m) else AVISO
             elif malos_admitidos <= max_malos_aviso:
                 resultado = APROBADO if (n_a >= 19 and bien >= round(19 / 20 * n_m)) else AVISO
@@ -298,6 +324,7 @@ class Consola:
         }
 
     @staticmethod
+    # [REVISION-MUERTO] Consola.calificar solo se usa en pruebas/test_consola.py; el codigo productivo usa resumen_calificacion.
     def calificar(filas):
         """filas: la planilla marcada. Devuelve (resultado, bien, marcadas)."""
         r = Consola.resumen_calificacion(filas)
@@ -310,6 +337,7 @@ class Consola:
         return r['resultado'], r['bien'], r['marcadas']
 
     def quitar_freno(self, motivo):
+        """Pide (via buzon) quitar el freno con un motivo."""
         self.escribir_buzon('quitar_freno', {'motivo': motivo, 'fecha': ahora()})
 
 
@@ -319,6 +347,7 @@ COLUMNAS = ['n', 'doc_id', 'url', 'titulo', 'fuente', 'ia_decision', 'ia_etapa',
 
 
 def _fila(i, r):
+    """Convierte un resultado del revisor en una fila de la planilla de cierre."""
     ia = r.get('ia') or {}
     return {'n': i, 'doc_id': r.get('doc_id'), 'url': r.get('url'), 'titulo': (r.get('titulo') or '').strip(),
             'fuente': r.get('fuente'), 'ia_decision': r.get('decision_efectiva') or 'persona', 'ia_etapa': ia.get('etapa', ''),
@@ -327,6 +356,9 @@ def _fila(i, r):
 
 
 def escribir_carpeta(carpeta, n, muestra, lote):
+    """Escribe la carpeta de cierre: planilla.csv, muestras.html, para_segunda_opinion.md y LEEME.txt.
+    Devuelve las filas de la planilla.
+    """
     carpeta.mkdir(parents=True, exist_ok=True)
     filas = [_fila(i, r) for i, r in enumerate(muestra, 1)]
     with open(carpeta / 'planilla.csv', 'w', encoding='utf-8-sig', newline='') as f:
@@ -335,6 +367,8 @@ def escribir_carpeta(carpeta, n, muestra, lote):
         w.writerows(filas)
 
     tarjetas = []
+    # [REVISION-SEGURIDAD] (baja) La URL del documento va a un href sin validar el esquema (javascript:...). Es un HTML
+    # local, pero conviene aceptar solo http/https.
     for f, r in zip(filas, muestra):
         extracto = ' '.join((r.get('texto') or '').split()[:300])
         tarjetas.append(f"""<article><h2>{f['n']}. {html.escape(f['titulo'] or '(sin título)')}</h2>
@@ -375,6 +409,7 @@ article{{border:1px solid #d6d0e0;border-radius:8px;padding:12px 16px;margin:12p
 
 
 def _escritorio_windows():
+    """Ruta real del Escritorio en Windows leida del registro (soporta OneDrive); None si no aplica."""
     if os.name != 'nt':
         return None
     try:
@@ -412,6 +447,8 @@ def leer_planilla(ruta):
         texto = f.read()
     primera = texto.splitlines()[0] if texto else ''
     separador = ';' if primera.count(';') > primera.count(',') else ','
+    # [REVISION-BUG] csv.DictReader(texto.splitlines()) rompe celdas entre comillas que contienen saltos de linea
+    # (p. ej. una nota o motivo con Enter). Sugerencia: csv.DictReader(io.StringIO(texto), delimiter=separador).
     return list(csv.DictReader(texto.splitlines(), delimiter=separador))
 
 
